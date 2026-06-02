@@ -1,0 +1,50 @@
+<div class="sidebar-shell" [class.is-open]="isOpen">
+  <button
+    class="sidebar-toggle"
+    type="button"
+    (click)="toggleSidebar()"
+    [attr.aria-expanded]="isOpen"
+    aria-controls="clientSidebar"
+    aria-label="Toggle navigation"
+  >
+    <span class="toggle-bar"></span>
+    <span class="toggle-bar"></span>
+    <span class="toggle-bar"></span>
+  </button>
+
+  <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+
+  <aside id="clientSidebar" class="sidebar">
+    <div class="brand">
+      <h2 class="brand-name">Paris <span class="brand-light">Escape</span></h2>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item" routerLink="/client/home" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="nav-icon fas fa-home"></i>
+        <span class="nav-label">Home</span>
+      </a>
+      <a class="nav-item" routerLink="/client/reservations" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="nav-icon fas fa-calendar-check"></i>
+        <span class="nav-label">My Reservations</span>
+      </a>
+      <a class="nav-item" routerLink="/client/messages" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="nav-icon fas fa-message"></i>
+        <span class="nav-label">Messages</span>
+        <span class="badge">3</span>
+      </a>
+      <a class="nav-item" routerLink="/client/favorites" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="nav-icon fas fa-heart"></i>
+        <span class="nav-label">Favorites</span>
+      </a>
+      <a class="nav-item" routerLink="/client/reviews" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="nav-icon fas fa-star"></i>
+        <span class="nav-label">My Reviews</span>
+      </a>
+      <a class="nav-item" routerLink="/client/settings" routerLinkActive="active" (click)="closeSidebar()">
+        <i class="nav-icon fas fa-cog"></i>
+        <span class="nav-label">Settings</span>
+      </a>
+    </nav>
+  </aside>
+</div>

@@ -1,0 +1,38 @@
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface Review {
+  author: string;
+  avatar: string;
+  rating: number;
+  date: string;
+  comment: string;
+}
+
+@Component({
+  selector: 'app-reviews-section',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './reviews-section.component.html',
+  styleUrl: './reviews-section.component.scss'
+})
+export class ReviewsSectionComponent {
+  @Input() reviews: Review[] = [];
+  @Input() averageRating: number = 0;
+  @Input() totalReviews: number = 0;
+
+  activeFilter = 'all';
+  filters = ['All', '5 stars', '4 stars', 'With photos'];
+
+  setFilter(filter: string): void {
+    this.activeFilter = filter.toLowerCase();
+  }
+
+  getStars(rating: number): number[] {
+    return Array(rating).fill(0);
+  }
+
+  loadMore(): void {
+    // Load more reviews
+  }
+}

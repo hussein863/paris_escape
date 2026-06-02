@@ -1,0 +1,83 @@
+<div class="booking-sidebar">
+  <div class="booking-card">
+    <!-- Price Header -->
+    <div class="price-header">
+      <span class="price-label">From</span>
+      <span class="price-value">{{ currency }}{{ basePrice }}</span>
+      <span class="price-unit">/person</span>
+    </div>
+    <p class="price-label">Taxes and fees included</p>
+
+    <!-- Date Picker -->
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <div class="input-wrapper">
+        <input
+          type="date"
+          class="form-input"
+          [(ngModel)]="selectedDate"
+          placeholder="mm/dd/yyyy" />
+      </div>
+    </div>
+
+    <!-- Time Picker -->
+    <div class="form-group">
+      <label class="form-label">Time</label>
+      <div class="select-wrapper">
+        <select class="form-select" [(ngModel)]="selectedTime">
+          <option *ngFor="let time of times" [value]="time">{{ time }}</option>
+        </select>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <!-- Guests Picker -->
+    <div class="form-group">
+      <label class="form-label">Guests</label>
+      <div class="select-wrapper">
+        <select class="form-select" [(ngModel)]="guests">
+          <option *ngFor="let n of guestOptions" [value]="n">{{ n }} guest{{ n > 1 ? 's' : '' }}</option>
+        </select>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <!-- Add-ons -->
+    <div class="addons-section">
+      <label class="form-label">Add-ons</label>
+      <div class="addons-list">
+        <label *ngFor="let addOn of addOns" class="addon-item">
+          <input
+            type="checkbox"
+            [checked]="addOn.selected"
+            (change)="toggleAddOn(addOn)" />
+          <span class="addon-checkbox"></span>
+          <span class="addon-info">
+            <span class="addon-name">{{ addOn.name }}</span>
+            <span class="addon-price">+{{ currency }}{{ addOn.price }}/person</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Price Summary -->
+    <div class="price-summary">
+      <div class="summary-row">
+        <span>{{ currency }}{{ basePrice }} × {{ guests }} guests</span>
+        <span>{{ currency }}{{ basePrice * guests }}</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>{{ currency }}{{ total }}</span>
+      </div>
+    </div>
+
+    <!-- CTA Buttons -->
+    <div class="cta-buttons">
+      <button class="btn btn-primary" (click)="bookNow()">Book now</button>
+      <button class="btn btn-outline" (click)="contactGuide()">Contact the guide</button>
+    </div>
+
+    <p class="no-charge-note">You won't be charged yet</p>
+  </div>
+</div>

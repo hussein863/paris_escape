@@ -1,0 +1,391 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:host {
+  display: block;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: #f6f8fb;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  height: 100vh;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+}
+
+.app-main {
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #f9fafb;
+}
+
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  padding: 10px;
+  z-index: 30;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  background: #0f172a;
+  border-radius: 999px;
+}
+
+.backdrop {
+  display: none;
+}
+
+.sidebar-open .backdrop {
+  display: block;
+}
+
+.create-experience-page {
+  // max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  overflow-x: hidden;
+}
+
+// Header
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.header-info h1 {
+  margin: 0 0 4px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.step-info {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-secondary,
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn-primary {
+  background: #111;
+  color: #fff;
+  border: 1px solid #111;
+}
+
+.btn-primary:hover {
+  background: #000;
+}
+
+// Stepper
+.stepper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 48px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.step.active .step-circle {
+  background: #111;
+  color: #fff;
+}
+
+.step.completed .step-circle {
+  background: #111;
+  color: #fff;
+}
+
+.step-line {
+  flex: 1;
+  height: 3px;
+  background: #e5e7eb;
+  margin: 0 8px;
+}
+
+.step.completed .step-line {
+  background: #111;
+}
+
+// Step Content
+.step-content {
+  background: none;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.step-panel h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.step-panel > p {
+  margin: 0 0 32px;
+  font-size: 15px;
+  color: #64748b;
+}
+
+// Verification Warning
+.verification-warning {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: #fff6e5;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  margin-top: 24px;
+}
+
+.verification-warning > i {
+  color: #f59e0b;
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warning-content h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.warning-content p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.btn-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+  background: #d97706;
+}
+
+// Responsive
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell.sidebar-open {
+    overflow: hidden;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    z-index: 25;
+    overflow-y: auto;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 20;
+  }
+
+  .create-experience-page {
+    padding-top: 80px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .stepper {
+    padding: 0 20px;
+    overflow-x: auto;
+  }
+
+  .step-content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-info h1 {
+    font-size: 24px;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .stepper {
+    padding: 0 10px;
+  }
+
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 415px) {
+  .stepper {
+    width: 100%;
+    padding: 0 8px;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .step-line {
+    margin: 0 4px;
+    height: 2px;
+  }
+}
+
+@media (max-width: 390px) {
+  .create-experience-page {
+    padding: 16px 12px;
+  }
+
+  .header-info h1 {
+    font-size: 20px;
+  }
+
+  .step-info {
+    font-size: 12px;
+  }
+
+  .btn-secondary,
+  .btn-primary {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .step-content {
+    padding: 20px;
+  }
+
+  .step-panel h2 {
+    font-size: 20px;
+  }
+
+  .verification-warning {
+    flex-direction: column;
+  }
+}

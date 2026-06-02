@@ -1,0 +1,12 @@
+<section class="faq-section">
+  <h2 class="section-title">Frequently asked questions</h2>
+  
+  <div class="faq-list">
+    <div 
+      *ngFor="let faq of faqs" 
+      class="faq-item">
+      <div class="faq-question">{{ faq.question }}</div>
+      <div class="faq-answer">{{ faq.answer }}</div>
+    </div>
+  </div>
+</section>

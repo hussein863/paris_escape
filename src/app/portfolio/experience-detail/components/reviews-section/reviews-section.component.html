@@ -1,0 +1,45 @@
+<section class="reviews-section">
+  <div class="reviews-header">
+    <h2 class="section-title">Reviews</h2>
+    <div class="rating-summary">
+      <i class="fas fa-star"></i>
+      <span class="rating-value">{{ averageRating }}</span>
+      <span class="rating-count">({{ totalReviews }} reviews)</span>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button 
+      *ngFor="let filter of filters" 
+      class="filter-btn" 
+      [class.active]="activeFilter === filter.toLowerCase()"
+      (click)="setFilter(filter)">
+      {{ filter }}
+    </button>
+  </div>
+
+  <div class="reviews-list">
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-layout">
+        <img [src]="review.avatar" [alt]="review.author" class="reviewer-avatar" />
+        
+        <div class="review-content-wrapper">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <span class="reviewer-name">{{ review.author }}</span>
+              <div class="reviewer-rating">
+                <i class="fas fa-star" *ngFor="let star of getStars(review.rating)"></i>
+              </div>
+            </div>
+            <span class="review-date">{{ review.date }}</span>
+          </div>
+          <p class="review-content">{{ review.comment }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="load-more-btn" (click)="loadMore()">
+    Load more reviews
+  </button>
+</section>

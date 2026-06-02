@@ -1,0 +1,124 @@
+<div class="reservations-shell">
+  <app-client-header></app-client-header>
+
+  <div class="reservations-page">
+    <header class="page-header">
+      <h1 class="page-title">My Reservations</h1>
+    </header>
+
+    <div class="tabs">
+      <button
+        type="button"
+        class="tab"
+        *ngFor="let tab of tabs"
+        [class.active]="activeTab === tab.key"
+        (click)="setActiveTab(tab.key)"
+      >
+        {{ tab.label }} ({{ tab.count }})
+      </button>
+    </div>
+
+    <section class="reservations-list">
+      <article class="reservation-card" *ngFor="let reservation of filteredReservations">
+        <div class="card-media">
+          <img [src]="reservation.imageUrl" [alt]="reservation.title">
+        </div>
+
+        <div class="card-body">
+          <div class="card-top">
+            <div class="card-info">
+              <h3 class="card-title">{{ reservation.title }}</h3>
+
+              <div class="meta-row">
+                <i class="fas fa-calendar"></i>
+                <span>
+                  {{ reservation.date }} at {{ reservation.time }} ({{ reservation.timeZone }})
+                </span>
+                <span class="meta-badge" *ngIf="reservation.badge">{{ reservation.badge }}</span>
+              </div>
+
+              <div class="meta-row">
+                <img [src]="reservation.guideAvatar" [alt]="reservation.guide" class="guide-avatar">
+                <span>Guide: {{ reservation.guide }}</span>
+              </div>
+
+              <div class="meta-row">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ reservation.location }}</span>
+              </div>
+
+              <div class="meta-row cancellation">
+                <i class="fa-solid fa-clock"></i>
+                <span>{{ reservation.cancellation }}</span>
+              </div>
+            </div>
+
+            <div class="card-price">
+              <span
+                class="status-pill"
+                [class.confirmed]="reservation.status === 'Confirmed'"
+                [class.pending]="reservation.status === 'Pending'"
+                [class.cancelled]="reservation.status === 'Cancelled'"
+                [class.disputed]="reservation.status === 'Disputed'"
+              >
+                {{ reservation.status }}
+              </span>
+              <div class="price">&euro;{{ reservation.price }}</div>
+              <div class="booking">Booking #{{ reservation.bookingId }}</div>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn primary">
+              View Details
+            </button>
+            <button class="btn black">
+              <i class="fas fa-qrcode"></i>
+              QR Code
+            </button>
+            <button class="btn outline">
+              <i class="fas fa-message"></i>
+              Contact Guide
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <div class="empty-state" *ngIf="filteredReservations.length === 0">
+        No reservations in this category yet.
+      </div>
+    </section>
+
+    <section class="recently-viewed">
+      <h2 class="section-title">Recently Viewed</h2>
+      <div class="recent-grid">
+        <article class="recent-card" *ngFor="let item of recentlyViewed">
+          <div class="recent-image">
+            <img [src]="item.imageUrl" [alt]="item.title">
+          </div>
+          <div class="recent-content">
+            <h3>{{ item.title }}</h3>
+            <p>From &euro;{{ item.price }} &bull; {{ item.duration }}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="support-card">
+      <div class="support-text">
+        <h3>Need Help with Your Reservations?</h3>
+        <p>Our support team is here to assist you with any questions</p>
+      </div>
+      <div class="support-actions">
+        <button class="btn primary">
+          <i class="fas fa-headset"></i>
+          Contact Support
+        </button>
+        <button class="btn outline">
+          <i class="fas fa-book"></i>
+          FAQs
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

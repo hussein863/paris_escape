@@ -1,0 +1,328 @@
+<div class="step-basics">
+  <div class="content-grid">
+    <!-- Left Column - Form -->
+    <div class="form-column">
+      <!-- Basic Information -->
+      <section class="form-section">
+        <h2>Basic Information</h2>
+
+        <!-- Experience Title -->
+        <div class="form-group">
+          <label for="title">Experience title <span
+              class="required">*</span></label>
+          <input
+            id="title"
+            type="text"
+            class="form-input"
+            placeholder="e.g., Montmartre Art & Culture Walk"
+            [(ngModel)]="formData.title"
+            (ngModelChange)="onDataChange()" />
+        </div>
+
+        <!-- Short Description -->
+        <div class="form-group">
+          <label for="shortDesc">Short description <span
+              class="required">*</span></label>
+          <textarea
+            id="shortDesc"
+            class="form-textarea"
+            rows="3"
+            maxlength="150"
+            placeholder="Brief description that appears on cards (max 150 characters)"
+            [(ngModel)]="formData.shortDescription"
+            (ngModelChange)="onDataChange()"></textarea>
+          <div class="char-count">{{shortDescriptionLength}}/150
+            characters</div>
+        </div>
+
+        <!-- Long Description -->
+        <div class="form-group">
+          <label for="longDesc">Long description <span
+              class="required">*</span></label>
+          <div class="label-subtitle">What you will do</div>
+          <textarea
+            id="longDesc"
+            class="form-textarea"
+            rows="5"
+            placeholder="Describe the main activities and experience"
+            [(ngModel)]="formData.longDescription"
+            (ngModelChange)="onDataChange()"></textarea>
+        </div>
+
+        <!-- Highlights -->
+        <div class="form-group">
+          <div class="label-subtitle">Highlights</div>
+          <textarea
+            id="highlights"
+            class="form-textarea"
+            rows="4"
+            placeholder="Key highlights and unique aspects"
+            [(ngModel)]="formData.highlights"
+            (ngModelChange)="onDataChange()"></textarea>
+        </div>
+
+        <!-- Who This Is For -->
+        <div class="form-group">
+          <div class="label-subtitle">Who this is for</div>
+          <textarea
+            id="whoFor"
+            class="form-textarea"
+            rows="3"
+            placeholder="Target audience and ideal participants"
+            [(ngModel)]="formData.whoThisIsFor"
+            (ngModelChange)="onDataChange()"></textarea>
+        </div>
+
+        <!-- Category and Subcategory -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Category <span
+                class="required">*</span></label>
+            <select
+              id="category"
+              class="form-select"
+              [(ngModel)]="formData.category"
+              (ngModelChange)="onDataChange()">
+              <option value>Select category</option>
+              <option value="art-culture">Art & Culture</option>
+              <option value="food-wine">Food & Wine</option>
+              <option value="photography">Photography</option>
+              <option value="nature">Nature & Outdoor</option>
+              <option value="history">History</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="subcategory">Subcategory</label>
+            <select
+              id="subcategory"
+              class="form-select"
+              [(ngModel)]="formData.subcategory"
+              (ngModelChange)="onDataChange()">
+              <option value>Select subcategory</option>
+              <option value="walking-tour">Walking Tour</option>
+              <option value="museum">Museum Visit</option>
+              <option value="workshop">Workshop</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="form-group">
+          <label for="tags">Tags</label>
+          <input
+            id="tags"
+            type="text"
+            class="form-input"
+            placeholder="Add tags separated by commas (e.g., romantic, family-friendly, photo)"
+            [(ngModel)]="formData.tags"
+            (ngModelChange)="onDataChange()" />
+          <div class="help-text">Tags help travelers find your experience</div>
+        </div>
+
+        <!-- Difficulty and Duration -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="difficulty">Difficulty level <span
+                class="required">*</span></label>
+            <select
+              id="difficulty"
+              class="form-select"
+              [(ngModel)]="formData.difficulty"
+              (ngModelChange)="onDataChange()">
+              <option value>Select difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="moderate">Moderate</option>
+              <option value="challenging">Challenging</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Duration <span
+                class="required">*</span></label>
+            <div class="duration-input">
+              <input
+                id="duration"
+                type="number"
+                class="form-input-small"
+                min="0.5"
+                step="0.5"
+                placeholder="2"
+                (ngModelChange)="onDataChange()" />
+              <select
+                class="form-select-small"
+                [(ngModel)]="formData.durationUnit"
+                (ngModelChange)="onDataChange()">
+                <option value="hours">hours</option>
+                <option value="minutes">minutes</option>
+                <option value="days">days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="form-group">
+          <label>Languages spoken during tour <span
+              class="required">*</span></label>
+          <div class="language-pills">
+            <button
+              type="button"
+              class="pill-button"
+              *ngFor="let lang of availableLanguages"
+              [class.selected]="isLanguageSelected(lang)"
+              (click)="toggleLanguage(lang)">
+              <i class="fa-solid fa-plus"></i>
+              {{lang}}
+            </button>
+          </div>
+        </div>
+
+        <!-- Group Size -->
+        <div class="form-group">
+          <label>Group size <span class="required">*</span></label>
+          <div class="form-row">
+            <div class="form-subgroup">
+              <div class="sublabel">Minimum</div>
+              <input
+                type="number"
+                class="form-input"
+                min="1"
+                placeholder="1"
+                (ngModelChange)="onDataChange()" />
+            </div>
+            <div class="form-subgroup">
+              <div class="sublabel">Maximum</div>
+              <input
+                type="number"
+                class="form-input"
+                min="1"
+                placeholder="8"
+                (ngModelChange)="onDataChange()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="form-group">
+          <label>Accessibility</label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="formData.strollerFriendly"
+                (ngModelChange)="onDataChange()" />
+              <span>Stroller friendly</span>
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="formData.wheelchairAccessible"
+                (ngModelChange)="onDataChange()" />
+              <span>Wheelchair accessible</span>
+            </label>
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="formData.hasMinAge"
+                (ngModelChange)="onDataChange()" />
+              <span>Minimum age requirement</span>
+              <input
+                *ngIf="formData.hasMinAge"
+                type="number"
+                class="age-input"
+                min="0"
+                [(ngModel)]="formData.minAge"
+                (ngModelChange)="onDataChange()" />
+              <span *ngIf="formData.hasMinAge">years</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Meeting Point -->
+      <section class="form-section">
+        <h2>Meeting Point</h2>
+
+        <div class="form-group">
+          <label for="meetingPoint">Select meeting point <span
+              class="required">*</span></label>
+          <select
+            id="meetingPoint"
+            class="form-select"
+            [(ngModel)]="formData.meetingPoint"
+            (ngModelChange)="onDataChange()">
+            <option value>Choose from your presets</option>
+            <option value="place1">Eiffel Tower Main Entrance</option>
+            <option value="place2">Notre-Dame Square</option>
+            <option value="place3">Montmartre Sacré-Cœur</option>
+          </select>
+        </div>
+
+        <div class="divider">or</div>
+
+        <button type="button" class="add-meeting-point">
+          <i class="fa-solid fa-plus"></i>
+          Add new meeting point
+        </button>
+      </section>
+    </div>
+
+    <!-- Right Column - Preview -->
+    <div class="preview-column">
+      <div class="preview-card">
+        <h3>Preview</h3>
+
+        <div style="border: 1px solid rgba(229, 231, 235, 1);
+    border-radius: 13px;">
+          <div class="preview-image">
+            <i class="fa-regular fa-image"></i>
+          </div>
+
+          <div class="preview-content">
+            <h4 class="preview-title">{{formData.title ||
+              'Experience Title'}}</h4>
+            <p class="preview-meta">
+              {{formData.category || 'Category'}} • {{formData.durationValue ||
+              'Duration'}}
+            </p>
+            <div class="preview-rating-row">
+              <div class="preview-rating">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <span class="new-badge">(New)</span>
+              </div>
+              <i class="fa-regular fa-heart heart-icon"></i>
+            </div>
+            <div class="preview-price">From €--</div>
+          </div>
+        </div>
+
+        <div class="preview-checklist">
+          <p class="checklist-title">Complete the form to see your preview
+            update</p>
+          <div class="checklist-item" [class.complete]="formData.title">
+            <span>Title</span>
+            <span class="dot"></span>
+          </div>
+          <div class="checklist-item"
+            [class.complete]="formData.shortDescription">
+            <span>Description</span>
+            <span class="dot"></span>
+          </div>
+          <div class="checklist-item" [class.complete]="formData.category">
+            <span>Category</span>
+            <span class="dot"></span>
+          </div>
+          <div class="checklist-item" [class.complete]="formData.durationValue">
+            <span>Duration</span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

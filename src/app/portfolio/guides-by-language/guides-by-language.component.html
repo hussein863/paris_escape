@@ -1,0 +1,27 @@
+<section class="guides-by-language">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Guides by language</h2>
+      <button class="view-all-btn" (click)="onViewAllGuides()">
+        View all guides
+      </button>
+    </div>
+
+    <div class="language-filters">
+      <button 
+        *ngFor="let language of languages"
+        class="language-btn"
+        [class.active]="selectedLanguage === language"
+        (click)="selectLanguage(language)">
+        {{ language }}
+      </button>
+    </div>
+
+    <div class="guides-grid">
+      <app-card-person 
+        *ngFor="let guide of filteredGuides" 
+        [guide]="guide">
+      </app-card-person>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,15 @@
+<div class="card" *ngIf="experience">
+  <div class="card-image-wrapper">
+    <img [src]="experience.image" [alt]="experience.title" class="card-image">
+  </div>
+
+  <div class="card-content">
+    <h3 class="card-title">{{ experience.title }}  <i class="far fa-heart"></i> </h3>
+    <p class="card-description">{{ experience.description }}</p>
+    
+    <div class="card-rating">
+      <i class="fas fa-star"></i>
+      <span class="rating-value">{{ experience.rating.toFixed(1) }}</span>
+    </div>
+  </div>
+</div>

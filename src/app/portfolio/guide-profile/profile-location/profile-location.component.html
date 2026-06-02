@@ -1,0 +1,41 @@
+<section class="profile-location">
+  <h2 class="section-title">Location & Meeting</h2>
+
+  <div class="map-container">
+    <div class="map-placeholder">
+      <img src="assets/images/map.svg" alt="Map">
+    </div>
+  </div>
+
+  <div class="location-details">
+    <div class="detail-item">
+      <div class="detail-icon">
+        <i class="fas fa-map-marker-alt"></i>
+      </div>
+      <div class="detail-content">
+        <h4>{{ guide.meetingPoint.name }}</h4>
+        <p>{{ guide.meetingPoint.address }}</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon">
+        <i class="fas fa-car"></i>
+      </div>
+      <div class="detail-content">
+        <h4>Pickup Options</h4>
+        <p>{{ guide.pickupOptions }}</p>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <div class="detail-icon">
+        <i class="fas fa-wheelchair"></i>
+      </div>
+      <div class="detail-content">
+        <h4>Accessibility</h4>
+        <p>{{ guide.accessibility }}</p>
+      </div>
+    </div>
+  </div>
+</section>

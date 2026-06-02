@@ -1,0 +1,192 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="settings-page">
+      <header class="page-header">
+        <h1 class="page-title">Settings</h1>
+      </header>
+
+      <div class="settings-tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'profile'"
+          (click)="setTab('profile')">
+          Profile and business
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'notifications'"
+          (click)="setTab('notifications')">
+          Notifications
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'calendar'"
+          (click)="setTab('calendar')">
+          Calendar and availability
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'integrations'"
+          (click)="setTab('integrations')">
+          Integrations
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'privacy'"
+          (click)="setTab('privacy')">
+          Privacy and security
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'danger'"
+          (click)="setTab('danger')">
+          Data and danger zone
+        </button>
+      </div>
+
+      <div class="settings-content" *ngIf="activeTab === 'profile'">
+        <!-- Profile Visibility -->
+        <div class="settings-section">
+          <h2 class="section-title">Profile Visibility</h2>
+          <div class="visibility-toggle">
+            <button
+              class="toggle-btn"
+              [class.active]="profileVisibility === 'public'"
+              (click)="setVisibility('public')">
+              Public
+            </button>
+            <button
+              class="toggle-btn"
+              [class.active]="profileVisibility === 'hidden'"
+              (click)="setVisibility('hidden')">
+              Hidden
+            </button>
+          </div>
+          <p class="section-description">When public, your profile appears in search results and can receive bookings</p>
+        </div>
+
+        <!-- Basic Information -->
+        <div class="settings-section">
+          <h2 class="section-title">Basic Information</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">Display Name</label>
+              <input type="text" class="field-input" value="Marie Dubois" placeholder="Your display name">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Headline</label>
+              <input type="text" class="field-input" value="Local Parisian guide specializing in food and culture" placeholder="Your headline">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Company Name (optional)</label>
+              <input type="text" class="field-input" placeholder="Your company name">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Timezone</label>
+              <select class="field-select">
+                <option>Europe/Paris (UTC+1)</option>
+                <option>Europe/London (UTC+0)</option>
+                <option>America/New_York (UTC-5)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Details -->
+        <div class="settings-section">
+          <h2 class="section-title">Business Details</h2>
+          <div class="form-field full-width">
+            <label class="field-label">Billing Address</label>
+            <textarea class="field-textarea" rows="3" placeholder="Your billing address">123 Rue de la Paix
+75001 Paris, France</textarea>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">SIRET</label>
+              <input type="text" class="field-input" placeholder="12345678901234">
+            </div>
+            <div class="form-field">
+              <label class="field-label">VAT Number</label>
+              <input type="text" class="field-input" placeholder="FR12345678901">
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="settings-section">
+          <h2 class="section-title">Preferences</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">Preferred Language</label>
+              <select class="field-select">
+                <option>Français (FR)</option>
+                <option>English (EN)</option>
+                <option>Español (ES)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="field-label">Currency</label>
+              <select class="field-select">
+                <option>EUR (€)</option>
+                <option>USD ($)</option>
+                <option>GBP (£)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field full-width">
+            <label class="field-label">Public Contact Options</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [checked]="showEmail" (change)="showEmail = !showEmail">
+                <span class="checkbox-text">Show email on public profile</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [checked]="showPhone" (change)="showPhone = !showPhone">
+                <span class="checkbox-text">Show phone number on public profile</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Tools -->
+        <div class="settings-section">
+          <h2 class="section-title">Profile Tools</h2>
+          <div class="tools-grid">
+            <button class="tool-btn">
+              <i class="fas fa-copy"></i>
+              Copy Profile URL
+            </button>
+            <button class="tool-btn">
+              <i class="fas fa-qrcode"></i>
+              Download QR Code
+            </button>
+            <button class="tool-btn">
+              <i class="fa-solid fa-map-pin"></i>
+              Manage Meeting Points
+            </button>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="save-section">
+          <button class="save-btn" (click)="saveChanges()">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="settings-content" *ngIf="activeTab !== 'profile'">
+        <div class="placeholder-content">
+          <p class="placeholder-text">{{ activeTab }} settings coming soon...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

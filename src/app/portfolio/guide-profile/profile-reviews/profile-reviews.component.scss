@@ -1,0 +1,306 @@
+.profile-reviews {
+  background: white;
+  border-radius: 12px;
+
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+    border-radius: 0;
+  }
+}
+
+.reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.write-review-btn {
+  padding: 10px 20px;
+  background: white;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #1a1a1a;
+    color: white;
+  }
+}
+
+.reviews-summary {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.rating-overview {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 20px;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+.rating-score {
+  text-align: center;
+
+  @media (max-width: 480px) {
+    text-align: left;
+  }
+
+  .score {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1a1a1a;
+    display: block;
+
+    @media (max-width: 480px) {
+      font-size: 36px;
+    }
+  }
+
+  .stars {
+    color: #f59e0b;
+    font-size: 14px;
+    margin: 4px 0;
+
+    i {
+      margin: 0 1px;
+    }
+  }
+
+  .total {
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.rating-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar-label {
+  width: 30px;
+  font-size: 13px;
+  color: #4B5563;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  i {
+    font-size: 10px;
+    color: #888;
+  }
+}
+
+.bar-container {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #000000;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+
+  &.highlight {
+    background: #000000;
+  }
+}
+
+.bar-count {
+  width: 40px;
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #1a1a1a;
+  }
+
+  &.active {
+    background: #1a1a1a;
+    color: white;
+    border-color: #1a1a1a;
+  }
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.review-card {
+  border: 1px solid #E5E7EB;
+  padding: 25px;
+  border-radius: 16px;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
+}
+
+.review-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+  }
+}
+
+.reviewer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.review-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+.reviewer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reviewer-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
+}
+
+.reviewer-rating {
+  display: flex;
+  gap: 2px;
+  color: #f59e0b;
+  font-size: 12px;
+
+  i {
+    margin-right: 2px;
+  }
+}
+
+.review-date {
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tour-name {
+  display: block;
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.review-content {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.load-more-btn {
+  width: 100%;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}

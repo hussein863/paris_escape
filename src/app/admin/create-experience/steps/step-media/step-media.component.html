@@ -1,0 +1,268 @@
+<div class="step-media">
+  <div class="content-grid">
+    <!-- Left Column - Form -->
+    <div class="form-column">
+      <!-- Media Plan -->
+      <section class="media-plan">
+        <div class="plan-header">
+          <h3>Media Plan</h3>
+          <div class="plan-info">
+            <span class="plan-name" style="display: flex;
+    align-items: center;">{{mediaPlan.plan}}</span>
+            <span
+              class="plan-usage">{{mediaPlan.slotsUsed}}/{{mediaPlan.totalSlots}}
+              slots used</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+        </div>
+        <div class="plan-footer">
+          <span class="slots-remaining">{{slotsRemaining}} slots
+            remaining</span>
+          <button class="upgrade-link" (click)="upgradePlan()">Upgrade
+            Plan</button>
+        </div>
+      </section>
+
+      <!-- Cover Image -->
+      <section class="form-section">
+        <h2>Cover Image <span class="required">*</span></h2>
+
+        <div class="upload-area" *ngIf="!coverImage">
+          <input
+            type="file"
+            id="coverImage"
+            accept="image/*"
+            (change)="onCoverImageSelect($event)"
+            hidden />
+          <label for="coverImage" class="upload-label">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p><strong>Click to upload</strong> or drag and drop</p>
+            <p class="upload-hint">PNG, JPG up to 10MB. Recommended
+              1200×800px</p>
+          </label>
+        </div>
+
+        <div class="uploaded-image" *ngIf="coverImage">
+          <img [src]="coverImage.url"
+            [alt]="coverImage.caption || 'Cover image'" />
+          <button class="remove-btn" (click)="removeCoverImage()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Photo Gallery -->
+      <section class="form-section">
+        <div class="section-header">
+          <h2>Photo Gallery</h2>
+          <span class="photo-count">{{galleryPhotos.length}} photos
+            uploaded</span>
+        </div>
+
+        <div class="photo-grid">
+          <div class="photo-item" *ngFor="let photo of galleryPhotos">
+            <img [src]="photo.url" [alt]="photo.caption || 'Gallery photo'" />
+            <input
+              type="text"
+              class="caption-input"
+              placeholder="Add caption..."
+              [(ngModel)]="photo.caption"
+              (ngModelChange)="updateCaption(photo.id, photo.caption)" />
+          </div>
+
+          <div class="add-photo" *ngIf="slotsRemaining > 0">
+            <input
+              type="file"
+              id="galleryPhotos"
+              accept="image/*"
+              multiple
+              (change)="onGalleryPhotoSelect($event)"
+              hidden />
+            <label for="galleryPhotos" class="add-photo-label">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Photo</span>
+            </label>
+          </div>
+
+          <div class="add-photo" *ngIf="slotsRemaining > 0">
+            <input
+              type="file"
+              id="galleryPhotos2"
+              accept="image/*"
+              multiple
+              (change)="onGalleryPhotoSelect($event)"
+              hidden />
+            <label for="galleryPhotos2" class="add-photo-label">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Photo</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Photo Tips -->
+        <div class="tips-box">
+          <div class="tips-icon">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+          <div class="tips-content">
+            <h4>Photo tips</h4>
+            <ul>
+              <li *ngFor="let tip of photoTips">{{tip}}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Video Teaser -->
+      <section class="form-section">
+        <h2>Video Teaser</h2>
+
+        <div class="upload-area video-upload" *ngIf="!videoTeaser">
+          <input
+            type="file"
+            id="videoTeaser"
+            accept="video/*"
+            (change)="onVideoSelect($event)"
+            hidden />
+          <label for="videoTeaser" class="upload-label">
+            <i class="fa-solid fa-video"></i>
+            <p><strong>Upload video teaser</strong></p>
+            <p class="upload-hint">MP4, MOV up to 50MB. Duration: 30-60
+              seconds</p>
+            <p class="optional-note">Optional but recommended - videos increase
+              bookings by 40%</p>
+          </label>
+        </div>
+
+        <div class="uploaded-video" *ngIf="videoTeaser">
+          <video [src]="videoTeaser.url" controls></video>
+          <button class="remove-btn" (click)="removeVideoTeaser()">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 360° Media -->
+      <section class="form-section premium-section">
+        <div class="premium-header">
+          <h2>360° Media</h2>
+          <span class="premium-badge">Premium</span>
+        </div>
+
+        <div class="premium-content">
+          <i class="fa-solid fa-crown"></i>
+          <h3>Unlock 360° Media</h3>
+          <p>Add immersive 360° photos and videos to give travelers a complete
+            preview of your experience.</p>
+          <button class="btn-premium" (click)="upgradeToPremium()">
+            Upgrade to Premium
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column - Preview -->
+    <div class="preview-column">
+      <!-- Media Preview -->
+      <div class="preview-card">
+        <h3>Media Preview</h3>
+
+        <div style="border: 1px solid rgba(229, 231, 235, 1);
+    border-radius: 13px;">
+          <div class="preview-image">
+            <img
+              src="/assets/images/3318308e4a5ae77766100115d8d2d8e7f6518919.png"
+              alt="Cover preview" />
+          </div>
+
+          <div class="preview-content">
+            <h4 class="preview-title">Montmartre Art & Culture Walk</h4>
+            <p class="preview-meta">Art & Culture • 2 hours</p>
+            <div class="preview-rating">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <span class="new-badge">(New)</span>
+            </div>
+            <div class="preview-price">From €45</div>
+          </div>
+        </div>
+        <div class="media-completion">
+          <p class="completion-title">Media completion</p>
+          <div class="completion-item"
+            [class.complete]="mediaCompletion.coverImage">
+            <span>Cover image</span>
+            <span class="check-icon" *ngIf="mediaCompletion.coverImage">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="completion-item"
+            [class.complete]="mediaCompletion.galleryPhotos">
+            <span>Gallery photos</span>
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="completion-item"
+            [class.complete]="mediaCompletion.videoTeaser">
+            <span>Video teaser</span>
+            <span class="check-icon" *ngIf="mediaCompletion.videoTeaser">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <i class="fas fa-circle" style="color: rgba(209, 213, 219, 1);"></i>
+          </div>
+          <div class="completion-item"
+            [class.complete]="mediaCompletion.media360">
+            <span>360° media</span>
+            <span class="check-icon" *ngIf="mediaCompletion.media360">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <i class="fas fa-circle" style="color: rgba(209, 213, 219, 1);"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gallery Preview -->
+      <div class="preview-card" *ngIf="galleryPhotos.length > 0">
+        <h3>Gallery Preview</h3>
+        <div class="gallery-grid">
+          <div class="gallery-item"
+            *ngFor="let photo of galleryPhotos.slice(0, 4)">
+            <img [src]="photo.url" [alt]="photo.caption || 'Gallery photo'" />
+          </div>
+        </div>
+        <p class="gallery-note"> +2 more
+          photos in gallery</p>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="preview-card tips-card">
+        <h3>Quick Tips</h3>
+        <ul class="tips-list">
+          <li *ngFor="let tip of quickTips">
+            <i class="fa-solid fa-check"></i>
+            <span>{{tip}}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Need Help -->
+      <div class="preview-card-2 help-card">
+        <div class="help-icon">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div class="help-content">
+          <h4>Need help?</h4>
+          <p>Contact our support team for guidance on creating the perfect media
+            gallery.</p>
+          <button class="btn-contact" (click)="contactSupport()">
+            Contact Support
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

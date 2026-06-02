@@ -1,0 +1,270 @@
+<div class="checkout-container">
+  <app-header></app-header>
+  
+  <div class="checkout-content">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/client/home">Home</a>
+      <i class="fas fa-chevron-right"></i>
+      <a href="/client/experiences">Experiences</a>
+      <i class="fas fa-chevron-right"></i>
+      <a href="#">Private Louvre Tour</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Checkout</span>
+    </nav>
+
+    <!-- Page Title -->
+    <h1 class="page-title">Complete Your Booking</h1>
+
+    <div class="checkout-grid">
+      <!-- Left Column -->
+      <div class="checkout-main">
+        <!-- Step Indicator -->
+        <div class="steps-indicator">
+          <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+            <div class="step-circle">
+              <div class="step-number">1</div>
+            </div>
+            <div class="step-label">Review & Details</div>
+          </div>
+          <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+            <div class="step-circle">
+              <div class="step-number">2</div>
+            </div>
+            <div class="step-label">Payment</div>
+          </div>
+          <div class="step" [class.active]="currentStep >= 3">
+            <div class="step-circle">
+              <div class="step-number">3</div>
+            </div>
+            <div class="step-label">Confirmation</div>
+          </div>
+        </div>
+
+        <!-- Your Experience -->
+        <section class="checkout-card">
+          <h2 class="card-title">Your Experience</h2>
+          <div class="experience-info">
+            <img [src]="experienceImage" [alt]="experienceTitle" class="experience-image">
+            <div class="experience-details">
+              <h3>{{ experienceTitle }}</h3>
+              <div class="detail-row">
+                <i class="far fa-calendar"></i>
+                <span>{{ experienceDate }}</span>
+              </div>
+              <div class="detail-row">
+                <i class="far fa-clock"></i>
+                <span>{{ experienceTime }}</span>
+              </div>
+              <div class="detail-row">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ experienceLocation }}</span>
+              </div>
+              <div class="detail-row">
+                <i class="fas fa-language"></i>
+                <span>{{ experienceLanguages }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Guests -->
+        <section class="checkout-card">
+          <h2 class="card-title">Guests</h2>
+          <div class="guest-selector">
+            <span class="guest-label">Adults</span>
+            <div class="counter">
+              <button class="counter-btn" (click)="decrementAdults()">-</button>
+              <span class="counter-value">{{ adultsCount }}</span>
+              <button class="counter-btn" (click)="incrementAdults()">+</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Selected Add-ons -->
+        <section class="checkout-card" *ngIf="selectedAddons.length > 0">
+          <h2 class="card-title">Selected Add-ons</h2>
+          <div class="addons-list">
+            <div class="addon-item" *ngFor="let addon of selectedAddons">
+              <div class="addon-info">
+                <h4>{{ addon.name }}</h4>
+                <p>{{ addon.description }}</p>
+              </div>
+              <div class="addon-price">
+                <span>€{{ addon.price }} × {{ addon.quantity }}</span>
+                <button class="btn-remove-addon" (click)="removeAddon(addon.id)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Traveler Details -->
+        <section class="checkout-card">
+          <h2 class="card-title">Traveler Details</h2>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">First Name *</label>
+              <input type="text" class="form-input" placeholder="Enter first name" [(ngModel)]="firstName">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name *</label>
+              <input type="text" class="form-input" placeholder="Enter last name" [(ngModel)]="lastName">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-input" placeholder="Enter email address" [(ngModel)]="email">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <div class="phone-input">
+              <select class="form-control form-select country-code" [(ngModel)]="phoneCode">
+                <option *ngFor="let code of countryCodes" [value]="code.dial">{{ code.dial }}</option>
+              </select>
+              <input type="tel" class="form-input phone-number" placeholder="Enter phone number" [(ngModel)]="phoneNumber">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Country of Residence</label>
+            <select class="form-control form-select" [(ngModel)]="country">
+              <option value="">Select country</option>
+              <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Special Requests</label>
+            <textarea class="form-textarea" rows="4" placeholder="Any special requirements or requests..." [(ngModel)]="specialRequests"></textarea>
+          </div>
+        </section>
+
+        <!-- Account Options -->
+        <section class="checkout-card">
+          <h2 class="card-title">Account Options</h2>
+          <div class="account-options">
+            <label class="radio-option" [class.selected]="accountOption === 'signin'">
+              <i [class]="accountOption === 'signin' ? 'fas fa-circle' : 'far fa-circle'"
+                 [style.color]="accountOption === 'signin' ? '#2563eb' : '#000000'"
+                 (click)="setAccountOption('signin')"></i>
+              <input type="radio" name="accountOption" value="signin" [checked]="accountOption === 'signin'" (change)="setAccountOption('signin')" style="display: none;">
+              <div class="radio-content">
+                <div class="radio-title">Sign in to existing account</div>
+                <div class="radio-description">Access your bookings and preferences</div>
+              </div>
+            </label>
+            
+            <label class="radio-option" [class.selected]="accountOption === 'guest'">
+              <i [class]="accountOption === 'guest' ? 'fas fa-circle' : 'far fa-circle'"
+                 [style.color]="accountOption === 'guest' ? '#2563eb' : '#000000'"
+                 (click)="setAccountOption('guest')"></i>
+              <input type="radio" name="accountOption" value="guest" [checked]="accountOption === 'guest'" (change)="setAccountOption('guest')" style="display: none;">
+              <div class="radio-content">
+                <div class="radio-title">Continue as guest</div>
+                <div class="radio-description">Book without creating an account</div>
+              </div>
+            </label>
+
+            <label class="checkbox-option" *ngIf="accountOption === 'guest'">
+              <input type="checkbox" [(ngModel)]="createAccount">
+              <span>Create account for future bookings (optional)</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Terms & Consent -->
+        <section class="checkout-card">
+          <h2 class="card-title">Terms & Consent</h2>
+          <div class="terms-options">
+            <label class="checkbox-option required">
+              <input type="checkbox" [(ngModel)]="acceptTerms">
+              <span>I accept the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Cancellation Policy</a> *</span>
+            </label>
+            
+            <label class="checkbox-option">
+              <input type="checkbox" [(ngModel)]="receiveUpdates">
+              <span>I agree to receive booking updates and communications from Paris Escape (optional)</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Continue Button -->
+        <button class="btn-continue" (click)="continueToPayment()">
+          Continue to Payment
+        </button>
+      </div>
+
+      <!-- Right Column - Order Summary -->
+      <aside class="order-summary">
+        <div class="summary-card">
+          <h2 class="summary-title">Order Summary</h2>
+
+          <div class="summary-items">
+            <div class="summary-item">
+              <span>Base tour ({{ adultsCount }} adults)</span>
+              <span>€{{ baseTourTotal }}</span>
+            </div>
+            <div class="summary-item" *ngIf="privateUpgradeTotal > 0">
+              <span>Private upgrade</span>
+              <span>€{{ privateUpgradeTotal }}</span>
+            </div>
+            <div class="summary-item" *ngIf="photographyTotal > 0">
+              <span>Photography session</span>
+              <span>€{{ photographyTotal }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Service fee</span>
+              <span>€{{ serviceFee }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Taxes (VAT 20%)</span>
+              <span>€{{ taxes.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="summary-total">
+            <span class="total-label">Total</span>
+            <span class="total-amount">€{{ total.toFixed(2) }}</span>
+          </div>
+          <p class="tax-note">All taxes and fees included</p>
+
+          <div class="cancellation-info">
+            <i class="fas fa-check"></i>
+            <div>
+              <strong>Free cancellation until 24h before</strong>
+              <a href="#" class="link-small" (click)="viewCancellationPolicy()">View full cancellation policy</a>
+            </div>
+          </div>
+
+          <div class="promo-section">
+            <input type="text" class="promo-input" placeholder="Promo code or gift card" [(ngModel)]="promoCode">
+            <button class="btn-apply-promo" (click)="applyPromoCode()">Apply Code</button>
+          </div>
+
+          <div class="payment-secure">
+            <div class="secure-item">
+              <i class="fas fa-shield-alt"></i>
+              <span>Secure payment</span>
+            </div>
+            <div class="secure-item">
+              <i class="fas fa-lock"></i>
+              <span>Encrypted</span>
+            </div>
+          </div>
+
+          <div class="payment-methods">
+            <i class="fab fa-cc-visa"></i>
+            <i class="fab fa-cc-mastercard"></i>
+            <i class="fab fa-cc-apple-pay"></i>
+            <i class="fab fa-google-pay"></i>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

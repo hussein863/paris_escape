@@ -1,0 +1,199 @@
+<div class="step-inclusions-container">
+  <!-- Left Column: Form -->
+  <div class="form-column">
+    <!-- What's Included -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>What's Included</h3>
+        <button class="btn-add" (click)="openAddModal('included')">
+          <i class="fas fa-plus"></i>
+          Add Item
+        </button>
+      </div>
+
+      <div class="items-list">
+        <div class="item included" *ngFor="let item of includedItems">
+          <i class="fas fa-check-circle item-icon"></i>
+          <span class="item-text">{{item.text}}</span>
+          <button class="btn-delete" (click)="removeItem(item.id, 'included')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Include services, equipment, refreshments, or any perks that come with your experience</span>
+      </div>
+    </div>
+
+    <!-- What's Not Included -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>What's Not Included</h3>
+        <button class="btn-add-outline" (click)="openAddModal('not-included')">
+          <i class="fas fa-plus"></i>
+          Add Item
+        </button>
+      </div>
+
+      <div class="items-list">
+        <div class="item not-included" *ngFor="let item of notIncludedItems">
+          <img src="assets/images/re_question.svg" class="item-icon" alt="">
+          <span class="item-text">{{item.text}}</span>
+          <button class="btn-delete" (click)="removeItem(item.id, 'not-included')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Clarify what travelers need to pay for separately to avoid confusion</span>
+      </div>
+    </div>
+
+    <!-- What to Bring -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>What to Bring</h3>
+        <button class="btn-add-outline" (click)="openAddModal('to-bring')">
+          <i class="fas fa-plus"></i>
+          Add Item
+        </button>
+      </div>
+
+      <div class="items-list">
+        <div class="item to-bring" *ngFor="let item of toBringItems">
+          <i class="fas fa-info-circle item-icon"></i>
+          <span class="item-text">{{item.text}}</span>
+          <button class="btn-delete" (click)="removeItem(item.id, 'to-bring')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Help travelers prepare by listing essential items they should bring</span>
+      </div>
+    </div>
+
+    <!-- Quick Templates -->
+    <div class="form-section">
+      <h3>Quick Templates</h3>
+
+      <div class="templates-grid">
+        <div
+          class="template-card"
+          *ngFor="let template of templates"
+          (click)="applyTemplate(template)">
+          <h4>{{template.title}}</h4>
+          <p>{{template.description}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Preview/Tips -->
+  <div class="preview-column">
+    <!-- Inclusions Tips -->
+    <div class="tips-card">
+      <h4>Inclusions Tips</h4>
+      <div class="tip-item" *ngFor="let tip of inclusionTips">
+        <i *ngIf="!tip.icon.startsWith('<img')" class="fas {{tip.icon}} icon-{{tip.color}}"></i>
+        <span *ngIf="tip.icon.startsWith('<img')" [innerHTML]="tip.icon" class="icon-{{tip.color}}"></span>
+        <div class="tip-content">
+          <h5>{{tip.title}}</h5>
+          <p>{{tip.description}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Common Inclusions -->
+    <div class="list-card">
+      <h4>Common Inclusions</h4>
+      <div class="list-item" *ngFor="let item of commonInclusions">
+        <i class="fas fa-check"></i>
+        <span>{{item}}</span>
+      </div>
+    </div>
+
+    <!-- Typically Not Included -->
+    <div class="list-card">
+      <h4>Typically Not Included</h4>
+      <div class="list-item excluded" *ngFor="let item of typicallyNotIncluded">
+        <i class="fas fa-times"></i>
+        <span>{{item}}</span>
+      </div>
+    </div>
+
+    <!-- Setup Progress -->
+    <div class="checklist-card">
+      <h4>Setup Progress</h4>
+      <div class="checklist-item" [class.completed]="setupProgress.whatsIncluded">
+        <i class="fas" [class.fa-check-circle]="setupProgress.whatsIncluded" [class.fa-circle]="!setupProgress.whatsIncluded"></i>
+        <span>What's included</span>
+      </div>
+      <div class="checklist-item" [class.completed]="setupProgress.whatsNotIncluded">
+        <i class="fas" [class.fa-check-circle]="setupProgress.whatsNotIncluded" [class.fa-circle]="!setupProgress.whatsNotIncluded"></i>
+        <span>What's not included</span>
+      </div>
+      <div class="checklist-item" [class.completed]="setupProgress.whatToBring">
+        <i class="fas" [class.fa-check-circle]="setupProgress.whatToBring" [class.fa-circle]="!setupProgress.whatToBring"></i>
+        <span>What to bring</span>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-card">
+      <h4>Preview</h4>
+      <p class="preview-description">See how your inclusions will appear to travelers</p>
+      <button class="btn-preview" (click)="previewExperience()">
+        <i class="fa-solid fa-eye"></i>
+        Preview Experience
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Add Item</h3>
+      <button class="btn-close" (click)="closeAddModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>
+          <span *ngIf="currentModalType === 'included'">What's included in your experience?</span>
+          <span *ngIf="currentModalType === 'not-included'">What's not included?</span>
+          <span *ngIf="currentModalType === 'to-bring'">What should travelers bring?</span>
+          <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="newItemText"
+          [placeholder]="currentModalType === 'included' ? 'e.g., Professional local guide' :
+                        currentModalType === 'not-included' ? 'e.g., Transportation to meeting point' :
+                        'e.g., Comfortable walking shoes'"
+          class="form-input"
+          (keyup.enter)="addItem()">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeAddModal()">Cancel</button>
+      <button
+        class="btn-primary"
+        (click)="addItem()"
+        [disabled]="!newItemText.trim()">
+        Add Item
+      </button>
+    </div>
+  </div>
+</div>

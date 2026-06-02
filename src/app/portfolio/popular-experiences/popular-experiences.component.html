@@ -1,0 +1,17 @@
+<section class="popular-experiences">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Popular Experiences</h2>
+      <button class="view-all-btn" (click)="onViewAll()">
+        View all
+      </button>
+    </div>
+
+    <div class="experiences-grid">
+      <app-card 
+        *ngFor="let experience of experiences" 
+        [experience]="experience">
+      </app-card>
+    </div>
+  </div>
+</section>

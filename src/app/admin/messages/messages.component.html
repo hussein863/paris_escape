@@ -1,0 +1,233 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <div class="messages-container">
+  <!-- Left Sidebar - Conversations List -->
+  <div class="messages-sidebar">
+    <!-- Header -->
+    <div class="sidebar-header">
+      <h1>Messages</h1>
+      <button class="btn-add" type="button">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- Contact Quota -->
+    <div class="contact-quota">
+      <div class="quota-info">
+        <span class="quota-label">Contact Quota</span>
+        <span class="quota-count">{{ contactQuota.used }} / {{ contactQuota.total }} used</span>
+      </div>
+      <div class="quota-bar">
+        <div class="quota-progress" [style.width.%]="quotaPercentage"></div>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Search by name, booking number..."
+        [(ngModel)]="searchQuery"
+      />
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button
+        *ngFor="let filter of ['All', 'Unread', 'Archived', 'Flagged']"
+        [class.active]="activeFilter === filter"
+        (click)="setFilter(filter)"
+        type="button"
+      >
+        {{ filter }}
+      </button>
+    </div>
+
+    <!-- Conversations List -->
+    <div class="conversations-list">
+      <div
+        *ngFor="let conversation of conversations"
+        class="conversation-item"
+        [class.active]="selectedConversation?.id === conversation.id"
+        [class.unread]="conversation.unread"
+        (click)="selectConversation(conversation)"
+      >
+        <img [src]="conversation.avatar" [alt]="conversation.name" class="conversation-avatar" />
+        <div class="conversation-content">
+          <div class="conversation-header">
+            <span class="conversation-name">
+              {{ conversation.name }}
+              <span *ngIf="conversation.unread" class="unread-dot"></span>
+            </span>
+            <span class="conversation-time">{{ conversation.timestamp }}</span>
+          </div>
+          <div class="conversation-meta">
+            <span class="status-badge" [class]="'status-' + conversation.status.toLowerCase()">
+              {{ conversation.status }}
+            </span>
+            <span *ngIf="conversation.tourName" class="tour-name">{{ conversation.tourName }}</span>
+          </div>
+          <p class="conversation-preview">{{ conversation.lastMessage }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side - Chat View -->
+  <div class="messages-main" *ngIf="selectedConversation">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <img [src]="selectedConversation.avatar" [alt]="selectedConversation.name" class="chat-avatar" />
+        <div class="chat-header-info">
+          <div class="header-name-row">
+            <h2>{{ selectedConversation.name }}</h2>
+            <span class="language-tags">FR, EN</span>
+          </div>
+          <p>sophie.martin&#64;email.com</p>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="btn-icon" type="button">
+          <i class="fas fa-info"></i>
+        </button>
+        <button class="btn-icon" type="button">
+          <i class="fas fa-ellipsis-h"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Booking Info Card -->
+    <div class="booking-info-card">
+      <div class="booking-info-content">
+        <img [src]="bookingInfo.image" alt="Tour" class="booking-image" />
+        <div class="booking-details">
+          <h3>{{ bookingInfo.tourName }}</h3>
+          <p class="booking-datetime">{{ bookingInfo.date }} • {{ bookingInfo.time }}</p>
+          <span class="booking-status">{{ bookingInfo.status }}</span>
+        </div>
+      </div>
+      <div class="booking-actions">
+        <button class="btn btn-outline-sm" type="button">View Reservation</button>
+        <button class="btn btn-outline-sm" type="button">
+          <i class="fas fa-qrcode"></i>
+          QR Code
+        </button>
+        <button class="btn btn-outline-sm" type="button">
+          <i class="fas fa-map-marker-alt"></i>
+          Maps
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="messages-area">
+      <div *ngFor="let message of messages" class="message-wrapper">
+        <div class="message-date" *ngIf="message.id === 1">Dec 1, 2024</div>
+        <div class="message-date" *ngIf="message.id === 3">Today</div>
+
+        <div class="message" [class.message-user]="message.sender === 'user'" [class.message-guide]="message.sender === 'guide'">
+          <img
+            *ngIf="message.sender === 'user'"
+            [src]="selectedConversation.avatar"
+            class="message-avatar"
+          />
+          <div class="message-content" [class.guide-bubble]="message.sender === 'guide'">
+            {{ message.text }}
+          </div>
+        </div>
+        <div class="message-timestamp" [class.guide-timestamp]="message.sender === 'guide'">
+          {{ message.timestamp }}
+          <i *ngIf="message.sender === 'guide'" class="fas fa-check-double"></i>
+        </div>
+
+        <div *ngIf="message.id === 2" class="booking-confirmation">
+          <i class="fas fa-info-circle"></i>
+          <div>
+            <strong>Booking Confirmed</strong>
+            <p>Sophie Martin confirmed the booking for Montmartre Art Walk on Dec 3, 2024 at 10:00 AM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Input Area -->
+    <div class="message-input-area">
+      <!-- Warning Banner -->
+      <div class="warning-banner">
+        <div style="display: flex; gap: 1rem;">
+          <i class="fas fa-info-circle"></i>
+        <span>Replying to this message will count as 1 contact toward your quota.</span>
+        </div>
+        <a href="#" style="margin-left: 32px;">Learn more about contact quotas</a>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-action-btn" type="button">
+          <i class="fas fa-clock"></i>
+          Greeting
+        </button>
+        <button class="quick-action-btn" type="button">
+          <i class="fas fa-map-marker-alt"></i>
+          Meeting Point
+        </button>
+        <button class="quick-action-btn" type="button">
+          <i class="fas fa-calendar"></i>
+          Schedule Change
+        </button>
+        <button class="quick-action-btn" type="button">
+          <i class="fas fa-undo"></i>
+          Refund
+        </button>
+      </div>
+
+      <!-- Message Input -->
+      <div class="message-input-wrapper">
+        <button class="btn-attach" type="button">
+          <i class="fas fa-paperclip"></i>
+        </button>
+        <textarea
+          placeholder="Type your message..."
+          [(ngModel)]="newMessage"
+          (keydown.enter)="$event.preventDefault(); sendMessage()"
+        ></textarea>
+        <button class="btn-send" type="button" (click)="sendMessage()">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="message-footer">
+        <div class="footer-left">
+          <i class="fas fa-shield-alt"></i>
+          <span>Messages are monitored for safety.</span>
+          <a href="#">Learn more</a>
+        </div>
+        <div class="footer-right">
+          <input type="checkbox" id="autoReply" />
+          <label for="autoReply">Auto-reply when offline</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="messages-empty" *ngIf="!selectedConversation">
+    <i class="fas fa-comments"></i>
+    <h3>Select a conversation</h3>
+    <p>Choose a conversation from the left to start messaging</p>
+  </div>
+</div>
+  </main>
+</div>

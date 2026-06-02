@@ -1,0 +1,22 @@
+<section class="paris-escape-originals">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Paris Escape Originals</h2>
+      <p class="section-subtitle">Exclusive experiences you won't find anywhere else</p>
+    </div>
+
+    <div class="originals-grid">
+      <div class="original-card" *ngFor="let original of originals">
+        <div class="card-image-wrapper">
+          <img [src]="original.image" [alt]="original.title" class="card-image">
+          <span class="originals-badge">Originals</span>
+        </div>
+        
+        <div class="card-content">
+          <h3 class="card-title">{{ original.title }}</h3>
+          <p class="card-description">{{ original.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

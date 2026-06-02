@@ -1,0 +1,208 @@
+<div class="step-pricing-container">
+  <!-- Left Column: Form -->
+  <div class="form-column">
+    <!-- Pricing Model -->
+    <div class="form-section">
+      <h3>Pricing Model <span class="required">*</span></h3>
+
+      <div class="pricing-models">
+        <div
+          *ngFor="let model of pricingModels"
+          class="pricing-model-card"
+          [class.selected]="formData.pricingModel === model.id"
+          (click)="selectPricingModel(model.id)">
+          <div class="model-header">
+            <h4>{{model.title}}</h4>
+            <i class="fas {{model.icon}}"></i>
+          </div>
+          <p class="model-description">{{model.description}}</p>
+          <p class="model-example">{{model.example}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Setup -->
+    <div class="form-section">
+      <h3>Price Setup</h3>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label>Base Price <span class="required">*</span></label>
+        <div class="price-input-group">
+          <select [(ngModel)]="formData.currency" (change)="onDataChange()"
+            class="currency-select">
+            <option>EUR (€)</option>
+            <option>USD ($)</option>
+            <option>GBP (£)</option>
+          </select>
+          <div class="price-input-wrapper">
+            <span class="currency-symbol">€</span>
+            <input
+              type="number"
+              (ngModelChange)="onDataChange()"
+              placeholder="45"
+              min="0"
+              class="price-input">
+          </div>
+        </div>
+        <p class="field-hint">Price per person (adults)</p>
+      </div>
+
+      <!-- Child Pricing Toggle -->
+      <div class="form-group toggle-group">
+        <div class="toggle-header">
+          <label>Child Pricing</label>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              [(ngModel)]="formData.childPricingEnabled"
+              (change)="onDataChange()">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Fees Info -->
+      <div class="info-box">
+        <div class="info-header">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <div>
+          <span>Fees and Taxes</span>
+          <p class="info-text">Platform fees (5% + payment processing) and
+            applicable taxes will be added at checkout.</p>
+          <p class="earnings-preview">Your earnings:
+            €{{yourEarnings.toFixed(2)}} per booking (after 5% platform fee)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Preview -->
+    <div class="form-section">
+      <h3>Price Preview</h3>
+
+      <h4>How travelers will see your price</h4>
+
+      <div class="experience-preview-card">
+        <div class="image-container">
+          <img src="assets/images/f364592883e6ae2b3c02e1dde22f3894eaeec260.png"
+            alt="Experience preview" class="preview-image">
+        </div>
+        <div class="preview-content">
+          <h5>Montmartre Art & Culture Walk</h5>
+          <p class="preview-meta">Art & Culture • 2 hours</p>
+          <div class="preview-container">
+            <div class="preview-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <span class="new-badge">(New)</span>
+            </div>
+            <div>
+              <i class="far fa-heart preview-wishlist"></i>
+            </div>
+          </div>
+          <p class="preview-price">From
+            <strong>€{{formData.basePrice}}</strong> per person</p>
+        </div>
+      </div>
+
+      <div class="price-breakdown">
+        <h5>Price breakdown example (2 adults)</h5>
+        <div class="breakdown-row">
+          <span>Experience price (2 × €{{formData.basePrice}})</span>
+          <span class="price">€{{exampleTotal.toFixed(2)}}</span>
+        </div>
+        <div class="breakdown-row">
+          <span>Platform fee (5%)</span>
+          <span class="price">€{{examplePlatformFee.toFixed(2)}}</span>
+        </div>
+        <div class="breakdown-row">
+          <span>Payment processing</span>
+          <span class="price">€{{exampleProcessing.toFixed(2)}}</span>
+        </div>
+        <div class="breakdown-row total">
+          <span><strong>Total for travelers</strong></span>
+          <span><strong>€{{exampleTravelerTotal.toFixed(2)}}</strong></span>
+        </div>
+        <div class="breakdown-row earnings">
+          <span>Your earnings</span>
+          <span
+            class="earnings-amount">€{{exampleYourEarnings.toFixed(2)}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Preview/Tips -->
+  <div class="preview-column">
+    <!-- Pricing Tips -->
+    <div class="tips-card">
+      <h4>Pricing Tips</h4>
+      <div class="tip-item" *ngFor="let tip of pricingTips">
+        <i class="fas {{tip.icon}} icon-{{tip.color}}"></i>
+        <div class="tip-content">
+          <h5>{{tip.title}}</h5>
+          <p>{{tip.description}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market Insights -->
+    <div class="insights-card">
+      <h4>Market Insights</h4>
+      <div class="insight-content">
+        <div class="average-price-range">
+          <p class="insight-label">Average price in Paris</p>
+          <p class="insight-price">€{{marketInsights.averagePrice}}</p>
+          <p class="insight-meta">For {{marketInsights.category}}</p>
+        </div>
+
+        <div class="price-range">
+          <div class="range-item">
+            <span class="range-label">Low</span>
+            <span class="range-value">€{{marketInsights.lowPrice}}</span>
+          </div>
+          <div class="range-item">
+            <span class="range-label">High</span>
+            <span class="range-value">€{{marketInsights.highPrice}}</span>
+          </div>
+        </div>
+
+        <p class="insight-footer">Based on similar experiences in your
+          category</p>
+      </div>
+    </div>
+
+    <!-- Pricing Checklist -->
+    <div class="checklist-card">
+      <h4>Pricing Checklist</h4>
+      <div class="checklist-item"
+        [class.completed]="pricingChecklist.modelSelected">
+        <i class="fas" [class.fa-check-circle]="pricingChecklist.modelSelected"
+          [class.fa-circle]="!pricingChecklist.modelSelected"></i>
+        <span>Pricing model selected</span>
+      </div>
+      <div class="checklist-item"
+        [class.completed]="pricingChecklist.basePriceSet">
+        <i class="fas" [class.fa-check-circle]="pricingChecklist.basePriceSet"
+          [class.fa-circle]="!pricingChecklist.basePriceSet"></i>
+        <span>Base price set</span>
+      </div>
+      <div class="checklist-item"
+        [class.completed]="pricingChecklist.childPricing">
+        <i class="fas" [class.fa-check-circle]="pricingChecklist.childPricing"
+          [class.fa-circle]="!pricingChecklist.childPricing"></i>
+        <span>Child pricing (optional)</span>
+      </div>
+      <div class="checklist-item"
+        [class.completed]="pricingChecklist.groupSizeLimits">
+        <i class="fas"
+          [class.fa-check-circle]="pricingChecklist.groupSizeLimits"
+          [class.fa-circle]="!pricingChecklist.groupSizeLimits"></i>
+        <span>Group size limits</span>
+      </div>
+    </div>
+  </div>
+</div>

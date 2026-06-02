@@ -1,0 +1,30 @@
+<section class="hero">
+  <div class="hero-overlay"></div>
+  
+  <div class="hero-content">
+    <h1 class="hero-title">Explore Paris like a local</h1>
+    <p class="hero-subtitle">
+      Discover hidden gems and authentic experiences with our local guides
+    </p>
+
+    <div class="hero-search">
+      <div class="search-input-wrapper">
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Where would you like to explore?"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()">
+          <i class="search-icon fas fa-search"></i>
+      </div>
+
+      <button class="btn-search" (click)="onSearch()">
+        Search
+      </button>
+
+      <button class="btn-browse" (click)="onBrowseGuides()">
+        Browse guides
+      </button>
+    </div>
+  </div>
+</section>

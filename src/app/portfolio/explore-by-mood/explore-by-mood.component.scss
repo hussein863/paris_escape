@@ -1,0 +1,64 @@
+.explore-by-mood {
+  width: 100%;
+  padding: 64px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+
+  h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 44px;
+    color: #000000;
+    text-align: center;
+  }
+}
+
+.mood-container {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mood-pill {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid #d0d5dd;
+  background-color: #ffffff;
+  color: #344054;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background-color: #f2f4f7;
+  }
+
+  &.active {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .explore-by-mood {
+    padding: 48px 12px;
+
+    h2 {
+      font-size: 26px;
+      line-height: 32px;
+    }
+  }
+
+  .mood-pill {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+}

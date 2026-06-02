@@ -1,0 +1,245 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="experiences-page">
+  <!-- Header -->
+  <header class="page-header">
+    <h1>My Experiences</h1>
+    <div class="header-actions">
+      <button class="btn-secondary">
+        <i class="fa-solid fa-eye"></i>
+        Preview Public Profile
+      </button>
+      <button class="btn-secondary">
+        <i class="fa-solid fa-download"></i>
+        Import from Template
+      </button>
+      <button class="btn-primary" (click)="createExperience()">
+        <i class="fa-solid fa-plus"></i>
+        Create Experience
+      </button>
+    </div>
+  </header>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <i class="fa-solid fa-search"></i>
+      <input
+        type="text"
+        placeholder="Search by title or category..."
+        [(ngModel)]="searchQuery"
+      >
+    </div>
+
+    <div class="filters">
+      <div class="filter-dropdown">
+        <select [(ngModel)]="selectedStatus">
+          <option>All Status</option>
+          <option>Active</option>
+          <option>Draft</option>
+          <option>Under Review</option>
+        </select>
+      </div>
+
+      <div class="filter-dropdown">
+        <select [(ngModel)]="selectedCategory">
+          <option>All Categories</option>
+          <option>Art & Culture</option>
+          <option>Food & Wine</option>
+          <option>Photography</option>
+          <option>Culture</option>
+        </select>
+      </div>
+
+      <button class="filter-btn">
+        <i class="fa-solid fa-filter"></i>
+      </button>
+    </div>
+    <div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'all'"
+      (click)="setActiveTab('all')"
+    >
+      All
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'active'"
+      (click)="setActiveTab('active')"
+    >
+      Active ({{activeCount}})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'draft'"
+      (click)="setActiveTab('draft')"
+    >
+      Draft ({{draftCount}})
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'originals'"
+      (click)="setActiveTab('originals')"
+    >
+      Originals Eligible ({{originalsCount}})
+    </button>
+  </div>
+
+  <!-- Experience List -->
+  <div class="experience-list">
+    <article class="experience-card" *ngFor="let exp of experiences">
+      <div class="card-content">
+        <img [src]="exp.image" [alt]="exp.title" class="experience-image">
+
+        <div class="experience-info">
+          <h3>{{exp.title}}</h3>
+          <p class="meta">{{exp.category}} • {{exp.duration}}</p>
+
+          <div class="badges">
+            <span class="badge" [class]="exp.status.toLowerCase().replace(' ', '-')">
+              {{exp.status}}
+            </span>
+            <span class="badge originals" *ngIf="exp.badges.includes('Originals')">
+              Originals
+            </span>
+            <span class="badge originals-pending" *ngIf="exp.badges.includes('Originals Pending')">
+              Originals Pending
+            </span>
+          </div>
+
+          <div class="stats">
+            <span class="stat">
+              <i class="fa-solid fa-eye"></i>
+              <span *ngIf="exp.status !== 'Draft'">{{exp.views}} views</span>
+              <span *ngIf="exp.status === 'Draft'">—</span>
+            </span>
+            <span class="stat">
+              <i class="fa-solid fa-calendar-check"></i>
+              <span *ngIf="exp.status !== 'Draft'">{{exp.bookings}} bookings</span>
+              <span *ngIf="exp.status === 'Draft'">—</span>
+            </span>
+            <span class="stat" *ngIf="exp.status !== 'Draft' && exp.reviews > 0">
+              <i class="fa-solid fa-star"></i>
+              {{exp.rating}} ({{exp.reviews}} reviews)
+            </span>
+            <span class="stat" *ngIf="exp.status !== 'Draft' && exp.reviews === 0">
+              <i class="fa-solid fa-star grey"></i>
+              No reviews yet
+            </span>
+            <span class="stat" *ngIf="exp.status === 'Draft'">
+              <i class="fa-solid fa-star grey"></i>
+              Not published
+            </span>
+          </div>
+
+          <div class="actions">
+            <button class="btn-action primary">
+              <i class="fa-solid fa-edit"></i>
+              Edit
+            </button>
+            <button class="btn-action">
+              <i class="fa-solid fa-copy"></i>
+              Duplicate
+            </button>
+            <button class="btn-action" *ngIf="exp.status === 'Active' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review'">
+              <i class="fa-solid fa-eye"></i>
+              Preview
+            </button>
+            <button class="btn-action" *ngIf="exp.status === 'Active'">
+              <i class="fa-solid fa-pause"></i>
+              Pause
+            </button>
+            <button class="btn-action" *ngIf="exp.status === 'Draft' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review'">
+              <i class="fa-solid fa-rocket"></i>
+              Publish
+            </button>
+            <button class="btn-action danger" *ngIf="exp.status === 'Draft'">
+              <i class="fa-solid fa-trash"></i>
+              Delete
+            </button>
+            <button class="btn-action more" style="border: none; color: rgba(156, 163, 175, 1);">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="price-section">
+          <div class="price">From €{{exp.price}}</div>
+          <div class="price-label">per person</div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- Tips Section -->
+  <section class="tips-section">
+    <header class="section-header">
+      <h2>Tips to Improve Your Experiences</h2>
+    </header>
+
+    <div class="tips-grid">
+      <article class="tip-card">
+        <div class="tip-icon">
+          <i class="fa-solid fa-camera"></i>
+        </div>
+        <div class="tip-content">
+          <h3>Add More Photos</h3>
+          <p>Experiences with 5+ photos get 40% more bookings</p>
+        </div>
+      </article>
+
+      <article class="tip-card">
+        <div class="tip-icon clock">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <div class="tip-content">
+          <h3>Update Availability</h3>
+          <p>Keep your calendar current to boost visibility</p>
+        </div>
+      </article>
+
+      <article class="tip-card">
+        <div class="tip-icon star">
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <div class="tip-content">
+          <h3>Apply for Originals</h3>
+          <p>Originals experiences get featured placement</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Support Section -->
+  <section class="support-section">
+    <div class="support-content">
+      <div class="support-icon">
+        <i class="fa-solid fa-headset"></i>
+      </div>
+      <div class="support-text">
+        <h2>Need Help with Your Experiences?</h2>
+        <p>Our team is here to help you create amazing experiences that travelers love.</p>
+      </div>
+      <button class="btn-support">
+        <i class="fa-solid fa-headset"></i>
+        Get Support
+      </button>
+    </div>
+  </section>
+</section>
+  </main>
+</div>

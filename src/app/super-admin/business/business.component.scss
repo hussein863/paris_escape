@@ -1,0 +1,272 @@
+.business-page {
+  padding: 32px;
+  min-height: 100vh;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.page-header {
+  margin-bottom: 24px;
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+  }
+}
+
+.tabs-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto;
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
+
+  .tab-btn {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    font-size: 15px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+
+    @media (max-width: 768px) {
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+
+    &:hover {
+      color: #000000;
+      background: #f9fafb;
+    }
+
+    &.active {
+      color: #000000;
+      border-bottom-color: #000000;
+    }
+  }
+}
+
+.tab-content {
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filters-bar {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+
+  // Using global .filter-select styles from styles.scss
+}
+
+.table-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  @media (max-width: 1024px) {
+    overflow-x: auto;
+  }
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+
+  @media (max-width: 1024px) {
+    min-width: 100%;
+    font-size: 13px;
+  }
+
+  thead {
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+
+    th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+      color: #374151;
+      white-space: nowrap;
+
+      @media (max-width: 768px) {
+        padding: 12px 8px;
+        font-size: 13px;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f3f4f6;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #f9fafb;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 16px;
+        font-size: 14px;
+        vertical-align: middle;
+
+        @media (max-width: 768px) {
+          padding: 12px 8px;
+          font-size: 13px;
+        }
+
+        strong {
+          font-weight: 600;
+        }
+
+        .status-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+
+          &.status-draft {
+            background: #f3f4f6;
+            color: #6b7280;
+          }
+
+          &.status-pending {
+            background: #fef3c7;
+            color: #92400e;
+          }
+
+          &.status-published, &.status-confirmed, &.status-paid {
+            background: #d1fae5;
+            color: #065f46;
+          }
+
+          &.status-refused, &.status-canceled, &.status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+          }
+
+          &.status-open {
+            background: #fef3c7;
+            color: #92400e;
+          }
+
+          &.status-resolved {
+            background: #d1fae5;
+            color: #065f46;
+          }
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+            gap: 4px;
+          }
+        }
+
+        .action-btn {
+          padding: 6px 12px;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+
+          @media (max-width: 768px) {
+            width: 100%;
+            padding: 8px 12px;
+          }
+
+          &.btn-primary {
+            background: #000000;
+            color: #ffffff;
+
+            &:hover {
+              opacity: 0.9;
+            }
+          }
+
+          &.btn-secondary {
+            background: #f3f4f6;
+            color: #000000;
+
+            &:hover {
+              background: #e5e7eb;
+            }
+          }
+
+          &.btn-success {
+            background: #10b981;
+            color: #ffffff;
+
+            &:hover {
+              opacity: 0.9;
+            }
+          }
+
+          &.btn-danger {
+            background: #ef4444;
+            color: #ffffff;
+
+            &:hover {
+              opacity: 0.9;
+            }
+          }
+
+          &.btn-warning {
+            background: #f59e0b;
+            color: #ffffff;
+
+            &:hover {
+              opacity: 0.9;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,110 @@
+<div class="section-card">
+  <h2 class="section-title">Basic Information</h2>
+
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input
+        type="text"
+        id="firstName"
+        class="form-control"
+        [(ngModel)]="firstName"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input
+        type="text"
+        id="lastName"
+        class="form-control"
+        [(ngModel)]="lastName"
+      />
+    </div>
+
+  <div class="form-group">
+    <label for="pronouns">Pronouns (Optional)</label>
+    <input
+      type="text"
+      id="pronouns"
+      class="form-control"
+      placeholder="She/Her"
+      [(ngModel)]="pronouns"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="yearsOfExperience">Years of Experience</label>
+    <input
+      type="number"
+      id="yearsOfExperience"
+      class="form-control"
+      [(ngModel)]="yearsOfExperience"
+      min="0"
+    />
+  </div>
+
+  <div class="form-group">
+    <label>Languages</label>
+    <div class="languages-list">
+      <div class="language-item" *ngFor="let language of languages; let i = index">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Language"
+          [(ngModel)]="language.name"
+        />
+        <select class="form-control form-select" [(ngModel)]="language.level">
+          <option *ngFor="let level of languageLevels" [value]="level">
+            {{ level }}
+          </option>
+        </select>
+        <button
+          class="btn-icon btn-remove"
+          type="button"
+          (click)="removeLanguage(i)"
+          *ngIf="languages.length > 1"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <button class="btn-add" type="button" (click)="addLanguage()">
+      <i class="fas fa-plus"></i>
+      Add Language
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label>Specialties & Themes</label>
+    <div class="specialties-chips">
+      <span class="chip" *ngFor="let specialty of specialties; let i = index">
+        {{ specialty.name }}
+        <button
+          class="chip-remove"
+          type="button"
+          (click)="removeSpecialty(i)"
+        >
+        </button>
+      </span>
+    </div>
+    <button class="btn-add" type="button" (click)="addSpecialty()">
+      <i class="fas fa-plus"></i>
+      Add Specialty
+    </button>
+  </div>
+
+  <div class="form-group">
+    <label for="bio">Bio</label>
+    <textarea
+      id="bio"
+      class="form-control form-textarea"
+      rows="6"
+      [(ngModel)]="bio"
+      [maxlength]="bioMaxLength"
+      placeholder="Born and raised in Paris, I've spent the last 8 years sharing my love for this beautiful city with visitors from around the world. I specialize in art history and hidden gems that most tourists never discover."
+    ></textarea>
+    <div class="character-count">
+      {{ bioCharacterCount }}/{{ bioMaxLength }} characters
+    </div>
+  </div>
+</div>

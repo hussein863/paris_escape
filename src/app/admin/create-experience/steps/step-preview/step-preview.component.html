@@ -1,0 +1,242 @@
+<div class="step-preview-container">
+  <!-- Verification Warning -->
+  <div class="verification-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    <div style="
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; gap: 10px;">
+      <div class="warning-content">
+        <h4>Verification required to publish paid experiences</h4>
+        <p>Complete your KYC verification and fiscal information to publish
+          experiences with paid options.</p>
+      </div>
+      <button class="btn-verify" (click)="completeVerification()">
+        <img src="assets/images/white_question.svg" alt="Question">
+        Complete Verification
+      </button>
+    </div>
+  </div>
+
+  <!-- Preview Controls -->
+  <div class="preview-controls">
+    <span class="controls-label">Preview as:</span>
+    <div class="device-buttons">
+      <button
+        class="device-btn"
+        [class.active]="previewDevice === 'desktop'"
+        (click)="selectDevice('desktop')">
+        <i class="fas fa-desktop"></i>
+        Desktop
+      </button>
+      <button
+        class="device-btn"
+        [class.active]="previewDevice === 'tablet'"
+        (click)="selectDevice('tablet')">
+        <i class="fas fa-tablet-alt"></i>
+        Tablet
+      </button>
+      <button
+        class="device-btn"
+        [class.active]="previewDevice === 'mobile'"
+        (click)="selectDevice('mobile')">
+        <i class="fas fa-mobile-alt"></i>
+        Mobile
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="content-grid">
+    <!-- Left Column: Preview -->
+    <div class="preview-column">
+      <div class="preview-frame" [class]="'device-' + previewDevice">
+        <!-- Experience Card -->
+        <div class="experience-card">
+          <!-- Cover Image -->
+          <div class="cover-image">
+            <img [src]="experienceData.coverImage" alt="Experience cover">
+            <div class="image-badges">
+              <span class="badge"
+                *ngFor="let category of experienceData.categories">{{category}}</span>
+            </div>
+            <div class="image-actions">
+              <button class="action-btn">
+                <i class="far fa-heart"></i>
+              </button>
+              <button class="action-btn">
+                <i class="fas fa-share"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Experience Details -->
+          <div class="experience-details">
+            <div class="location-rating">
+              <span class="location">{{experienceData.location}}</span>
+              <span class="rating-separator">•</span>
+              <span class="rating">
+                <i class="fas fa-star"></i>
+                <span
+                  style="color: rgba(0, 0, 0, 1); font-weight: 500;">{{experienceData.rating}}</span>
+                ({{experienceData.reviewCount}}
+                reviews)
+              </span>
+            </div>
+
+            <h1 class="experience-title">{{experienceData.title}}</h1>
+
+            <p
+              class="experience-description">{{experienceData.shortDescription}}</p>
+
+            <!-- Quick Info -->
+            <div class="quick-info">
+              <div class="info-item">
+                <i class="fa-solid fa-clock"></i>
+                <span>{{experienceData.duration}}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-users"></i>
+                <span>{{experienceData.maxPeople}}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-language"></i>
+                <span>{{experienceData.languages}}</span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-signal"></i>
+                <span>{{experienceData.difficulty}}</span>
+              </div>
+            </div>
+
+            <!-- Inclusions -->
+            <div class="inclusions-grid">
+              <div class="inclusion-section">
+                <h3>What's included</h3>
+                <ul class="inclusion-list">
+                  <li *ngFor="let item of experienceData.included">
+                    <i class="fas fa-check"></i>
+                    <span>{{item}}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="inclusion-section">
+                <h3>What to bring</h3>
+                <ul class="inclusion-list to-bring">
+                  <li *ngFor="let item of experienceData.toBring">
+                    <i class="fas fa-circle"></i>
+                    <span>{{item}}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Pricing & Actions -->
+            <div class="pricing-actions">
+              <div class="pricing">
+                <span class="from-label">From</span>
+                <div class="price-group">
+                  <span class="price">€{{experienceData.price}}</span>
+                  <span class="per-person">/person</span>
+                </div>
+              </div>
+              <div class="action-buttons">
+                <button class="btn-secondary" (click)="contactGuide()">Contact
+                  Guide</button>
+                <button class="btn-primary">Book Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Sidebar -->
+    <div class="sidebar-column">
+      <!-- Validation Summary -->
+      <div class="summary-card">
+        <h4>Validation Summary</h4>
+        <div class="validation-list">
+          <div class="validation-item completed">
+            <i class="fas fa-check-circle"></i>
+            <span>Basic information</span>
+          </div>
+          <div class="validation-item completed">
+            <i class="fas fa-check-circle"></i>
+            <span>Media gallery</span>
+          </div>
+          <div class="validation-item completed">
+            <i class="fas fa-check-circle"></i>
+            <span>Pricing & options</span>
+          </div>
+          <div class="validation-item completed">
+            <i class="fas fa-check-circle"></i>
+            <span>Availability</span>
+          </div>
+          <div class="validation-item completed">
+            <i class="fas fa-check-circle"></i>
+            <span>Inclusions</span>
+          </div>
+          <div class="validation-item completed">
+            <i class="fas fa-check-circle"></i>
+            <span>Policies</span>
+          </div>
+        </div>
+        <div class="ready-badge" *ngIf="allValidationsPassed">
+          <i class="fas fa-check-circle"></i>
+          <span>Ready to publish!</span>
+        </div>
+      </div>
+
+      <!-- SEO Preview -->
+      <div class="seo-card">
+        <h4>SEO Preview</h4>
+        <div class="seo-content">
+          <a href="#" class="seo-url">{{seoPreview.url}}</a>
+          <h5 class="seo-title">{{seoPreview.title}}</h5>
+          <p class="seo-description">{{seoPreview.description}}</p>
+
+          <div class="seo-metrics">
+            <div class="metric">
+              <span class="metric-label">Title length</span>
+              <span class="metric-value success">{{seoPreview.titleLength}}
+                chars <i class="fas fa-check"></i></span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Description length</span>
+              <span
+                class="metric-value success">{{seoPreview.descriptionLength}}
+                chars <i class="fas fa-check"></i></span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">URL structure</span>
+              <span class="metric-value success">Optimized <i
+                  class="fas fa-check"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Publishing Checklist -->
+      <div class="checklist-card">
+        <h4>Publishing Checklist</h4>
+        <div class="checklist-list">
+          <div
+            class="checklist-item"
+            [class.completed]="item.completed"
+            [class.warning]="item.warning"
+            *ngFor="let item of publishingChecklist">
+            <i class="fas"
+              [class.fa-check-circle]="item.completed && !item.warning"
+              [class.fa-exclamation-circle]="item.warning"></i>
+            <div class="checklist-content">
+              <span class="checklist-title">{{item.title}}</span>
+              <span class="checklist-description">{{item.description}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

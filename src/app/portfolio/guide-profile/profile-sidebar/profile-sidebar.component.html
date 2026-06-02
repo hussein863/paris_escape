@@ -1,0 +1,92 @@
+<div class="profile-sidebar">
+  <!-- Calendar Section -->
+  <div class="sidebar-card calendar-card">
+    <h3>Check Availability</h3>
+    
+    <div class="calendar" >
+      <div class="calendar-weekdays">
+        <span *ngFor="let day of weekDays">{{ day }}</span>
+      </div>
+      
+      <div class="calendar-days">
+        <button 
+          *ngFor="let calDay of calendarDays" 
+          class="day-btn"
+          [class.selected]="calDay.isSelected"
+          [class.disabled]="calDay.isDisabled"
+          (click)="selectDate(calDay)">
+          {{ calDay.day }}
+        </button>
+      </div>
+    </div>
+    
+    <div class="calendar-actions">
+      <button class="btn btn-primary">Quick Book</button>
+      <button class="btn btn-secondary">Request to Book</button>
+    </div>
+  </div>
+  
+  <!-- Contact Section -->
+  <div class="sidebar-card contact-card">
+    <h3>Contact {{ guide.name.split(' ')[0] }}</h3>
+    
+    <form (ngSubmit)="submitContact()">
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" [(ngModel)]="contactForm.subject" name="subject" placeholder="Tour inquiry" />
+      </div>
+      
+      <div class="form-group">
+        <label>Message</label>
+        <textarea [(ngModel)]="contactForm.message" name="message" placeholder="Tell {{ guide.name.split(' ')[0] }} about your interests..." rows="4"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>Preferred Date</label>
+        <input type="date" [(ngModel)]="contactForm.preferredDate" name="preferredDate" placeholder="mm/dd/yyyy"/>
+      </div>
+      
+      <button type="submit" class="btn btn-primary submit-btn">Send Message</button>
+    </form>
+    
+    <p class="response-time">
+      Typical response within 2 hours
+    </p>
+  </div>
+  
+  <!-- Trust & Safety Section -->
+  <div class="sidebar-card trust-card">
+    <h3>Trust & Safety</h3>
+    
+    <div class="trust-items">
+      <div class="trust-item">
+        <i class="fas fa-shield-alt"></i>
+        <div class="trust-content">
+          <span class="trust-title">Verified Guide</span>
+          <span class="trust-desc">Identity and credentials verified</span>
+        </div>
+      </div>
+      
+      <div class="trust-item">
+        <i class="fa-solid fa-certificate"></i>
+        <div class="trust-content">
+          <span class="trust-title">Licensed & Insured</span>
+          <span class="trust-desc">Professional liability coverage</span>
+        </div>
+      </div>
+      
+      <div class="trust-item">
+        <i class="fa-solid fa-rotate-left" style="color: black;"></i>
+        <div class="trust-content">
+          <span class="trust-title">Flexible Cancellation</span>
+          <span class="trust-desc">Free cancellation up to 24h before</span>
+        </div>
+      </div>
+    </div>
+    
+    <button class="report-btn">
+      <i class="fas fa-flag"></i>
+      Report Profile
+    </button>
+  </div>
+</div>

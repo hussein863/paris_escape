@@ -1,0 +1,346 @@
+<div class="system-page">
+  <div class="system-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="system-sidebar">
+      <h2 class="sidebar-title">System Settings</h2>
+      <nav class="sidebar-nav">
+        <button
+          *ngFor="let item of menuItems"
+          class="nav-item"
+          [class.active]="activeSection === item.id"
+          (click)="setActiveSection(item.id)">
+          <i class="nav-icon fas fa-{{ item.icon }}"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="system-content">
+      <!-- General Settings -->
+      <section class="settings-section" *ngIf="activeSection === 'general'">
+        <h1 class="section-title">General Settings</h1>
+        <div class="settings-card">
+          <div class="form-group">
+            <label class="form-label">Platform Name</label>
+            <input type="text" class="form-input" [(ngModel)]="platformName">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Logo Upload</label>
+            <div class="file-upload">
+              <button class="btn btn-secondary">Choose File</button>
+              <span class="file-name">No file chosen</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select class="form-select" [(ngModel)]="currency">
+              <option value="EUR">EUR (€)</option>
+              <option value="USD">USD ($)</option>
+              <option value="GBP">GBP (£)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tax / VAT Rate (%)</label>
+            <input type="number" class="form-input" [(ngModel)]="taxRate">
+          </div>
+
+          <button class="btn btn-primary" (click)="saveSettings()">Save Changes</button>
+        </div>
+      </section>
+
+      <!-- CMS -->
+      <section class="settings-section" *ngIf="activeSection === 'cms'">
+        <h1 class="section-title">Content Management System</h1>
+        <div class="settings-card">
+          <div class="cms-pages">
+            <div class="page-item">
+              <div class="page-info">
+                <h3>Home</h3>
+                <p>/home</p>
+              </div>
+              <div class="page-actions">
+                <button class="btn btn-secondary">Edit</button>
+                <button class="btn btn-secondary">Preview</button>
+              </div>
+            </div>
+
+            <div class="page-item">
+              <div class="page-info">
+                <h3>About</h3>
+                <p>/about</p>
+              </div>
+              <div class="page-actions">
+                <button class="btn btn-secondary">Edit</button>
+                <button class="btn btn-secondary">Preview</button>
+              </div>
+            </div>
+
+            <div class="page-item">
+              <div class="page-info">
+                <h3>Categories</h3>
+                <p>/categories</p>
+              </div>
+              <div class="page-actions">
+                <button class="btn btn-secondary">Edit</button>
+                <button class="btn btn-secondary">Preview</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary">Add New Page</button>
+        </div>
+      </section>
+
+      <!-- SEO -->
+      <section class="settings-section" *ngIf="activeSection === 'seo'">
+        <h1 class="section-title">SEO Configuration</h1>
+        <div class="settings-card">
+          <div class="form-group">
+            <label class="form-label">Meta Title</label>
+            <input type="text" class="form-input" [(ngModel)]="metaTitle">
+            <small class="form-hint">Recommended: 50-60 characters</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Meta Description</label>
+            <textarea class="form-textarea" rows="3" [(ngModel)]="metaDescription"></textarea>
+            <small class="form-hint">Recommended: 150-160 characters</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">OG Image</label>
+            <div class="file-upload">
+              <button class="btn btn-secondary">Choose Image</button>
+              <span class="file-name">og-image.jpg</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" (click)="generateSitemap()">Generate Sitemap</button>
+            <button class="btn btn-primary" (click)="saveSettings()">Save SEO Settings</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section class="settings-section" *ngIf="activeSection === 'analytics'">
+        <h1 class="section-title">Analytics Dashboard</h1>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-value">{{ sessions }}</div>
+            <div class="analytics-label">Total Sessions</div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-value">{{ conversionRate }}</div>
+            <div class="analytics-label">Conversion Rate</div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-value">{{ topCity }}</div>
+            <div class="analytics-label">Top City</div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-value">{{ topExperience }}</div>
+            <div class="analytics-label">Top Experience</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Traffic Sources</h3>
+          <div class="traffic-chart">
+            <div class="chart-placeholder"><i class="fas fa-chart-area"></i> Traffic visualization</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Integrations -->
+      <section class="settings-section" *ngIf="activeSection === 'integrations'">
+        <h1 class="section-title">Integrations & API</h1>
+        <div class="settings-card">
+          <div class="integrations-list">
+            <div class="integration-item" *ngFor="let integration of integrations">
+              <div class="integration-info">
+                <h3>{{ integration.name }}</h3>
+                <p class="integration-status" [class.active]="integration.status === 'Active'">
+                  {{ integration.status }}
+                </p>
+              </div>
+              <div class="integration-meta">
+                <span class="last-sync">Last sync: {{ integration.lastSync }}</span>
+                <button class="btn btn-sm btn-secondary">Configure</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary">Add Integration</button>
+        </div>
+
+        <div class="settings-card">
+          <h3>API Keys</h3>
+          <div class="api-keys">
+            <div class="api-key-item">
+              <span class="key-label">Production Key:</span>
+              <code class="key-value">pk_live_••••••••••••••••</code>
+              <button class="btn btn-sm btn-secondary">Regenerate</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Roles & Permissions -->
+      <section class="settings-section" *ngIf="activeSection === 'roles'">
+        <h1 class="section-title">Roles & Permissions</h1>
+        <div class="settings-card">
+          <div class="roles-list">
+            <div class="role-item" *ngFor="let role of roles">
+              <div class="role-info">
+                <h3>{{ role.name }}</h3>
+                <p>{{ role.users }} users</p>
+              </div>
+              <div class="role-permissions">
+                <span class="permission-tag" *ngFor="let permission of role.permissions">
+                  {{ permission }}
+                </span>
+              </div>
+              <button class="btn btn-secondary">Edit</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary">Add Role</button>
+        </div>
+      </section>
+
+      <!-- Emails & Languages -->
+      <section class="settings-section" *ngIf="activeSection === 'emails'">
+        <h1 class="section-title">Emails & Languages</h1>
+        <div class="settings-card">
+          <h3>Email Templates</h3>
+          <div class="email-templates">
+            <div class="template-item">
+              <span>Welcome Email</span>
+              <button class="btn btn-secondary">Edit</button>
+            </div>
+            <div class="template-item">
+              <span>Booking Confirmation</span>
+              <button class="btn btn-secondary">Edit</button>
+            </div>
+            <div class="template-item">
+              <span>Password Reset</span>
+              <button class="btn btn-secondary">Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Languages</h3>
+          <div class="languages-list">
+            <label class="language-item">
+              <input type="checkbox" checked>
+              <span>English (EN)</span>
+            </label>
+            <label class="language-item">
+              <input type="checkbox" checked>
+              <span>French (FR)</span>
+            </label>
+            <label class="language-item">
+              <input type="checkbox">
+              <span>Spanish (ES)</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compliance / GDPR -->
+      <section class="settings-section" *ngIf="activeSection === 'compliance'">
+        <h1 class="section-title">GDPR & Compliance</h1>
+        <div class="settings-card">
+          <div class="compliance-actions">
+            <div class="action-item">
+              <div class="action-info">
+                <h3>Export User Data</h3>
+                <p>Generate a complete data export for a user</p>
+              </div>
+              <button class="btn btn-primary" (click)="exportUserData()">Export Data</button>
+            </div>
+
+            <div class="action-item">
+              <div class="action-info">
+                <h3>Delete User Account</h3>
+                <p>Permanently delete a user and all associated data</p>
+              </div>
+              <button class="btn btn-danger" (click)="deleteUser()">Delete User</button>
+            </div>
+
+            <div class="action-item">
+              <div class="action-info">
+                <h3>Compliance Logs</h3>
+                <p>View all GDPR-related activities</p>
+              </div>
+              <button class="btn btn-secondary">View Logs</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Logs & System Health -->
+      <section class="settings-section" *ngIf="activeSection === 'logs'">
+        <h1 class="section-title">System Health & Logs</h1>
+        <div class="health-grid">
+          <div class="health-card">
+            <div class="health-icon"><i class="fas fa-check-circle" style="color: #10b981;"></i></div>
+            <div class="health-value">{{ systemHealth.uptime }}</div>
+            <div class="health-label">Uptime</div>
+          </div>
+
+          <div class="health-card">
+            <div class="health-icon" [class.error]="systemHealth.errors > 10">
+              <i *ngIf="systemHealth.errors > 10" class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+              <i *ngIf="systemHealth.errors <= 10" class="fas fa-check-circle" style="color: #10b981;"></i>
+            </div>
+            <div class="health-value">{{ systemHealth.errors }}</div>
+            <div class="health-label">Errors (24h)</div>
+          </div>
+
+          <div class="health-card">
+            <div class="health-icon"><i class="fas fa-envelope" style="color: #6b7280;"></i></div>
+            <div class="health-value">{{ systemHealth.emailDeliverability }}</div>
+            <div class="health-label">Email Deliverability</div>
+          </div>
+
+          <div class="health-card">
+            <div class="health-icon"><i class="fas fa-cog" style="color: #6b7280;"></i></div>
+            <div class="health-value">{{ systemHealth.backgroundTasks }}</div>
+            <div class="health-label">Background Tasks</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <h3>Recent Error Logs</h3>
+          <div class="logs-list">
+            <div class="log-item">
+              <span class="log-time">2 min ago</span>
+              <span class="log-message">Failed payment webhook from Stripe</span>
+              <span class="log-level error">ERROR</span>
+            </div>
+            <div class="log-item">
+              <span class="log-time">15 min ago</span>
+              <span class="log-message">Email delivery delayed</span>
+              <span class="log-level warning">WARNING</span>
+            </div>
+            <div class="log-item">
+              <span class="log-time">1 hour ago</span>
+              <span class="log-message">Database query timeout</span>
+              <span class="log-level error">ERROR</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

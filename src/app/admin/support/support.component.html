@@ -1,0 +1,127 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="support-page">
+      <header class="page-header">
+        <h1 class="page-title">Support</h1>
+        <button class="btn-new-request">
+          <i class="fas fa-plus"></i>
+          New Request
+        </button>
+      </header>
+
+      <div class="support-tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'tickets'"
+          (click)="setTab('tickets')">
+          My Tickets
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'help'"
+          (click)="setTab('help')">
+          Help Center
+        </button>
+      </div>
+
+      <div class="support-filters" *ngIf="activeTab === 'tickets'">
+        <div class="search-bar">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search by ticket ID, keyword, or reservation number..."
+            [(ngModel)]="searchQuery">
+        </div>
+        <select class="filter-select" [(ngModel)]="selectedStatus">
+          <option value="all">All statuses</option>
+          <option value="open">Open</option>
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+        </select>
+        <select class="filter-select" [(ngModel)]="selectedSort">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="updated">Recently updated</option>
+        </select>
+      </div>
+
+      <div class="tickets-list" *ngIf="activeTab === 'tickets'">
+        <div class="ticket-card" *ngFor="let ticket of tickets">
+          <div class="ticket-header">
+            <div class="ticket-meta">
+              <span class="ticket-id">{{ ticket.id }}</span>
+              <span class="status-badge" [ngClass]="getStatusClass(ticket.status)">
+                {{ ticket.status }}
+              </span>
+              <span class="priority-badge" [ngClass]="getPriorityClass(ticket.priority)">
+                {{ ticket.priority }}
+              </span>
+            </div>
+            <button class="ticket-menu">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+
+          <h3 class="ticket-title">{{ ticket.title }}</h3>
+
+          <div class="ticket-info">
+            <span class="info-item">
+             <i class="fa-solid fa-calendar-days"></i>
+              Opened {{ ticket.openedDate }}
+            </span>
+            <span class="info-item">
+              <i class="fa-solid fa-clock"></i>
+              {{ ticket.status === 'Resolved' ? 'Resolved '  + ticket.lastUpdate : 'Last update ' + ticket.lastUpdate }}
+            </span>
+            <span class="info-item" *ngIf="ticket.linkedReservation">
+              <i class="fas fa-link"></i>
+              Linked: {{ ticket.linkedReservation }}
+            </span>
+          </div>
+
+          <p class="ticket-additional-info" *ngIf="ticket.additionalInfo">
+            <i [class]="ticket.additionalInfoIcon || 'fas fa-info-circle'"></i>
+            {{ ticket.additionalInfo }}
+          </p>
+
+          <div class="feedback-section" *ngIf="ticket.feedbackEnabled">
+            <span class="feedback-label">How was your experience?</span>
+            <div class="feedback-buttons">
+              <button class="feedback-btn">
+                <i class="fa-solid fa-thumbs-up"></i>
+              </button>
+              <button class="feedback-btn">
+                <i class="fa-solid fa-thumbs-down"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="ticket-actions">
+            <button class="btn-primary" *ngIf="ticket.actions[0]">
+              {{ ticket.actions[0] }}
+            </button>
+            <button class="btn-secondary" *ngIf="ticket.actions[1]">
+              {{ ticket.actions[1] }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-center-content" *ngIf="activeTab === 'help'">
+        <div class="placeholder-content">
+          <p class="placeholder-text">Help Center content coming soon...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

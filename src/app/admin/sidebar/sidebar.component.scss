@@ -1,0 +1,113 @@
+/* RESET UTILE */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #05070b;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 1);
+  color: #e6e9ef;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  border-right: solid 1px;
+  border-color: rgba(229, 231, 235, 1);
+  overflow-y: auto;
+}
+
+/* BRAND */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  max-width: 150px;
+  height: auto;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2e3440, #1b1f2a);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: #9aa0ad;
+}
+
+/* NAV */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  color: rgba(55, 65, 81, 1);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-item:hover {
+  background: rgba(229, 231, 235, 0.5);
+  color: rgba(55, 65, 81, 1);
+}
+
+/* ACTIVE */
+.nav-item.active {
+  background: rgba(0, 0, 0, 1);
+  color: #ffffff;
+  box-shadow: none;
+  width: 200px;
+}
+
+/* ICONS */
+.nav-icon {
+  font-size: 16px;
+  opacity: 0.85;
+  width: 18px;
+  text-align: center;
+  color: rgba(55, 65, 81, 1);
+}
+
+.nav-item.active .nav-icon {
+  opacity: 1;
+  color: #ffffff;
+}
+.nav-label{
+  color: rgba(55, 65, 81, 1);
+}
+
+.nav-item.active .nav-label {
+  color: #ffffff;
+}

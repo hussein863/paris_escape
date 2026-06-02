@@ -1,0 +1,209 @@
+<div class="messages-shell">
+  <app-client-header></app-client-header>
+    <div class="messages-layout">
+    <aside class="messages-sidebar">
+      <div class="sidebar-header">
+        <h1>Messages</h1>
+      </div>
+
+      <div class="filter-tabs">
+        <button
+          type="button"
+          class="filter-tab"
+          [class.active]="activeFilter === 'All'"
+          (click)="setFilter('All')"
+        >
+          All ({{ allCount }})
+        </button>
+        <button
+          type="button"
+          class="filter-tab"
+          [class.active]="activeFilter === 'Unread'"
+          (click)="setFilter('Unread')"
+        >
+          Unread ({{ unreadCount }})
+        </button>
+        <button
+          type="button"
+          class="filter-tab"
+          [class.active]="activeFilter === 'Archived'"
+          (click)="setFilter('Archived')"
+        >
+          Archived
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search by guide name..."
+          [(ngModel)]="searchQuery"
+        >
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="conversations-list">
+        <div
+          class="conversation-item"
+          *ngFor="let conversation of filteredConversations"
+          [class.active]="selectedConversation?.id === conversation.id"
+          (click)="selectConversation(conversation)"
+        >
+          <img [src]="conversation.avatar" [alt]="conversation.name" class="conversation-avatar">
+          <div class="conversation-body">
+            <div class="conversation-top">
+              <span class="conversation-name">{{ conversation.name }}</span>
+              <span class="conversation-time">
+                <span class="unread-dot" *ngIf="conversation.unread"></span>
+                {{ conversation.time }}
+              </span>
+            </div>
+            <div class="conversation-badges">
+              <span
+                class="status-pill"
+                [class.confirmed]="conversation.status === 'Confirmed'"
+                [class.pending]="conversation.status === 'Pending'"
+                [class.support]="conversation.status === 'Support'"
+              >
+                {{ conversation.status }}
+              </span>
+              <span class="tag-pill" *ngIf="conversation.badge">{{ conversation.badge }}</span>
+            </div>
+            <p class="conversation-preview">{{ conversation.preview }}</p>
+            <div class="conversation-subline">{{ conversation.subline }}</div>
+          </div>
+          <div class="conversation-icons">
+            <button
+              *ngIf="conversation.pinned"
+              class="icon-action"
+              type="button"
+              (click)="$event.stopPropagation()"
+              aria-label="Pinned">
+              <i class="fas fa-thumbtack"></i>
+            </button>
+            <button
+              *ngIf="conversation.hasAttachment"
+              class="icon-action"
+              type="button"
+              (click)="$event.stopPropagation()"
+              aria-label="Has attachment">
+              <i class="fa fa-archive" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="messages-main" *ngIf="selectedConversation">
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <img [src]="selectedConversation.avatar" [alt]="selectedConversation.name" class="chat-avatar">
+          <div class="chat-header-info">
+            <h2>{{ selectedConversation.name }}</h2>
+            <p>{{ selectedConversation.languages }}</p>
+          </div>
+        </div>
+        <button class="icon-btn" type="button" aria-label="More options">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+      </header>
+
+      <div class="booking-card">
+        <div class="booking-info">
+          <div>
+            <h3>{{ selectedConversation.booking.title }}</h3>
+            <p>{{ selectedConversation.booking.datetime }}</p>
+          </div>
+        </div>
+        <div class="booking-meta">
+          <span
+            class="booking-status"
+            [class.confirmed]="selectedConversation.booking.status === 'Confirmed'"
+            [class.pending]="selectedConversation.booking.status === 'Pending'"
+            [class.cancelled]="selectedConversation.booking.status === 'Cancelled'"
+          >
+            {{ selectedConversation.booking.status }}
+          </span>
+        </div>
+        <div class="booking-actions">
+          <button class="btn outline" type="button" style="border: 1px solid rgba(0, 0, 0, 1); color: black;">View Reservation</button>
+          <button class="btn outline" type="button">
+            <i class="fas fa-qrcode"></i>
+            QR Code
+          </button>
+          <button class="btn outline" type="button">
+            <i class="fas fa-map-marker-alt"></i>
+            Open in Maps
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-divider"></div>
+
+      <div class="messages-area">
+        <div class="date-pill">
+          {{ selectedConversation.conversationStart }}
+        </div>
+
+        <ng-container *ngFor="let message of selectedConversation.messages">
+          <div class="date-pill alt" *ngIf="message.divider">
+            {{ message.divider }}
+          </div>
+
+          <div class="message-row" [class.user]="message.sender === 'user'">
+            <img
+              *ngIf="message.sender === 'guide'"
+              [src]="selectedConversation.avatar"
+              [alt]="selectedConversation.name"
+              class="message-avatar"
+            >
+            <div class="message-bubble" [class.user]="message.sender === 'user'">
+              {{ message.text }}
+            </div>
+            <img
+              *ngIf="message.sender === 'user'"
+              src="assets/images/avatar/sophie.png"
+              alt="You"
+              class="message-avatar"
+            >
+          </div>
+          <div class="message-time" [class.user]="message.sender === 'user'">
+            {{ message.timestamp }}
+          </div>
+        </ng-container>
+      </div>
+
+
+    <div class="chat-divider"></div>
+    <div class="message-input-area">
+      <div class="quick-replies">
+        <button class="reply-chip" *ngFor="let reply of quickReplies" type="button">
+          {{ reply }}
+        </button>
+      </div>
+
+      <div class="message-input">
+        <input
+          type="text"
+          placeholder="Type your message..."
+          [(ngModel)]="newMessage"
+          (keydown.enter)="$event.preventDefault(); sendMessage()"
+        >
+        <button class="icon-btn ghost" type="button" aria-label="Attach">
+          <i class="fas fa-paperclip"></i>
+        </button>
+        <button class="send-btn" type="button" (click)="sendMessage()" aria-label="Send">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+
+      <div class="chat-footer">
+        Messages are monitored for safety.
+        <a href="#">Learn more</a>
+      </div>
+      </div>
+    </section>
+  </div>
+</div>

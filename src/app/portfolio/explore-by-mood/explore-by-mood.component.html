@@ -1,0 +1,15 @@
+<section class="explore-by-mood">
+  <h2>Explore by mood</h2>
+
+  <div class="mood-container">
+    <button
+      *ngFor="let mood of moods"
+      class="mood-pill"
+      [class.active]="mood.active"
+      (click)="selectMood(mood)"
+      type="button"
+    >
+      {{ mood.label }}
+    </button>
+  </div>
+</section>

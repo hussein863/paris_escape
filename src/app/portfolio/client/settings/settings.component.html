@@ -1,0 +1,194 @@
+<div class="settings-container">
+  <app-client-header></app-client-header>
+  <div class="settings-content">
+    <!-- Header -->
+    <div class="settings-header">
+      <h1>Settings</h1>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button
+          class="tab"
+          [class.active]="activeTab === 'profile'"
+          (click)="setActiveTab('profile')">
+          Profile
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'account'"
+          (click)="setActiveTab('account')">
+          Account
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'notifications'"
+          (click)="setActiveTab('notifications')">
+          Notifications
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'privacy'"
+          (click)="setActiveTab('privacy')">
+          Privacy
+        </button>
+        <button
+          class="tab"
+          [class.active]="activeTab === 'security'"
+          (click)="setActiveTab('security')">
+          Security
+        </button>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'profile'">
+      <!-- Profile Photo Section -->
+      <section class="settings-section">
+        <h2 class="section-title">Profile Photo</h2>
+        <div class="photo-section">
+          <img [src]="profilePhoto" alt="Profile" class="profile-photo">
+          <div class="photo-actions">
+            <button class="btn btn-primary" (click)="uploadPhoto()">Upload
+              Photo</button>
+            <button class="btn btn-secondary" style="border: 1px solid #e5e7eb;"
+              (click)="removePhoto()">Remove</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Personal Information Section -->
+      <section class="settings-section">
+        <h2 class="section-title">Personal Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-input" [(ngModel)]="firstName">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" class="form-input" [(ngModel)]="lastName">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" [(ngModel)]="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <div class="phone-input">
+            <select class="country-code" [(ngModel)]="phoneCode">
+              <option *ngFor="let code of countryCodes" [value]="code.dial">{{
+                code.dial }}</option>
+            </select>
+            <input type="tel" class="form-input phone-number"
+              [(ngModel)]="phoneNumber">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Country of Residence</label>
+          <select class="form-select" [(ngModel)]="country">
+            <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Preferences Section -->
+      <section class="settings-section">
+        <h2 class="section-title">Preferences</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Preferred Language</label>
+            <select class="form-select" [(ngModel)]="preferredLanguage">
+              <option *ngFor="let lang of languages" [value]="lang">{{ lang
+                }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select class="form-select" [(ngModel)]="currency">
+              <option *ngFor="let curr of currencies" [value]="curr">{{ curr
+                }}</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Emergency Contact Section -->
+      <section class="settings-section">
+        <h2 class="section-title">Emergency Contact</h2>
+        <div class="form-group">
+          <label class="form-label">Contact Name</label>
+          <input type="text" class="form-input" placeholder="Full name"
+            [(ngModel)]="emergencyContactName">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contact Phone</label>
+          <div class="phone-input">
+            <select class="country-code" [(ngModel)]="emergencyContactCode">
+              <option *ngFor="let code of countryCodes" [value]="code.dial">{{
+                code.dial }}</option>
+            </select>
+            <input type="tel" class="form-input phone-number"
+              placeholder="Phone number" [(ngModel)]="emergencyContactPhone">
+          </div>
+        </div>
+      </section>
+
+      <!-- Save Button -->
+      <div class="save-section">
+        <button class="btn btn-save" (click)="saveChanges()">Save
+          Changes</button>
+      </div>
+    </div>
+
+    <!-- Other Tabs (Placeholders) -->
+    <div class="tab-content" *ngIf="activeTab === 'account'">
+      <section class="settings-section">
+        <h2 class="section-title">Account Settings</h2>
+        <p class="placeholder-text">Account settings content coming soon...</p>
+      </section>
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'notifications'">
+      <section class="settings-section">
+        <h2 class="section-title">Notification Preferences</h2>
+        <p class="placeholder-text">Notification settings content coming
+          soon...</p>
+      </section>
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'privacy'">
+      <section class="settings-section">
+        <h2 class="section-title">Privacy Settings</h2>
+        <p class="placeholder-text">Privacy settings content coming soon...</p>
+      </section>
+    </div>
+
+    <div class="tab-content" *ngIf="activeTab === 'security'">
+      <section class="settings-section">
+        <h2 class="section-title">Security Settings</h2>
+        <p class="placeholder-text">Security settings content coming soon...</p>
+      </section>
+    </div>
+  </div>
+  <section class="support-card">
+    <div class="support-text">
+      <h3>Need Help with Your Reservations?</h3>
+      <p>Our support team is here to assist you with any questions</p>
+    </div>
+    <div class="support-actions">
+      <button class="btn primary">
+        <i class="fas fa-headset"></i>
+        Contact Support
+      </button>
+      <button class="btn outline">
+        <i class="fas fa-book"></i>
+        FAQs
+      </button>
+    </div>
+  </section>
+</div>

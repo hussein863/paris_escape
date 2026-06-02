@@ -1,0 +1,21 @@
+<header class="client-header">
+  <div class="search-container">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" placeholder="Search experiences or guides..." class="search-input">
+  </div>
+
+  <div class="header-actions">
+    <button class="notification-btn">
+      <i class="fas fa-bell"></i>
+      <span class="notification-badge" *ngIf="hasNotifications"></span>
+    </button>
+
+    <div class="user-profile">
+      <img [src]="userAvatar" [alt]="userName" class="user-avatar">
+      <div class="user-info">
+        <span class="user-name">{{ userName }}</span>
+        <span class="user-role">{{ userRole }}</span>
+      </div>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,261 @@
+.profile-sidebar {
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+
+    h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 20px;
+    }
+}
+.calendar-card{
+        margin-top: 48px;
+}
+.trust-card{
+        border: none;
+    }
+
+// Calendar
+.calendar {
+    margin-bottom: 20px;
+    background: rgba(249, 250, 251, 1);
+    border-radius: 15px;
+}
+
+.calendar-header {
+    text-align: center;
+    margin-bottom: 16px;
+
+    .month {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+
+    span {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+        padding: 8px 0;
+    }
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.day-btn {
+    aspect-ratio: 1;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(.disabled):not(.selected) {
+        background: #f5f5f5;
+    }
+
+    &.selected {
+        background: #000;
+        color: white;
+        font-weight: 500;
+    }
+
+    &.disabled {
+        color: #D1D5DB;
+        cursor: default;
+        font-weight: 400;
+    }
+}
+
+.calendar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+// Contact Form
+.form-group {
+    margin-bottom: 16px;
+
+    label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #444;
+        margin-bottom: 6px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        color: #1a1a1a;
+        transition: border-color 0.2s ease;
+        font-family: Inter;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+
+
+        &:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+
+        &::placeholder {
+            color: #aaa;
+        }
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+}
+
+.submit-btn {
+    width: 100%;
+}
+
+.response-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #888;
+    margin: 16px 0 0;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 100%;
+    text-align: center;
+
+
+    i {
+        font-size: 12px;
+    }
+}
+
+// Trust & Safety
+.trust-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.trust-item {
+    display: flex;
+    gap: 12px;
+
+    >i {
+        width: 20px;
+        color: #22c55e;
+        font-size: 16px;
+    }
+
+    .trust-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .trust-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .trust-desc {
+        font-size: 12px;
+        color: #888;
+    }
+}
+
+.report-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    color: #4B5563;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    text-align: center;
+
+    &:hover {
+        color: #1a1a1a;
+    }
+
+    i {
+        font-size: 12px;
+    }
+}
+
+// Buttons
+.btn {
+    padding: 14px 24px;
+    border-radius: 80px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+
+    &.btn-primary {
+        background: #1a1a1a;
+        color: white;
+
+        &:hover {
+            background: #333;
+        }
+    }
+
+    &.btn-secondary {
+        background: white;
+        color: #1a1a1a;
+        border: 1px solid rgba(0, 0, 0, 1);
+
+        &:hover {
+            background: #f5f5f5;
+        }
+    }
+}

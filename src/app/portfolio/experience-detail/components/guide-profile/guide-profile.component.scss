@@ -1,0 +1,149 @@
+.guide-profile-section {
+  padding: 32px 0;
+}
+
+.section-title {
+  color: #000000;
+  margin: 0 0 20px 0;
+  font-family: Inter;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 36px;
+}
+
+.guide-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 25px;
+}
+
+.guide-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.guide-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.guide-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-name {
+  color: #000000;
+  margin: 0;
+  font-family: Inter;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.guide-languages {
+  color: #4B5563;
+  margin: 0;
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+
+}
+
+.guide-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  i {
+    color: #fbbf24;
+  }
+
+  .rating-value {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .rating-count {
+    color: #6b7280;
+  }
+}
+
+.guide-bio {
+  color: #374151;
+  margin: 0;
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+}
+
+.guide-actions {
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 88px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 42px;
+
+  &.btn-outline {
+    background: white;
+    color: #000000;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    text-align: center;
+    border: 1px solid #000000;
+
+    &:hover {
+      background: #f9fafb;
+    }
+  }
+
+  &.btn-primary {
+    background: #111827;
+    color: white;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    text-align: center;
+
+    &:hover {
+      background: #1f2937;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    text-align: center;
+  }
+}

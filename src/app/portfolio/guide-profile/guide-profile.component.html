@@ -1,0 +1,20 @@
+<div class="guide-profile-page">
+    <app-header></app-header>
+    <app-profile-header [guide]="guide"></app-profile-header>
+
+    <div class="profile-content">
+        <div class="main-content">
+            <app-profile-about [guide]="guide"></app-profile-about>
+            <app-profile-location [guide]="guide"></app-profile-location>
+            <app-profile-experiences [experiences]="experiences" [guideName]="guide.name"></app-profile-experiences>
+            <app-profile-reviews [reviews]="reviews" [stats]="reviewStats"></app-profile-reviews>
+        </div>
+
+        <aside class="sidebar">
+            <app-profile-sidebar [guide]="guide"></app-profile-sidebar>
+        </aside>
+    </div>
+
+    <app-profile-similar-guides [guides]="similarGuides"></app-profile-similar-guides>
+    <app-footer></app-footer>
+</div>

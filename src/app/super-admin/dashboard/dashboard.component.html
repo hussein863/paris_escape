@@ -1,0 +1,185 @@
+<div class="dashboard">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 class="page-title">Dashboard</h1>
+    </div>
+    <div class="topbar-center">
+      <div class="search-bar">
+        <i class="search-icon fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search users, bookings, payments..."
+          [(ngModel)]="searchQuery"
+          class="search-input">
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" aria-label="Notifications">
+        <i class="icon fas fa-bell"></i>
+        <span class="badge">3</span>
+      </button>
+      <button class="icon-btn" aria-label="Help">
+        <i class="icon fas fa-question-circle"></i>
+      </button>
+      <div class="profile-menu">
+        <div class="avatar">SA</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <!-- KPI Cards -->
+    <section class="kpi-section">
+      <div class="kpi-grid">
+        <div class="kpi-card" *ngFor="let kpi of kpis">
+          <div class="kpi-header">
+            <i class="kpi-icon fas fa-{{ kpi.icon }}"></i>
+            <span class="kpi-change" [class.positive]="kpi.isPositive" [class.negative]="!kpi.isPositive">
+              {{ kpi.change }}
+            </span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-value">{{ kpi.value }}</div>
+            <div class="kpi-title">{{ kpi.title }}</div>
+          </div>
+          <div class="kpi-footer">
+            <div class="sparkline"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Critical Alerts -->
+    <section class="alerts-section" *ngIf="alerts.length > 0">
+      <div class="alerts-grid">
+        <div class="alert-card" *ngFor="let alert of alerts" [class]="'alert-' + alert.type">
+          <div class="alert-content">
+            <i class="alert-badge fas" [ngClass]="{
+              'fa-exclamation-triangle': alert.type === 'critical',
+              'fa-exclamation-circle': alert.type === 'warning',
+              'fa-info-circle': alert.type === 'info'
+            }"></i>
+            <span class="alert-message">{{ alert.message }}</span>
+          </div>
+          <button class="alert-action">{{ alert.action }}</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts-section">
+      <div class="charts-grid">
+        <!-- Revenue Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Revenue Over Time</h3>
+            <div class="chart-filters">
+              <button
+                *ngFor="let filter of chartFilters"
+                class="filter-btn"
+                [class.active]="chartFilter === filter"
+                (click)="setChartFilter(filter)">
+                {{ filter }}
+              </button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-placeholder">
+              <div class="chart-line"></div>
+              <p class="chart-label"><i class="fas fa-chart-line"></i> Revenue trend visualization</p>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item">
+              <span class="legend-color" style="background: #000;"></span>
+              Commissions
+            </span>
+            <span class="legend-item">
+              <span class="legend-color" style="background: #6b7280;"></span>
+              Payouts
+            </span>
+          </div>
+        </div>
+
+        <!-- Traffic & Bookings Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Traffic & Bookings</h3>
+            <div class="chart-filters">
+              <button
+                *ngFor="let filter of chartFilters"
+                class="filter-btn"
+                [class.active]="chartFilter === filter"
+                (click)="setChartFilter(filter)">
+                {{ filter }}
+              </button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-placeholder">
+              <div class="chart-bars"></div>
+              <p class="chart-label"><i class="fas fa-chart-bar"></i> Traffic & bookings visualization</p>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item">
+              <span class="legend-color" style="background: #000;"></span>
+              Organic
+            </span>
+            <span class="legend-item">
+              <span class="legend-color" style="background: #6b7280;"></span>
+              Ads
+            </span>
+            <span class="legend-item">
+              <span class="legend-color" style="background: #d1d5db;"></span>
+              Direct
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="quick-actions-grid">
+        <a *ngFor="let action of quickActions" [href]="action.route" class="action-card">
+          <i class="action-icon fas fa-{{ action.icon }}"></i>
+          <span class="action-title">{{ action.title }}</span>
+          <span class="action-count" *ngIf="action.count">{{ action.count }}</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="activity-section">
+      <h2 class="section-title">Recent Activity</h2>
+      <div class="activity-timeline">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-icon">
+            <i class="fas fa-{{ activity.icon }}"></i>
+          </div>
+          <div class="activity-content">
+            <p class="activity-description">{{ activity.description }}</p>
+            <span class="activity-timestamp">{{ activity.timestamp }}</span>
+          </div>
+          <a [href]="activity.link" class="activity-link">View →</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    <div class="footer-links">
+      <a href="#">Legal</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Documentation</a>
+    </div>
+    <div class="footer-info">
+      <span>System v2.4.1</span>
+    </div>
+  </footer>
+</div>

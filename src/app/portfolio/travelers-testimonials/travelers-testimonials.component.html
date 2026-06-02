@@ -1,0 +1,25 @@
+<section class="travelers-testimonials">
+  <div class="container">
+    <h2 class="section-title">What travelers say</h2>
+    
+    <div class="testimonials-grid">
+      <div class="testimonial-card" *ngFor="let testimonial of testimonials">
+        <div class="rating">
+          <svg *ngFor="let star of [1,2,3,4,5]" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 1L12.5 7.5L19 8L14 13L15.5 19L10 15.5L4.5 19L6 13L1 8L7.5 7.5L10 1Z" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        
+        <p class="testimonial-text">"{{ testimonial.text }}"</p>
+        
+        <div class="author-info">
+          <img [src]="testimonial.avatar" [alt]="testimonial.name" class="avatar">
+          <div class="author-details">
+            <p class="author-name">{{ testimonial.name }}</p>
+            <p class="author-location">{{ testimonial.location }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

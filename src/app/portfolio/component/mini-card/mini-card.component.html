@@ -1,0 +1,17 @@
+<div class="mini-card" *ngIf="experience">
+  <div class="mini-card-image-wrapper">
+    <img [src]="experience.image" [alt]="experience.title" class="mini-card-image">
+    <div class="mini-card-overlay"></div>
+    
+    <span class="today-badge" *ngIf="experience.isToday">
+      Today
+    </span>
+  </div>
+
+  <div class="mini-card-content">
+    <h3 class="mini-card-title">{{ experience.title }}</h3>
+    <p class="mini-card-time">
+      {{ experience.timeSlot }}
+    </p>
+  </div>
+</div>

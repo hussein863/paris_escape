@@ -1,0 +1,71 @@
+<div class="experiences-grid-container">
+  <div class="grid-controls">
+    <div class="sort-dropdown">
+      <label></label>
+      <select [(ngModel)]="selectedSort" class="sort-select">
+        <option value="relevance">Sort by: Relevance</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="rating">Highest Rated</option>
+        <option value="duration">Duration</option>
+      </select>
+    </div>
+
+    <div class="view-controls">
+      <button class="view-btn-map" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">
+        <i class="fas fa-map"></i>
+      </button>
+
+      <div class="view-toggle">
+        <button class="view-btn" [class.active]="viewMode === 'circle'" (click)="setViewMode('circle')">
+          <img src="assets/images/icon/image.png" class="item-icon" alt="" style="width: 18px; height: 18px">
+        </button>
+        <button class="view-btn" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="experiences-grid" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
+    <div class="experience-card" *ngFor="let experience of experiences" (click)="goToExperience(experience.id)">
+      <div class="card-image-wrapper">
+        <img [src]="experience.image" [alt]="experience.title" class="card-image">
+        <span *ngIf="experience.badge" class="badge">{{ experience.badge }}</span>
+      </div>
+
+      <div class="card-content">
+        <div class="card-header">
+          <h3 class="card-title">{{ experience.title }}</h3>
+          <button class="favorite-btn" [class.is-favorite]="experience.isFavorite" (click)="toggleFavorite(experience)">
+            <i class="far fa-heart"></i>
+            <i class="fas fa-heart"></i>
+          </button>
+        </div>
+        <p class="card-meta">{{ experience.duration }} • {{ experience.category }} • {{ experience.location }}</p>
+
+        <div class="card-footer">
+          <div class="rating">
+            <i class="fas fa-star"></i>
+            <span class="rating-value">{{ experience.rating }}</span>
+            <span class="rating-count">({{ experience.reviewCount }})</span>
+          </div>
+          <div class="price">€{{ experience.price }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="previousPage()">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button *ngFor="let page of pageNumbers" class="page-btn" [class.active]="currentPage === page"
+      (click)="goToPage(page)">
+      {{ page }}
+    </button>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>

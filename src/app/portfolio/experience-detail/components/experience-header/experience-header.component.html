@@ -1,0 +1,39 @@
+<div class="experience-header">
+  <nav class="breadcrumb">
+    <a href="/" class="breadcrumb-link">Home</a>
+    <span class="breadcrumb-separator">›</span>
+    <a href="/experiences" class="breadcrumb-link">Experiences</a>
+    <span class="breadcrumb-separator">›</span>
+    <span class="breadcrumb-current">{{ title }}</span>
+  </nav>
+
+  <div class="badges-row">
+    <span *ngFor="let badge of badges" class="badge" [ngClass]="getBadgeClass(badge)">
+      <i *ngIf="getBadgeIcon(badge)" [class]="getBadgeIcon(badge)"></i>
+      {{ badge }}
+    </span>
+  </div>
+
+  <div class="title-row">
+    <h1 class="title">{{ title }}</h1>
+    <div class="action-buttons">
+      <button class="action-btn" [class.active]="isFavorite" (click)="toggleFavorite()" aria-label="Add to favorites">
+        <i [class]="isFavorite ? 'fas fa-heart' : 'far fa-heart'"></i>
+      </button>
+      <button class="action-btn" (click)="share()" aria-label="Share">
+        <i class="fas fa-share-alt"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <span class="category">{{ category }}</span>
+    <span class="separator">•</span>
+    <span class="location">{{ location }}</span>
+    <div class="rating">
+      <i class="fas fa-star"></i>
+      <span class="rating-value">{{ rating }}</span>
+      <span class="reviews-count">({{ reviewsCount }} reviews)</span>
+    </div>
+  </div>
+</div>

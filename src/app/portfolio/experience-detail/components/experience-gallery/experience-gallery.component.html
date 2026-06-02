@@ -1,0 +1,53 @@
+<div class="experience-gallery">
+  <div class="gallery-container">
+    <!-- Main Image -->
+    <div class="main-image" (click)="openLightbox(0)">
+      <img [src]="mainImage.url" [alt]="mainImage.alt" />
+      <button class="view-all-btn">
+        <i class="fas fa-images"></i>
+        View all photos
+      </button>
+      <div class="image-badge badge-duration">
+        <i class="far fa-clock"></i>
+        {{ duration }}
+      </div>
+      <div class="image-badge badge-guests">
+        <i class="fas fa-users"></i>
+        Max {{ maxGuests }} people
+      </div>
+    </div>
+
+    <!-- Thumbnails Row -->
+    <div class="thumbnails-row">
+      <div
+        *ngFor="let thumb of thumbnails; let i = index"
+        class="thumbnail"
+        [class.has-more]="i === 3"
+        (click)="openLightbox(i + 1)">
+        <img [src]="thumb.url" [alt]="thumb.alt" />
+        <span *ngIf="i === 3" class="more-overlay">
+          +12
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" *ngIf="isLightboxOpen" (click)="closeLightbox()">
+    <button class="lightbox-close" (click)="closeLightbox()">
+      <i class="fas fa-times"></i>
+    </button>
+    <button class="lightbox-nav prev" (click)="prevImage(); $event.stopPropagation()">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <img [src]="images[selectedImageIndex].url" [alt]="images[selectedImageIndex].alt" />
+    </div>
+    <button class="lightbox-nav next" (click)="nextImage(); $event.stopPropagation()">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+    <div class="lightbox-counter">
+      {{ selectedImageIndex + 1 }} / {{ images.length }}
+    </div>
+  </div>
+</div>

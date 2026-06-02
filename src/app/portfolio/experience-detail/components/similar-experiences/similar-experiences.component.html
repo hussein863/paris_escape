@@ -1,0 +1,22 @@
+<section class="similar-experiences">
+  <h2 class="section-title">Similar experiences</h2>
+  
+  <div class="experiences-grid">
+    <div *ngFor="let exp of experiences" class="experience-card">
+      <div class="card-image">
+        <img [src]="exp.image" [alt]="exp.title" />
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">{{ exp.title }}</h3>
+        <p class="card-meta">{{ exp.duration }} • {{ exp.category }}</p>
+        <div class="card-footer">
+          <span class="card-price">From {{ exp.currency }}{{ exp.price }}</span>
+          <div class="card-rating">
+            <i class="fas fa-star"></i>
+            <span>{{ exp.rating }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

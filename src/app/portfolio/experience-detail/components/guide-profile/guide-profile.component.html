@@ -1,0 +1,27 @@
+<section class="guide-profile-section">
+  <h2 class="section-title">Your guide</h2>
+  
+  <div class="guide-card">
+    <div class="guide-content">
+      <img [src]="guide.avatar" [alt]="guide.name" class="guide-avatar" />
+      
+      <div class="guide-info">
+        <h3 class="guide-name">{{ guide.name }}</h3>
+        <p class="guide-languages">{{ guide.languages.join(', ') }}</p>
+        <p class="guide-bio">{{ guide.bio }}</p>
+        <div class="guide-actions">
+          <button class="btn btn-outline">View Profile</button>
+          <button class="btn btn-primary">Message Guide</button>
+        </div>
+      </div>
+      
+      <div class="guide-rating">
+        <i class="fas fa-star"></i>
+        <span class="rating-value">{{ guide.rating }}</span>
+        <span class="rating-count">({{ guide.reviewsCount }} reviews)</span>
+      </div>
+    </div>
+    
+    
+  </div>
+</section>

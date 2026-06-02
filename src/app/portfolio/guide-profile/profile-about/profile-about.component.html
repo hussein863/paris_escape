@@ -1,0 +1,29 @@
+<section class="profile-about">
+  <h2 class="section-title">About {{ guide.name.split(' ')[0] }}</h2>
+  
+  <div class="about-content" [class.expanded]="isExpanded">
+    <p>{{ guide.about }}</p>
+  </div>
+  
+  <button class="read-more-btn" (click)="toggleReadMore()">
+    {{ isExpanded ? 'Show less' : 'Read more' }}
+  </button>
+  
+  <div class="specialties">
+    <h3>Specialties & Themes</h3>
+    <div class="tags">
+      <span class="tag" *ngFor="let specialty of guide.specialties">{{ specialty }}</span>
+    </div>
+  </div>
+  
+  <div class="languages-section">
+    <h3>Languages</h3>
+    <div class="language-list">
+      <div class="language-item" *ngFor="let lang of guide.languages">
+        <i class="fas fa-check" [style.color]="lang.level === 'Native' ? '#22c55e' : lang.level === 'Fluent' ? '#22c55e' : '#22c55e'"></i>
+        <span class="lang-name">{{ lang.name }}</span>
+        <span class="lang-level">- {{ lang.level }}</span>
+      </div>
+    </div>
+  </div>
+</section>

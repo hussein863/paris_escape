@@ -1,0 +1,17 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="dashboard-content">
+      <app-statistics></app-statistics>
+      <app-experience-dashboard></app-experience-dashboard>
+    </section>
+  </main>
+</div>

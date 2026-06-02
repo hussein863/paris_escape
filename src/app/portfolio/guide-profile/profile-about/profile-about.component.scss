@@ -1,0 +1,132 @@
+.profile-about {
+    background: white;
+    border-radius: 12px;
+    padding-top: 48px;
+
+    @media (max-width: 768px) {
+        padding: 24px 16px;
+        border-radius: 0;
+    }
+}
+
+.section-title {
+    color: #000000;
+    margin: 0 0 20px;
+    font-family: Inter;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 36px;
+}
+
+.about-content {
+    position: relative;
+    max-height: 150px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+
+    &.expanded {
+        max-height: none;
+    }
+
+    &:not(.expanded)::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(transparent, white);
+    }
+
+    p {
+        color: #374151;
+        margin: 0;
+        white-space: pre-line;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 26px;
+    }
+}
+
+.read-more-btn {
+    background: none;
+    border: none;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 12px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.specialties {
+    margin-top: 32px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 16px;
+    }
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #444;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #1a1a1a;
+    }
+}
+
+.languages-section {
+    margin-top: 32px;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 16px;
+    }
+}
+
+.language-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.language-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+
+    i {
+        font-size: 12px;
+    }
+
+    .lang-name {
+        color: #1a1a1a;
+        font-weight: 500;
+    }
+
+    .lang-level {
+        color: #666;
+    }
+}

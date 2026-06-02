@@ -1,0 +1,26 @@
+<section class="similar-guides">
+  <div class="container">
+    <h2 class="section-title">Similar Guides in Paris</h2>
+    
+    <div class="guides-grid">
+      <div class="guide-card" *ngFor="let guide of guides">
+        <div class="card-image">
+          <img [src]="guide.image" [alt]="guide.name" />
+        </div>
+        
+        <div class="card-content">
+          <h3 class="guide-name">{{ guide.name }}</h3>
+          <span class="guide-languages">{{ guide.languages }}</span>
+          
+          <div class="guide-rating">
+            <i class="fas fa-star"></i>
+            <span class="rating-value">{{ guide.rating }}</span>
+            <span class="rating-count">({{ guide.reviewCount }})</span>
+          </div>
+          
+          <p class="guide-specialty">{{ guide.specialty }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

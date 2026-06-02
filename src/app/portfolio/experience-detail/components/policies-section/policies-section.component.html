@@ -1,0 +1,10 @@
+<section class="policies-section">
+  <h2 class="section-title">Policies & Safety</h2>
+  
+  <div class="policies-grid">
+    <div *ngFor="let policy of policies" class="policy-item">
+      <h3 class="policy-title">{{ policy.title }}</h3>
+      <p class="policy-description">{{ policy.description }}</p>
+    </div>
+  </div>
+</section>

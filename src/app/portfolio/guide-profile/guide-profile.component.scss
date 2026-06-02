@@ -1,0 +1,35 @@
+.guide-profile-page {
+    min-height: 100vh;
+    background-color: white;
+}
+
+.profile-content {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+    padding: 32px 64px;
+    // max-width: 1440px;
+    margin: 0 auto;
+    background: white;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+        padding: 24px 16px;
+    }
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+
+    @media (max-width: 768px) {
+        gap: 32px;
+    }
+}
+
+.sidebar {
+    @media (max-width: 1024px) {
+        order: -1;
+    }
+}

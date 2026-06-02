@@ -1,0 +1,146 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="reservations-page">
+      <header class="page-header">
+    <h1 class="page-title" style="width: 255px;">Reservations and Calendar</h1>
+
+    <div class="header-actions">
+      <button class="btn-secondary">
+       <p style="    margin-top: 2px;"> <i class="fas fa-ban"></i>
+        Block Days</p>
+        Off
+      </button>
+      <button class="btn-secondary">
+        <p style="    margin-top: 2px;"><i class="fas fa-plus"></i>
+        Add Manual </p>
+        Booking
+      </button>
+      <button class="btn-secondary">
+        <p style="    margin-top: 2px;"><i class="fa-brands fa-google"></i>
+        Connect </p>
+        Calendar
+      </button>
+      <button class="btn-primary">
+        <p style="    margin-top: 2px;"><i class="fas fa-download"></i>
+        Export </p>
+        CSV
+      </button>
+    </div>
+  </header>
+
+  <div class="view-tabs">
+    <button
+      class="tab"
+      [class.active]="selectedView === 'calendar'"
+      (click)="setView('calendar')">
+      Calendar
+    </button>
+    <button
+      class="tab"
+      [class.active]="selectedView === 'list'"
+      (click)="setView('list')" style="border: 1px solid rgba(209, 213, 219, 1); border-radius: 60px;">
+      List
+    </button>
+    <button
+      class="tab"
+      [class.active]="selectedView === 'settings'"
+      (click)="setView('settings')" style="border: 1px solid rgba(209, 213, 219, 1); border-radius: 60px;">
+      Settings
+    </button>
+  </div>
+
+  <div class="calendar-container" *ngIf="selectedView === 'calendar'">
+    <div class="calendar-controls">
+      <div class="month-navigation">
+        <button class="nav-btn" (click)="previousMonth()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <h2 class="current-month">{{ currentMonth }}</h2>
+        <button class="nav-btn" (click)="nextMonth()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="calendar-filters">
+        <select class="filter-select">
+          <option>All Experiences</option>
+          <option>Montmartre Walking Tour</option>
+          <option>Seine Photography Walk</option>
+        </select>
+        <button class="view-toggle">Week View</button>
+      </div>
+    </div>
+
+    <div class="calendar-grid">
+      <div class="calendar-header">
+        <div class="day-label">Mon</div>
+        <div class="day-label">Tue</div>
+        <div class="day-label">Wed</div>
+        <div class="day-label">Thu</div>
+        <div class="day-label">Fri</div>
+        <div class="day-label">Sat</div>
+        <div class="day-label">Sun</div>
+      </div>
+
+      <div class="calendar-body">
+        <div
+          *ngFor="let day of calendarDays"
+          class="calendar-day"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.today]="day.isToday">
+          <span class="day-number">{{ day.day }}</span>
+
+          <div class="day-bookings">
+            <div
+              *ngFor="let booking of day.bookings"
+              class="booking-badge"
+              [class.confirmed]="booking.status === 'confirmed'"
+              [class.pending]="booking.status === 'pending'"
+              [class.cancelled]="booking.status === 'cancelled'">
+              {{ booking.time }} {{ booking.status === 'confirmed' ? 'Confirmed' : booking.status === 'pending' ? 'Pending' : 'Cancelled' }}
+            </div>
+            <div *ngIf="day.isToday" class="today-indicator">Today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calendar-legend">
+      <div class="legend-item">
+        <span class="legend-dot confirmed"></span>
+        <span class="legend-label">Confirmed</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot pending"></span>
+        <span class="legend-label">Pending</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot cancelled"></span>
+        <span class="legend-label">Cancelled</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot blocked"></span>
+        <span class="legend-label">Blocked</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="list-view" *ngIf="selectedView === 'list'">
+    <p class="placeholder"></p>
+  </div>
+
+  <div class="settings-view" *ngIf="selectedView === 'settings'">
+    <p class="placeholder"></p>
+  </div>
+</section>
+  </main>
+</div>

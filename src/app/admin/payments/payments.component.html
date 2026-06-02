@@ -1,0 +1,363 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="payments-page">
+      <!-- Header -->
+      <header class="page-header">
+        <h1 class="page-title">Payments and subscription</h1>
+        <div class="header-badges">
+          <button class="plan-badge">Pro Plan</button>
+          <button class="renewal-text">Renews {{ renewalDate }}</button>
+        </div>
+      </header>
+
+      <!-- Payment Failed Alert -->
+      <div class="alert alert-error" *ngIf="cardExpired">
+        <div class="alert-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="alert-content">
+          <div class="alert-title">Payment failed</div>
+          <div class="alert-text">Your card ending in {{ cardLast4 }} was declined. Please update your payment method.</div>
+        </div>
+        <div class="alert-actions">
+          <button class="btn-ghost" (click)="updateCard()">Update Card</button>
+          <button class="btn-danger" (click)="retryPayment()">Retry Payment</button>
+        </div>
+      </div>
+
+      <!-- Account Summary & Payout Readiness -->
+      <div class="grid-2col">
+        <!-- Account Summary -->
+        <div class="card">
+          <h2 class="card-title">Account Summary</h2>
+
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-label">Current Plan</div>
+              <div class="summary-value-large">{{ currentPlan }}</div>
+              <div class="summary-subtext">€{{ planPrice }}/{{ billingCycle }} • Billed monthly</div>
+              <div class="summary-subtext muted">Unlimited experiences, priority support</div>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-label">Next Invoice</div>
+              <div class="summary-value-large">€{{ nextInvoiceAmount }}</div>
+              <div class="summary-subtext">Due {{ nextInvoiceDate }}</div>
+              <div class="summary-subtext muted">Includes VAT</div>
+            </div>
+          </div>
+
+          <div class="earnings-grid">
+            <div class="earning-item">
+              <div class="earning-label">This Month</div>
+              <div class="earning-value success">€{{ thisMonthEarnings }}</div>
+              <div class="earning-subtext">Gross earnings</div>
+            </div>
+
+            <div class="earning-item">
+              <div class="earning-label">Last Month</div>
+              <div class="earning-value">€{{ lastMonthEarnings }}</div>
+              <div class="earning-subtext">Net earnings</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payout Readiness -->
+        <div class="card">
+          <h2 class="card-title">Payout Readiness</h2>
+
+          <div class="readiness-list">
+            <div class="readiness-item">
+              <span class="readiness-label">KYC Verification</span>
+              <i class="fas fa-check-circle" [class.success]="kycVerified" [class.pending]="!kycVerified"></i>
+            </div>
+            <div class="readiness-item">
+              <span class="readiness-label">Bank Info</span>
+              <i class="fas fa-check-circle" [class.success]="bankInfoComplete" [class.pending]="!bankInfoComplete"></i>
+            </div>
+            <div class="readiness-item">
+              <span class="readiness-label">Tax Info</span>
+              <i class="fas fa-exclamation-circle" [class.warning]="!taxInfoComplete" [class.success]="taxInfoComplete"></i>
+            </div>
+            <div class="readiness-item">
+              <span class="readiness-label">Stripe Connect</span>
+              <i class="fas fa-check-circle" [class.success]="stripeConnected" [class.pending]="!stripeConnected"></i>
+            </div>
+          </div>
+
+          <button class="btn-outline-full" (click)="completeTaxInfo()" *ngIf="!taxInfoComplete">Complete Tax Info</button>
+        </div>
+      </div>
+
+      <!-- Plan Management -->
+      <div class="card">
+        <div class="card-header-row">
+          <h2 class="card-title">Plan Management</h2>
+          <a href="#" class="link-text">Feature comparison</a>
+        </div>
+
+        <div class="plan-actions">
+          <button class="btn-primary" (click)="upgradePlan()" style="height: 46px; justify-content: center; font-weight: 400;">
+            <i class="fas fa-arrow-up"></i>
+            Upgrade Plan
+          </button>
+          <button class="btn-outline" (click)="downgradePlan()" style="height: 46px; justify-content: center; font-weight: 400;">
+            <i class="fas fa-arrow-down"></i>
+            Downgrade
+          </button>
+          <button class="btn-outline" (click)="pausePlan()" style="height: 46px; justify-content: center; font-weight: 400;">
+            <i class="fas fa-pause"></i>
+            Pause
+          </button>
+          <button class="btn-outline danger" (click)="cancelPlan()" style="height: 46px; justify-content: center; font-weight: 400;">
+            <i class="fas fa-times"></i>
+            Cancel at Period End
+          </button>
+        </div>
+
+        <div class="info-banner">
+          <i class="fas fa-info-circle"></i>
+          <span>Plan changes are prorated. You'll be charged the difference immediately for upgrades or receive credit for downgrades.</span>
+        </div>
+      </div>
+
+      <!-- Billing Details & Payment Methods -->
+      <div class="grid-2col-2">
+        <!-- Billing Details -->
+        <div class="card">
+          <div class="card-header-row">
+            <h2 class="card-title">Billing Details</h2>
+            <button class="btn-link-edit" (click)="editBillingDetails()">Edit</button>
+          </div>
+
+          <div class="details-list">
+            <div class="detail-item">
+              <div class="detail-label">Legal Name</div>
+              <div class="detail-value">{{ legalName }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Address</div>
+              <div class="detail-value">{{ address }}</div>
+            </div>
+            <br>
+            <div class="detail-item">
+              <div class="detail-label">SIRET</div>
+              <div class="detail-value">{{ siret }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">VAT Number</div>
+              <div class="detail-value">{{ vatNumber }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Invoice Email</div>
+              <div class="detail-value">{{ invoiceEmail }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="card">
+          <div class="card-header-row">
+            <h2 class="card-title">Payment Methods</h2>
+            <button class="btn-link" (click)="addCard()">Add Card</button>
+          </div>
+
+          <div class="payment-card" [class.expired]="cardExpired">
+            <div class="payment-card-header">
+              <i class="fab fa-cc-visa"></i>
+              <div class="card-info">
+                <div class="card-number">•••• {{ cardLast4 }}</div>
+                <div class="card-expiry">Expires {{ cardExpiry }}</div>
+              </div>
+              <span class="badge-default">Default</span>
+            </div>
+            <div class="card-status" *ngIf="cardExpired">Card expired</div>
+            <a href="#" class="card-link" (click)="updateCard()">Update card</a>
+          </div>
+
+          <div class="payment-options">
+            <div class="payment-option-icons">
+              <i class="fa-brands fa-apple-pay"></i>
+              <i class="fa-brands fa-google-pay" style="color: rgba(37, 99, 235, 1);"></i>
+            </div>
+            <div class="payment-option-text">Apple Pay and Google Pay available for one-time payments</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Earnings Overview -->
+      <div class="card">
+        <h2 class="card-title">Earnings Overview</h2>
+
+        <div class="chart-container">
+          <div class="chart-header">
+            <h3 class="chart-title">Earnings Last 12 Months</h3>
+          </div>
+          <div class="chart-legend">
+            <div class="chart-legend">
+              <span class="legend-item">
+                <span class="legend-color gross"></span>
+                Gross Earnings
+              </span>
+              <span class="legend-item">
+                <span class="legend-color net"></span>
+                Net Earnings
+              </span>
+            </div>
+          </div>
+          <div class="chart-placeholder">
+            <canvas #earningsChart></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoices -->
+      <div class="card">
+        <div class="card-header-row">
+          <h2 class="card-title">Invoices</h2>
+          <div class="filter-row">
+            <select class="select-filter" [(ngModel)]="selectedYear">
+              <option>2024</option>
+              <option>2023</option>
+            </select>
+            <select class="select-filter" [(ngModel)]="selectedStatus">
+              <option>All Status</option>
+              <option>Paid</option>
+              <option>Unpaid</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Invoice</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invoice of invoices">
+                <td>{{ invoice.date }}</td>
+                <td>{{ invoice.invoiceNumber }}</td>
+                <td>€{{ invoice.amount }}</td>
+                <td>
+                  <span class="badge" [class.badge-success]="invoice.status === 'paid'" [class.badge-error]="invoice.status === 'unpaid'">
+                    {{ invoice.status === 'paid' ? 'Paid' : 'Unpaid' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="table-actions">
+                    <a href="#" class="action-link" (click)="viewInvoice(invoice)">View</a>
+                    <a href="#" class="action-link" (click)="downloadInvoice(invoice)">Download</a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payouts -->
+      <div class="card">
+        <h2 class="card-title">Payouts</h2>
+
+        <div class="grid-2col-auto">
+          <!-- Bank Information -->
+          <div class="payout-section">
+            <h3 class="section-subtitle">Bank Information</h3>
+            <div class="bank-info">
+              <div class="bank-details">
+                <div class="bank-name">{{ bankName }}</div>
+                <div class="bank-account">{{ bankAccount }}</div>
+              </div>
+              <i class="fas fa-check-circle success"></i>
+            </div>
+            <button class="btn-outline-full" (click)="updateBankInfo()">Update Bank Info</button>
+          </div>
+
+          <!-- Payout Schedule -->
+          <div class="payout-section">
+            <h3 class="section-subtitle">Payout Schedule</h3>
+            <div class="schedule-info">
+              <div class="schedule-title">{{ payoutSchedule }}</div>
+              <div class="schedule-text">{{ payoutFrequency }}</div>
+            </div>
+            <div class="next-payout">
+              <div class="next-payout-label">Next payout</div>
+              <div class="next-payout-value">{{ nextPayoutDate }} • €{{ nextPayoutAmount }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Payout ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Destination</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let payout of payouts">
+                <td>{{ payout.date }}</td>
+                <td>{{ payout.payoutId }}</td>
+                <td>€{{ payout.amount }}</td>
+                <td>
+                  <span class="badge badge-success">{{ payout.status === 'paid' ? 'Paid' : 'Pending' }}</span>
+                </td>
+                <td style="color: rgba(75, 85, 99, 1);">{{ payout.destination }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Need Help -->
+      <div class="card">
+        <h2 class="card-title">Need Help?</h2>
+
+        <div class="help-grid">
+          <div class="help-card">
+            <i class="fas fa-question-circle"></i>
+              <div class="help-title">Billing FAQ</div>
+            <div class="help-content">
+              <div class="help-text">Common questions about billing and payments</div>
+            </div>
+          </div>
+
+          <div class="help-card">
+            <i class="fas fa-money-bill-wave"></i>
+              <div class="help-title">How Payouts Work</div>
+            <div class="help-content">
+              <div class="help-text">Learn about our payout schedule and process</div>
+            </div>
+          </div>
+
+          <div class="help-card">
+            <i class="fas fa-headset"></i>
+              <div class="help-title">Contact Support</div>
+            <div class="help-content">
+              <div class="help-text">Get help with your account and payments</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

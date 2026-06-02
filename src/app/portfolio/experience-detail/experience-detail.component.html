@@ -1,0 +1,75 @@
+<app-header></app-header>
+
+<div class="experience-detail-page">
+  <div class="container">
+    <!-- Header Section -->
+    <app-experience-header [title]="experienceData.title" [category]="experienceData.category"
+      [location]="experienceData.location" [rating]="experienceData.rating" [reviewsCount]="experienceData.reviewsCount"
+      [badges]="experienceData.badges"></app-experience-header>
+
+    <!-- Gallery + Sidebar Grid -->
+    <div class="container-2">
+      <!-- Main Content Grid -->
+      <div class="content-grid">
+        <!-- Left Column -->
+        <div class="main-content">
+          <!-- Gallery -->
+          <app-experience-gallery [images]="galleryData.images" [duration]="galleryData.duration"
+            [maxGuests]="galleryData.maxGuests"></app-experience-gallery>
+
+          <!-- Overview -->
+          <app-experience-overview [description]="overviewData.description" [highlights]="overviewData.highlights"
+            [whatYouWillDo]="overviewData.whatYouWillDo" [audienceTags]="overviewData.audienceTags"
+            [itinerary]="overviewData.itinerary" [includedItems]="overviewData.includedItems"
+            [whatToBring]="overviewData.whatToBring"></app-experience-overview>
+
+          <!-- Meeting Point -->
+          <app-meeting-point [meetingPoint]="meetingPointData"></app-meeting-point>
+
+          <!-- Guide Profile -->
+          <app-guide-profile [guide]="guideData"></app-guide-profile>
+
+          <!-- Reviews -->
+          <app-reviews-section [reviews]="reviewsData.reviews" [averageRating]="reviewsData.averageRating"
+            [totalReviews]="reviewsData.totalReviews"></app-reviews-section>
+        </div>
+
+        <!-- Right Column - Booking Sidebar -->
+        <aside class="sidebar">
+          <app-booking-sidebar [basePrice]="85" [currency]="'€'"></app-booking-sidebar>
+        </aside>
+      </div>
+
+      <!-- Full Width Section -->
+
+    </div>
+  </div>
+  <div class="container-3">
+    <div class="full-width-section">
+      <!-- FAQ -->
+      
+      <app-faq-section [faqs]="faqData"></app-faq-section>
+      <app-policies-section [policies]="policiesData"></app-policies-section>
+      <app-similar-experiences [experiences]="similarExperiencesData"></app-similar-experiences>
+
+    </div>
+
+    <!-- Similar Experiences -->
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+      <div class="container-footer">
+        <div class="cta-content">
+          <h2>Need help planning your visit?</h2>
+          <p>Our support team is here to assist you</p>
+        </div>
+        <div class="cta-actions">
+          <button class="btn btn-secondary">Contact Support</button>
+          <button class="btn btn-primary">Become a Guide</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<app-footer></app-footer>

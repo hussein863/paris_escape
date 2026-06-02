@@ -1,0 +1,15 @@
+<div class="card-person" *ngIf="guide">
+  <div class="guide-photo-wrapper">
+    <img [src]="guide.photo" [alt]="guide.name" class="guide-photo">
+  </div>
+
+  <div class="guide-info">
+    <h3 class="guide-name">{{ guide.name }}</h3>
+    <p class="guide-specialty">{{ guide.specialty }}</p>
+    
+    <div class="guide-rating">
+      <i class="fas fa-star"></i>
+      <span class="rating-value">{{ guide.rating.toFixed(1) }}</span>
+    </div>
+  </div>
+</div>

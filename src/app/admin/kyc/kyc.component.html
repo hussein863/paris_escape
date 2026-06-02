@@ -1,0 +1,436 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()"
+    aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()"
+    aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="kyc-page">
+      <!-- Header -->
+      <header class="page-header">
+        <h1 class="page-title">KYC and fiscalité</h1>
+        <div class="header-actions">
+          <span class="status-badge in-review">In Review</span>
+          <a class="btn-contact">Contact support</a>
+        </div>
+      </header>
+
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 75%"></div>
+        </div>
+        <span class="progress-text">75% complete</span>
+      </div>
+
+      <!-- Warning Banner -->
+      <div class="warning-banner">
+        <i class="fas fa-exclamation-triangle"
+          style="color: rgba(202, 138, 4, 1);"></i>
+        <div class="warning-content">
+          <h3 class="warning-title">Verification required</h3>
+          <ul class="warning-list">
+            <li>Payouts unavailable until KYC and bank account are approved</li>
+            <li>Publishing paid experiences requires KYC approval</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Verification Overview -->
+      <div class="verification-overview">
+        <h2 class="section-title">Verification Overview</h2>
+        <div class="cards-grid">
+          <div class="verification-card" *ngFor="let card of verificationCards"
+            [ngClass]="card.status">
+            <div class="card-header">
+              <h3 class="card-title">{{ card.title }}</h3>
+              <i class="fas fa-check-circle"
+                style="color: rgba(22, 163, 74, 1);"
+                *ngIf="card.status === 'verified'"></i>
+              <i class="fas fa-clock" *ngIf="card.status === 'in-review'"></i>
+              <i class="far fa-circle"
+                *ngIf="card.status === 'not-started'"></i>
+            </div>
+            <p class="card-status">{{ card.statusText }}</p>
+          </div>
+        </div>
+
+        <div class="stripe-card">
+          <img src="assets/images/stripe.svg" alt="Stripe Connect"
+            class="stripe-logo">
+          <div class="stripe-content">
+            <span class="stripe-label">Stripe Connect</span>
+            <span class="stripe-status">In progress</span>
+          </div>
+          <span class="stripe-progress-text">75% complete</span>
+        </div>
+      </div>
+
+      <!-- Identity Verification -->
+      <div class="kyc-section">
+        <div class="section-header">
+          <div
+            style="display: flex; flex-direction: row; gap: 20px;"><h2
+              class="section-title-large">Identity Verification</h2>
+            <span class="status-badge-small approved">Approved</span></div>
+          <i class="fas fa-check-circle section-icon success"
+            style="color: rgba(22, 163, 74, 1);"></i>
+        </div>
+
+        <div class="form-grid-two">
+          <div class="form-field">
+            <label class="field-label">Legal First Name</label>
+            <input type="text" class="field-input" value="Marie" readonly>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Legal Last Name</label>
+            <input type="text" class="field-input" value="Dubois" readonly>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Date of Birth</label>
+            <input type="date" class="field-input" value="1992-06-15" readonly>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Nationality</label>
+            <input type="text" class="field-input" value="French" readonly>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">Document Type</label>
+          <select class="field-select" disabled>
+            <option>Passport</option>
+          </select>
+        </div>
+
+        <div class="uploaded-files">
+          <div class="uploaded-file success">
+            <div class="uploaded-file text">
+              <span class="file-label">Front</span>
+              <span class="file-name">passport_front.jpg</span>
+            </div>
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="uploaded-file success">
+            <div class="uploaded-file text">
+              <span class="file-label">Back</span>
+              <span class="file-name">passport_back.jpg</span>
+            </div>
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="uploaded-file success">
+            <div class="uploaded-file text">
+              <span class="file-label">Selfie</span>
+              <span class="file-name">selfie_verification.jpg</span>
+            </div>
+            <i class="fas fa-check-circle"></i>
+          </div>
+        </div>
+
+        <p class="file-info">Accepted formats: JPG, PNG, PDF • Max 10 MB • No
+          heavy edits</p>
+
+        <div class="verification-success">
+          <i class="fas fa-check-circle"></i>
+          <span>Identity verified on Nov 28, 2024</span>
+        </div>
+      </div>
+
+      <!-- Address Verification -->
+      <div class="kyc-section">
+        <div class="section-header">
+          <div
+            style="display: flex; flex-direction: row; gap: 20px;">
+            <h2 class="section-title-large">Address Verification</h2>
+            <span class="status-badge-small approved">Approved</span>
+          </div>
+          <i class="fas fa-check-circle section-icon success"
+            style="color: rgba(22, 163, 74, 1);"></i>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">Residential Address</label>
+          <input type="text" class="field-input" value="123 Rue de la Paix"
+            readonly>
+        </div>
+
+        <div class="form-grid-two">
+          <div class="form-field">
+            <label class="field-label">Postal Code</label>
+            <input type="text" class="field-input" value="75001" readonly>
+          </div>
+          <div class="form-field">
+            <label class="field-label">City</label>
+            <input type="text" class="field-input" value="Paris" readonly>
+          </div>
+        </div>
+
+        <div class="form-grid-two">
+          <div class="form-field">
+            <label class="field-label">Country</label>
+            <input type="text" class="field-input" value="France" readonly>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">Proof of Address</label>
+          <div class="uploaded-document">
+            <i class="fa-solid fa-file-pdf pdf-icon"></i>
+            <div class="document-info">
+              <span class="document-name">utility_bill_nov2024.pdf</span>
+              <span class="document-date">Uploaded Nov 28, 2024</span>
+            </div>
+            <i class="fas fa-check-circle document-check"
+              style="color: rgba(22, 163, 74, 1);"></i>
+          </div>
+        </div>
+
+        <p class="file-info">Utility bill or bank statement dated within last 3
+          months</p>
+
+        <div class="verification-success">
+          <i class="fas fa-check-circle"></i>
+          <span>Address verified on Nov 29, 2024</span>
+        </div>
+      </div>
+
+      <!-- Business and Tax Information -->
+      <div class="kyc-section">
+        <div class="section-header">
+          <div
+            style="display: flex; flex-direction: row; gap: 20px;">
+            <h2 class="section-title-large">Business and Tax Information</h2>
+            <span class="status-badge-small in-review">In Review</span>
+          </div>
+          <i class="fas fa-clock section-icon warning"></i>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">Person Type</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="personType"
+                [checked]="personType === 'individual'"
+                (change)="setPersonType('individual')">
+              <span class="radio-text">Individual</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="personType"
+                [checked]="personType === 'company'"
+                (change)="setPersonType('company')">
+              <span class="radio-text">Company</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="checkbox-info">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="isMicroEnterprise">
+            <span class="checkbox-text-2">I operate as a micro-enterprise
+              (auto-entrepreneur)</span>
+          </label>
+        </div>
+
+        <div class="form-grid-two">
+          <div class="form-field">
+            <label class="field-label">SIRET Number</label>
+            <input type="text" class="field-input" value="123456789012345">
+          </div>
+          <div class="form-field">
+            <label class="field-label">VAT Number</label>
+            <div class="input-with-button">
+              <input type="text" class="field-input" value="FR12345678901">
+              <button class="btn-inline" (click)="checkVAT()">Check VAT</button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Tax Residency</label>
+            <select class="field-select">
+              <option>France</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="field-label">Local Tax ID</label>
+            <input type="text" class="field-input" placeholder="Optional">
+          </div>
+        </div>
+
+        <div class="invoice-preview">
+          <h3 class="preview-title">Invoice Header Preview</h3>
+          <div class="preview-content">
+            <p class="preview-name">Marie Dubois</p>
+            <p class="preview-address">123 Rue de la Paix, 75001 Paris,
+              France</p>
+            <p class="preview-detail">SIRET: 123456789012345</p>
+            <p class="preview-detail">VAT: FR12345678901</p>
+          </div>
+        </div>
+
+        <div class="commission-statement">
+          <div class="statement-info">
+            <h3 class="statement-title">Monthly Commission Statement</h3>
+            <p class="statement-description">Download your latest commission
+              breakdown</p>
+          </div>
+          <button class="btn-download" (click)="downloadPDF()">
+            <i class="fas fa-download"></i>
+            Download PDF
+          </button>
+        </div>
+
+        <div class="info-banner">
+          <i class="fas fa-clock"></i>
+          <div class="info-content">
+            <strong>Under review</strong>
+            <p>Your business information is being verified. This typically takes
+              1-2 business days.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Account -->
+      <div class="kyc-section">
+        <div class="section-header">
+          <div
+            style="display: flex; flex-direction: row; gap: 20px;">
+            <h2 class="section-title-large">Bank Account</h2>
+            <span class="status-badge-small not-started">Not Started</span>
+          </div>
+          <i class="fa-solid fa-circle section-icon"></i>
+        </div>
+
+        <div class="form-grid-two">
+          <div class="form-field">
+            <label class="field-label">IBAN</label>
+            <input type="text" class="field-input"
+              placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX">
+          </div>
+          <div class="form-field">
+            <label class="field-label">BIC / SWIFT</label>
+            <input type="text" class="field-input" placeholder="BNPAFRPPXXX">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">Account Holder Name</label>
+          <input type="text" class="field-input"
+            placeholder="Must match your legal name">
+        </div>
+
+        <div class="info-banner blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="info-content">
+            <strong>Bank Verification</strong>
+            <p>After adding your bank details, we'll send two small deposits
+              (less than €1 each) to verify your account. This usually takes 1-2
+              business days.</p>
+          </div>
+        </div>
+        <br>
+        <div class="form-field">
+          <label class="field-label">Payout Currency</label>
+          <select class="field-select">
+            <option>EUR - Euro</option>
+          </select>
+        </div>
+
+        <a href="#" class="link-small">
+          <i class="fas fa-link" style="color: rgba(107, 114, 128, 1);"></i>
+        </a>
+        <a href="#" class="link-small">
+          <div class="link-text">
+            <span class="link-title">View payout schedule</span>
+            <span class="link-subtitle">in Payments and Subscription</span>
+          </div>
+        </a>
+
+        <button class="btn-primary-large" (click)="saveBankAccount()">Save Bank
+          Account</button>
+      </div>
+
+      <!-- Security and Consents -->
+      <div class="kyc-section">
+        <h2 class="section-title-large">Security and Consents</h2>
+        <br>
+        <div class="consent-item">
+          <div class="consent-header">
+            <i class="fas fa-shield-alt"></i>
+            <div class="consent-info">
+              <h3 class="consent-title">Two-Step Verification</h3>
+              <p class="consent-description">Required before enabling
+                payouts</p>
+            </div>
+          </div>
+          <span class="status-badge-small enabled">Enabled</span>
+        </div>
+
+        <div class="checkbox-consent highlighted-grey">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="pepScreening">
+            <span class="checkbox-text">PEP and Sanctions Screening</span>
+          </label>
+          <p class="consent-detail">I confirm that I am not a politically
+            exposed person (PEP) and am not subject to sanctions. This will be
+            rechecked after any legal changes.</p>
+        </div>
+
+        <div class="checkbox-consent highlighted-grey">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="dataProtection">
+            <span class="checkbox-text">Data Protection Notice</span>
+          </label>
+          <p class="consent-detail">I understand my data will be stored securely
+            and retained according to legal requirements. Data retention period:
+            7 years after account closure.</p>
+        </div>
+
+        <div class="checkbox-consent highlighted">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="accuracyConfirmation">
+            <span class="checkbox-text" style="font-weight: 600;">Accuracy Confirmation</span>
+          </label>
+          <p class="consent-detail">I confirm that all details provided are
+            accurate and complete to the best of my knowledge.</p>
+        </div>
+      </div>
+
+      <!-- Audit Log -->
+      <div class="kyc-section">
+        <h2 class="section-title-large">Audit Log</h2>
+        <br>
+        <div class="audit-timeline">
+          <div class="audit-item" *ngFor="let log of auditLog"
+            [ngClass]="log.status">
+            <div class="audit-content">
+              <h3 class="audit-title">{{ log.title }}</h3>
+              <p class="audit-description">{{ log.description }}</p>
+            </div>
+            <span class="audit-timestamp">{{ log.timestamp }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="footer-banner">
+        <div class="footer-content">
+          <h3 class="footer-title">Ready to submit?</h3>
+          <p class="footer-subtitle">Complete all sections before submitting for review</p>
+        </div>
+        <div class="footer-actions">
+          <button class="btn-secondary-large" (click)="downloadData()">
+            <i class="fas fa-download"></i>
+            Download My Data
+          </button>
+          <button class="btn-primary-large"
+            (click)="continueVerification()">Continue Verification</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

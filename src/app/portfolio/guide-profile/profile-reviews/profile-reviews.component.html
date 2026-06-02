@@ -1,0 +1,62 @@
+<section class="profile-reviews">
+  <div class="reviews-header">
+    <h2 class="section-title">Reviews</h2>
+    <button class="write-review-btn">Write a Review</button>
+  </div>
+  
+  <div class="reviews-summary">
+    <div class="rating-overview">
+      <div class="rating-score">
+        <span class="score">{{ stats.average }}</span>
+        <div class="stars">
+          <i class="" *ngFor="let star of getStars(5)">★</i>
+        </div>
+        <span class="total">{{ stats.total }} reviews</span>
+      </div>
+      
+      <div class="rating-bars">
+        <div class="bar-row" *ngFor="let dist of stats.distribution">
+          <span class="bar-label">{{ dist.stars }}<i class="fas fa-star"></i></span>
+          <div class="bar-container">
+            <div class="bar-fill" [style.width.%]="getBarWidth(dist.count)" [class.highlight]="dist.stars === 5"></div>
+          </div>
+          <span class="bar-count">{{ dist.count }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="filters">
+      <button 
+        *ngFor="let filter of filters" 
+        class="filter-btn" 
+        [class.active]="selectedFilter === filter.toLowerCase()"
+        (click)="selectFilter(filter)">
+        {{ filter }}
+      </button>
+    </div>
+  </div>
+  
+  <div class="reviews-list">
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-layout">
+        <img [src]="review.avatar" [alt]="review.author" class="reviewer-avatar" />
+        
+        <div class="review-content-wrapper">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <span class="reviewer-name">{{ review.author }}</span>
+              <div class="reviewer-rating">
+                <i class="fas fa-star" *ngFor="let star of getStars(review.rating)"></i>
+              </div>
+            </div>
+            <span class="review-date">{{ review.date }}</span>
+          </div>
+          <span class="tour-name">{{ review.tourName }}</span>
+          <p class="review-content">{{ review.content }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <button class="load-more-btn">Load More Reviews</button>
+</section>

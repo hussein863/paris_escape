@@ -1,0 +1,89 @@
+<div class="experience-overview">
+  <!-- Overview Section -->
+  <section class="section overview-section">
+    <h2 class="section-title">Overview</h2>
+    <p class="description">{{ description }}</p>
+  </section>
+
+  <!-- Highlights Section -->
+  <section class="section highlights-section">
+    <h3 class="subsection-title">Highlights</h3>
+    <ul class="highlights-list">
+      <li *ngFor="let highlight of highlights" class="highlight-item">
+        <i class="fas fa-check"></i>
+        <span>{{ highlight.text }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- What You'll Do Section -->
+  <section class="section description-section" *ngIf="whatYouWillDo">
+    <h3 class="subsection-title">What you'll do</h3>
+    <p class="what-description">{{ whatYouWillDo }}</p>
+  </section>
+
+  <!-- Audience Tags -->
+  <section class="section audience-section" *ngIf="audienceTags.length > 0">
+    <h3 class="subsection-title">Who this experience is for</h3>
+    <div class="audience-tags">
+      <span *ngFor="let tag of audienceTags" class="audience-tag">
+        {{ tag.label }}
+      </span>
+    </div>
+  </section>
+
+  <!-- Itinerary Section -->
+  <section class="section itinerary-section" *ngIf="itinerary && itinerary.length > 0">
+    <h2 class="section-title">Itinerary</h2>
+    <div class="itinerary-list">
+      <div *ngFor="let step of itinerary; let i = index; let last = last" class="itinerary-step">
+        <div class="step-indicator">
+          <span class="step-number">{{ step.order }}</span>
+          <div class="step-line" *ngIf="!last"></div>
+        </div>
+        <div class="step-content">
+          <h4 class="step-title">{{ step.title }} ({{ step.duration }})</h4>
+          <p class="step-description">{{ step.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What's Included Section -->
+  <section class="section included-section" *ngIf="includedItems && includedItems.length > 0">
+    <h2 class="section-title">What's included</h2>
+    <div class="included-grid">
+      <div class="included-column">
+        <h4 class="column-title included-title">
+          <i class="fas fa-check"></i> Included
+        </h4>
+        <ul class="included-list">
+          <li *ngFor="let item of getIncludedItems(true)" class="included-item">
+            <i class="fas fa-check"></i>
+            <span>{{ item.text }}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="included-column">
+        <h4 class="column-title not-included-title">
+          <i class="fas fa-times"></i> Not included
+        </h4>
+        <ul class="included-list">
+          <li *ngFor="let item of getIncludedItems(false)" class="included-item not-included">
+            <i class="fas fa-times"></i>
+            <span>{{ item.text }}</span>
+          </li>
+        </ul>
+        <br>
+        <h4 class="column-title bring-title">What to bring</h4>
+        <ul class="bring-list">
+          <li *ngFor="let item of whatToBring" class="bring-item">
+            <i style="font-size: 12pt; color: #007BFF;" [class]="item.type === 'required' ? 'fa fa-info-circle' : 'fa fa-info-circle'"></i>
+            <span>{{ item.text }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+  </section>
+</div>

@@ -1,0 +1,119 @@
+.similar-guides {
+  background: #f8f9fa;
+  padding: 60px 0;
+
+  @media (max-width: 768px) {
+    padding: 40px 0;
+  }
+}
+
+.container {
+  // max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 64px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 32px;
+}
+
+.guides-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.guide-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.card-image {
+  min-width: 288px;
+  min-height: 192px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .guide-card:hover & img {
+    transform: scale(1.05);
+  }
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.guide-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.guide-languages {
+  color: #4B5563;
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.guide-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0;
+
+  i {
+    color: #f59e0b;
+    font-size: 12px;
+  }
+
+  .rating-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .rating-count {
+    font-size: 13px;
+    color: #888;
+  }
+}
+
+.guide-specialty {
+  color: #4B5563;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 12px;
+}

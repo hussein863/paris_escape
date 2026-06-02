@@ -1,0 +1,15 @@
+.super-admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.super-admin-content {
+  flex: 1;
+  margin-left: 260px;
+  transition: margin-left 0.3s ease;
+
+  @media (max-width: 1024px) {
+    margin-left: 0;
+  }
+}

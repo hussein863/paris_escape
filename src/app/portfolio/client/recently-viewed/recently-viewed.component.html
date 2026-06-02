@@ -1,0 +1,20 @@
+<section class="recently-viewed">
+  <div class="container">
+    <h2 class="section-title">Recently Viewed</h2>
+    
+    <div class="recent-grid">
+      <div class="recent-card" *ngFor="let item of recentItems">
+        <div class="card-image-wrapper">
+          <img [src]="item.image" [alt]="item.title" class="card-image">
+        </div>
+        <div class="card-info">
+          <h3 class="card-title">{{ item.title }}</h3>
+          <p class="card-price">From €{{ item.price }} • {{ item.duration }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="white">
+    
+  </div>
+</section>

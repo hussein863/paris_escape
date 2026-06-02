@@ -1,0 +1,166 @@
+<div class="favorites-container">
+  <app-client-header></app-client-header>
+  <div class="favorites-content">
+    <!-- Header -->
+    <div class="favorites-header">
+      <h1>Favorites</h1>
+
+      <!-- Tabs -->
+      <div class="tabs-row">
+        <div class="tabs">
+          <button
+            class="tab"
+            [class.active]="activeTab === 'guides'"
+            (click)="setActiveTab('guides')">
+            Guides (4)
+          </button>
+          <button
+            class="tab"
+            [class.active]="activeTab === 'experiences'"
+            (click)="setActiveTab('experiences')">
+            Experiences (7)
+          </button>
+        </div>
+
+        <div class="header-actions">
+          <!-- Search -->
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              placeholder="Search favorites..."
+              [(ngModel)]="searchQuery">
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="dropdown">
+            <button class="dropdown-trigger">
+              Recently added
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <!-- Select Button -->
+          <button class="btn-select">Select</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <span class="filter-label">Mood:</span>
+        <div class="filter-pills">
+          <button
+            *ngFor="let mood of moods"
+            class="filter-pill"
+            [class.active]="isMoodSelected(mood)"
+            (click)="toggleMood(mood)">
+            {{ mood }}
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-label">Language:</span>
+        <div class="filter-pills">
+          <button
+            *ngFor="let lang of languages"
+            class="filter-pill"
+            [class.active]="isLanguageSelected(lang)"
+            (click)="toggleLanguage(lang)">
+            {{ lang }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guides Grid -->
+    <div class="guides-grid" *ngIf="activeTab === 'guides'">
+      <div class="guide-card" *ngFor="let guide of guides" [class.unavailable]="!guide.available">
+        <button class="favorite-btn" (click)="toggleFavorite(guide.id, $event)">
+          <i class="fas fa-heart"></i>
+        </button>
+
+        <img [src]="guide.avatar" [alt]="guide.name" class="guide-avatar">
+
+        <h3 class="guide-name">{{ guide.name }}</h3>
+
+        <div class="guide-info">
+          <span class="languages">{{ guide.languages.join(', ') }}</span>
+          <div class="rating" *ngIf="guide.rating > 0">
+            <i
+              *ngFor="let star of getRatingStars(guide.rating)"
+              class="fas fa-star"
+              [class.filled]="star === 'full'"></i>
+            <span class="review-count">({{ guide.reviewCount }})</span>
+          </div>
+        </div>
+
+        <div class="guide-badges" *ngIf="guide.verified || guide.badge || !guide.available">
+          <span class="badge verified" *ngIf="guide.verified">Verified</span>
+          <span class="badge originals" *ngIf="guide.badge === 'Originals'">Originals</span>
+          <span class="badge unavailable" *ngIf="!guide.available">Unavailable</span>
+        </div>
+
+        <p class="guide-description">{{ guide.description }}</p>
+
+        <div class="guide-actions">
+          <button
+            class="btn btn-primary"
+            [class.disabled]="!guide.available"
+            [disabled]="!guide.available"
+            (click)="viewProfile(guide)">
+            View Profile
+          </button>
+          <button
+            class="btn btn-secondary"
+            *ngIf="guide.available"
+            (click)="contactGuide(guide)">
+            Contact
+          </button>
+          <button
+            class="btn btn-remove"
+            *ngIf="!guide.available"
+            (click)="removeFromFavorites(guide, $event)">
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Viewed -->
+
+    <section class="recently-viewed">
+      <h2 class="section-title">Recently Viewed</h2>
+      <div class="recent-grid">
+        <article class="recent-card" *ngFor="let item of recentlyViewed">
+          <div class="recent-image">
+            <img [src]="item.imageUrl" [alt]="item.title">
+          </div>
+          <div class="recent-content">
+            <h3>{{ item.title }}</h3>
+            <p>From &euro;{{ item.price }} &bull; {{ item.duration }}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="support-card">
+      <div class="support-text">
+        <h3>Need Help with Your Reservations?</h3>
+        <p>Our support team is here to assist you with any questions</p>
+      </div>
+      <div class="support-actions">
+        <button class="btn primary">
+          <i class="fas fa-headset"></i>
+          Contact Support
+        </button>
+        <button class="btn outline">
+          <i class="fas fa-book"></i>
+          FAQs
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

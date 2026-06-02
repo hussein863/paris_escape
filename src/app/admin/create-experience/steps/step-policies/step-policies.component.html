@@ -1,0 +1,247 @@
+<div class="step-policies-container">
+  <!-- Left Column: Form -->
+  <div class="form-column">
+    <!-- Cancellation Policy -->
+    <div class="form-section">
+      <h3>Cancellation Policy</h3>
+
+      <label class="section-label">Free cancellation window</label>
+      <div class="option-pills">
+        <button
+          *ngFor="let option of cancellationOptions"
+          class="pill-button"
+          [class.selected]="formData.cancellationWindow === option.value"
+          (click)="selectCancellationWindow(option.value)">
+          <span class="pill-label">{{option.label}}</span>
+          <span class="pill-badge">{{option.badge}}</span>
+        </button>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Travelers can cancel for a full refund up to this time before the experience</span>
+      </div>
+
+      <label class="section-label">Late arrival policy</label>
+      <div class="radio-group">
+        <label
+          *ngFor="let option of lateArrivalOptions"
+          class="radio-option">
+          <i class="fas fa-circle"
+             [style.color]="formData.lateArrivalPolicy === option.value ? '#007bff' : '#ddd'"
+             (click)="selectPattern(option.value)"></i>
+          <input
+            type="radio"
+            [value]="option.value"
+            [(ngModel)]="formData.lateArrivalPolicy"
+            (change)="onDataChange()"
+            name="lateArrival"
+            style="display: none;">
+          <span>{{option.label}}</span>
+        </label>
+      </div>
+
+      <label class="section-label">No-show policy</label>
+      <div class="radio-group">
+        <label
+          *ngFor="let option of noShowOptions"
+          class="radio-option">
+          <i class="fas fa-circle"
+             [style.color]="formData.noShowPolicy === option.value ? '#007bff' : '#ddd'"
+             (click)="selectPattern(option.value)"></i>
+          <input
+            type="radio"
+            [value]="option.value"
+            [(ngModel)]="formData.noShowPolicy"
+            (change)="onDataChange()"
+            style="display: none;">
+          <span>{{option.label}}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Safety Guidelines -->
+    <div class="form-section">
+      <h3>Safety Guidelines</h3>
+
+      <label class="section-label">Safety notes for travelers</label>
+      <textarea
+        (ngModelChange)="onDataChange()"
+        [placeholder]="formData.safetyNotes"
+        rows="5"
+        class="form-textarea"></textarea>
+
+      <p class="field-hint">Include physical requirements, weather considerations, and any potential risks</p>
+
+      <div class="checkbox-list">
+        <label class="checkbox-item">
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.insuranceCoverage"
+            (change)="onDataChange()">
+          <div class="checkbox-content">
+            <span class="checkbox-label">Insurance coverage</span>
+            <span class="checkbox-description">I confirm that this experience is covered by appropriate liability insurance</span>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.emergencyProcedures"
+            (change)="onDataChange()">
+          <div class="checkbox-content">
+            <span class="checkbox-label">Emergency procedures</span>
+            <span class="checkbox-description">I have established emergency contact procedures and know local emergency services</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Additional Policies -->
+    <div class="form-section">
+      <h3>Additional Policies</h3>
+
+      <label class="section-label">Weather policy</label>
+      <div class="radio-group">
+        <label
+          *ngFor="let option of weatherPolicyOptions"
+          class="radio-option">
+          <i class="fas fa-circle"
+             [style.color]="formData.weatherPolicy === option.value ? '#007bff' : '#ddd'"
+             (click)="selectwheather(option.value)"></i>
+          <input
+            type="radio"
+            [value]="option.value"
+            [(ngModel)]="formData.weatherPolicy"
+            (change)="onDataChange()"
+            name="weather"
+            style="display: none;">
+          <span>{{option.label}}</span>
+        </label>
+      </div>
+
+      <label class="section-label">Age restrictions</label>
+      <div class="age-restrictions-grid">
+        <div class="form-group">
+          <label>Minimum age</label>
+          <select
+            [(ngModel)]="formData.minimumAge"
+            (change)="onDataChange()"
+            class="form-select">
+            <option *ngFor="let option of ageOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Maximum age</label>
+          <select
+            [(ngModel)]="formData.maximumAge"
+            (change)="onDataChange()"
+            class="form-select">
+            <option *ngFor="let option of maxAgeOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checkbox-list">
+        <label class="checkbox-item">
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.photographyConsent"
+            (change)="onDataChange()">
+          <div class="checkbox-content">
+            <span class="checkbox-label">Photography consent required</span>
+            <span class="checkbox-description">Travelers must consent to photos being taken during the experience</span>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Preview/Tips -->
+  <div class="preview-column">
+    <!-- Policy Tips -->
+    <div class="tips-card">
+      <h4>Policy Tips</h4>
+      <div class="tip-item" *ngFor="let tip of policyTips">
+        <i *ngIf="!tip.icon.startsWith('<img')" class="fas {{tip.icon}} icon-{{tip.color}}"></i>
+        <span *ngIf="tip.icon.startsWith('<img')" [innerHTML]="tip.icon" class="icon-{{tip.color}}"></span>
+        <div class="tip-content">
+          <h5>{{tip.title}}</h5>
+          <p>{{tip.description}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancellation Impact -->
+    <div class="impact-card">
+      <h4>Cancellation Impact</h4>
+      <div class="impact-item" *ngFor="let impact of cancellationImpact">
+        <span class="impact-label">{{impact.hours}}</span>
+        <span
+          class="impact-value"
+          [class.positive]="impact.positive"
+          [class.negative]="impact.positive === false">
+          {{impact.status}}
+        </span>
+      </div>
+      <div class="impact-footer">48 hours strikes the best balance between flexibility and protection</div>
+    </div>
+
+    <!-- Legal Compliance -->
+    <div class="compliance-card">
+      <h4>Legal Compliance</h4>
+      <div class="compliance-item" *ngFor="let item of legalCompliance">
+        <i class="fas fa-check"></i>
+        <span>{{item}}</span>
+      </div>
+    </div>
+
+    <!-- Setup Progress -->
+    <div class="checklist-card">
+      <h4>Setup Progress</h4>
+      <div class="checklist-item"
+           [class.completed]="setupProgress.cancellationPolicy === 'completed'"
+           [class.in-progress]="setupProgress.cancellationPolicy === 'in-progress'">
+        <i class="fas"
+           [class.fa-check-circle]="setupProgress.cancellationPolicy === 'completed'"
+           [class.fa-clock]="setupProgress.cancellationPolicy === 'in-progress'"
+           [class.fa-circle]="!setupProgress.cancellationPolicy || setupProgress.cancellationPolicy === 'not-started'"></i>
+        <span>Cancellation policy</span>
+      </div>
+      <div class="checklist-item"
+           [class.completed]="setupProgress.safetyGuidelines === 'completed'"
+           [class.in-progress]="setupProgress.safetyGuidelines === 'in-progress'">
+        <i class="fas"
+           [class.fa-check-circle]="setupProgress.safetyGuidelines === 'completed'"
+           [class.fa-clock]="setupProgress.safetyGuidelines === 'in-progress'"
+           [class.fa-circle]="!setupProgress.safetyGuidelines || setupProgress.safetyGuidelines === 'not-started'"></i>
+        <span>Safety guidelines</span>
+      </div>
+      <div class="checklist-item"
+           [class.completed]="setupProgress.additionalPolicies === 'completed'"
+           [class.in-progress]="setupProgress.additionalPolicies === 'in-progress'">
+        <i class="fas"
+           [class.fa-check-circle]="setupProgress.additionalPolicies === 'completed'"
+           [class.fa-clock]="setupProgress.additionalPolicies === 'in-progress'"
+           [class.fa-circle]="!setupProgress.additionalPolicies || setupProgress.additionalPolicies === 'not-started'"></i>
+        <span>Additional policies</span>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-card">
+      <h4>Preview</h4>
+      <p class="preview-description">See how your policies will appear to travelers</p>
+      <button class="btn-preview" (click)="previewExperience()">
+        <i class="fa-solid fa-eye"></i>
+        Preview Experience
+      </button>
+    </div>
+  </div>
+</div>

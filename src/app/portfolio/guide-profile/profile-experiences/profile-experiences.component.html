@@ -1,0 +1,56 @@
+<section class="profile-experiences">
+  <h2 class="section-title">Experiences by {{ guideName.split(' ')[0] }}</h2>
+  
+  <div class="experiences-list">
+    <div class="experience-card" *ngFor="let exp of experiences">
+      <div class="card-image">
+        <img [src]="exp.image" [alt]="exp.title" />
+        <span *ngIf="exp.badge" class="badge">{{ exp.badge }}</span>
+      </div>
+      
+      <div class="card-content">
+        <div class="card-header">
+          <h3 class="card-title">{{ exp.title }}</h3>
+          <button class="favorite-btn" [class.active]="exp.isFavorite" (click)="toggleFavorite(exp)">
+            <i [class]="exp.isFavorite ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
+        </div>
+        
+        <p class="card-description">{{ exp.description }}</p>
+        
+        <div class="card-meta">
+          <span><i class="fas fa-clock"></i> {{ exp.duration }}</span>
+          <span><i class="fas fa-users"></i> Max {{ exp.maxPeople }} people</span>
+          <span><i class="fas fa-signal"></i> {{ exp.difficulty }}</span>
+        </div>
+        
+        <div class="included">
+          <span class="included-label">INCLUDED</span>
+          <div class="included-tags">
+            <span class="included-tag" *ngFor="let item of exp.included">{{ item }}</span>
+          </div>
+        </div>
+        
+        <div class="options" *ngIf="exp.options && exp.options.length > 0">
+          <span class="options-label">OPTIONS</span>
+          <div class="options-tags">
+            <span class="option-tag" *ngFor="let option of exp.options">{{ option.name }} +€{{ option.price }}</span>
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          <div class="price">
+            <p class="price-label">From</p>
+            <br>
+            <p>
+                <span class="price-value">€{{ exp.price }}</span>
+                <span class="price-unit">/person</span>
+            </p>
+            
+          </div>
+          <button class="view-tour-btn">View Tour</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

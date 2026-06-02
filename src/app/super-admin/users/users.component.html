@@ -1,0 +1,191 @@
+<div class="users-page">
+  <header class="page-header">
+    <h1 class="page-title">Users Management</h1>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="exportCSV()">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
+      <button class="btn btn-primary" (click)="addAdmin()">
+        <i class="fas fa-plus"></i> Add Admin
+      </button>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <i class="search-icon fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Search by name or email..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        class="search-input">
+    </div>
+
+    <select class="filter-select" [(ngModel)]="filterRole" (ngModelChange)="applyFilters()">
+      <option value="">All Roles</option>
+      <option value="Customer">Customer</option>
+      <option value="Guide">Guide</option>
+      <option value="Business">Business</option>
+      <option value="Admin">Admin</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+      <option value="">All Status</option>
+      <option value="Active">Active</option>
+      <option value="Suspended">Suspended</option>
+      <option value="KYC Pending">KYC Pending</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterKYC" (ngModelChange)="applyFilters()">
+      <option value="">KYC - All</option>
+      <option value="yes">KYC Verified</option>
+      <option value="no">KYC Pending</option>
+    </select>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Registration</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">{{ user.avatar }}</div>
+              <span class="user-name">{{ user.name }}</span>
+            </div>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="role-badge" [class]="'role-' + user.role.toLowerCase()">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class]="'status-' + user.status.toLowerCase().replace(' ', '-')">
+              {{ user.status }}
+            </span>
+          </td>
+          <td>{{ user.registrationDate }}</td>
+          <td>
+            <button class="action-btn" (click)="viewUser(user)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 360° User Profile Panel -->
+  <div class="profile-panel" [class.open]="isPanelOpen" *ngIf="selectedUser">
+    <div class="panel-overlay" (click)="closePanel()"></div>
+    <div class="panel-content">
+      <div class="panel-header">
+        <h2>User Profile</h2>
+        <button class="close-btn" (click)="closePanel()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="panel-body">
+        <!-- Profile Section -->
+        <section class="profile-section">
+          <h3 class="section-title">Profile</h3>
+          <div class="profile-info">
+            <div class="profile-avatar-large">{{ selectedUser.avatar }}</div>
+            <div class="profile-details">
+              <h4>{{ selectedUser.name }}</h4>
+              <p>{{ selectedUser.email }}</p>
+              <div class="profile-meta">
+                <span class="role-badge" [class]="'role-' + selectedUser.role.toLowerCase()">
+                  {{ selectedUser.role }}
+                </span>
+                <span class="status-badge" [class]="'status-' + selectedUser.status.toLowerCase().replace(' ', '-')">
+                  {{ selectedUser.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button class="btn btn-block" (click)="suspendUser()">
+              {{ selectedUser.status === 'Suspended' ? 'Activate User' : 'Suspend User' }}
+            </button>
+          </div>
+        </section>
+
+        <!-- Activity Section -->
+        <section class="profile-section">
+          <h3 class="section-title">Activity Overview</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value">24</div>
+              <div class="stat-label">Total Bookings</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">€2,890</div>
+              <div class="stat-label">Earnings</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Experiences</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Transactions Section -->
+        <section class="profile-section">
+          <h3 class="section-title">Recent Transactions</h3>
+          <div class="transactions-list">
+            <div class="transaction-item" *ngFor="let txn of userTransactions">
+              <div class="transaction-info">
+                <span class="transaction-type">{{ txn.type }}</span>
+                <span class="transaction-date">{{ txn.date }}</span>
+              </div>
+              <div class="transaction-right">
+                <span class="transaction-amount">{{ txn.amount }}</span>
+                <span class="transaction-status">{{ txn.status }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Permissions Section -->
+        <section class="profile-section" *ngIf="selectedUser.role === 'Admin'">
+          <h3 class="section-title">Permissions</h3>
+          <div class="permissions-list">
+            <label class="permission-item">
+              <input type="checkbox" checked>
+              <span>Manage Users</span>
+            </label>
+            <label class="permission-item">
+              <input type="checkbox" checked>
+              <span>Manage Experiences</span>
+            </label>
+            <label class="permission-item">
+              <input type="checkbox">
+              <span>Financial Access</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Internal Notes Section -->
+        <section class="profile-section">
+          <h3 class="section-title">Internal Notes</h3>
+          <textarea
+            class="notes-textarea"
+            placeholder="Add internal notes about this user..."
+            [(ngModel)]="notes"></textarea>
+          <button class="btn btn-primary btn-sm">Save Note</button>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

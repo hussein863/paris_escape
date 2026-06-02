@@ -1,0 +1,16 @@
+.main-layout {
+    display: flex;
+    min-height: 600px;
+    background: #ffffff;
+    // max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px 64px;
+    gap: 50px;
+    border: 1px solid #E5E7EB;
+    border-bottom: none;
+
+    @media (max-width: 1024px) {
+        flex-direction: column;
+        padding: 20px;
+    }
+}

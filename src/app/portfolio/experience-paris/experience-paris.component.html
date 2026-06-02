@@ -1,0 +1,20 @@
+<section class="experience-paris">
+  <div class="container">
+    <h2 class="section-title">Experience Paris</h2>
+    
+    <div class="experience-grid">
+      <div class="experience-card" *ngFor="let experience of experiences">
+        <div class="card-image">
+          <img [src]="experience.image" [alt]="experience.title">
+          <div class="play-button">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="32" fill="white"/>
+              <path d="M26 22L42 32L26 42V22Z" fill="#1a1a1a"/>
+            </svg>
+          </div>
+          <span class="category-badge">{{ experience.category }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

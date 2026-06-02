@@ -1,0 +1,44 @@
+<header class="header">
+  <div class="header-container">
+    <a routerLink="/" class="logo">
+      <span class="logo-text">Paris</span>
+      <span class="logo-text-light">Escape</span>
+    </a>
+
+    <nav class="nav" [class.nav-open]="isMenuOpen">
+      <ul class="nav-list">
+        <li *ngFor="let item of navItems" class="nav-item">
+          <a 
+            [routerLink]="item.route" 
+            class="nav-link"
+            (click)="closeMenu()">
+            {{ item.label }}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <button class="btn-icon" aria-label="Search">
+        <i class="fas fa-search"></i>
+      </button>
+
+      <button class="btn-language">FR</button>
+      <button class="btn-language">EN</button>
+      <button class="btn-language">ES</button>
+      <button class="btn-language">AR</button>
+
+      <button class="btn-text">Sign in</button>
+
+      <button class="btn-primary">Sign up</button>
+
+      <button class="btn-mobile-menu" (click)="toggleMenu()" aria-label="Toggle menu">
+        <span class="menu-icon" [class.menu-icon-open]="isMenuOpen">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,102 @@
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+
+  <main class="app-main">
+    <section class="create-experience-page">
+      <!-- Header -->
+      <header class="page-header">
+        <div class="header-info">
+          <h1>{{currentStepData.title}}</h1>
+          <p class="step-info">Step {{currentStep}} of {{totalSteps}} • {{currentStepData.description}}</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-secondary" *ngIf="currentStep > 1" (click)="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back
+          </button>
+          <button class="btn-secondary" (click)="saveDraft()">
+            <i class="fa-regular fa-floppy-disk"></i>
+            Save Draft
+          </button>
+          <button class="btn-primary" *ngIf="currentStep < totalSteps" (click)="nextStep()">
+            Continue
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button class="btn-primary" *ngIf="currentStep === totalSteps" (click)="publish()">
+            <i class="fa-solid fa-rocket"></i>
+            Publish
+          </button>
+        </div>
+      </header>
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div
+          class="step"
+          *ngFor="let step of steps"
+          [class.active]="step.number === currentStep"
+          [class.completed]="step.completed"
+        >
+          <div class="step-circle">
+            <i class="fa-solid fa-check" *ngIf="step.completed"></i>
+            <span *ngIf="!step.completed">{{step.number}}</span>
+          </div>
+          <div class="step-line" *ngIf="step.number < totalSteps"></div>
+        </div>
+      </div>
+
+      <!-- Step Content -->
+      <div class="step-content">
+        <!-- Step 1: Media -->
+        <div class="step-panel" *ngIf="currentStep === 1">
+          <app-step-basics></app-step-basics>
+        </div>
+
+        <!-- Step 2: Basics -->
+        <div class="step-panel" *ngIf="currentStep === 2">
+          <app-step-media></app-step-media>
+        </div>
+
+        <!-- Step 3: Pricing -->
+        <div class="step-panel" *ngIf="currentStep === 3">
+          <app-step-pricing></app-step-pricing>
+          <!-- Add pricing form here -->
+        </div>
+
+        <!-- Step 4: Options and Add-ons -->
+        <div class="step-panel" *ngIf="currentStep === 4">
+          <app-step-options></app-step-options>
+        </div>
+
+        <!-- Step 5: Availability -->
+        <div class="step-panel" *ngIf="currentStep === 5">
+          <app-step-availability></app-step-availability>
+        </div>
+
+        <!-- Step 6: Inclusions -->
+        <div class="step-panel" *ngIf="currentStep === 6">
+          <app-step-inclusions></app-step-inclusions>
+          <!-- Add inclusions form here -->
+        </div>
+
+        <!-- Step 7: Policies -->
+        <div class="step-panel" *ngIf="currentStep === 7">
+          <app-step-policies></app-step-policies>
+          <!-- Add policies form here -->
+        </div>
+
+        <!-- Step 8: Preview -->
+        <div class="step-panel" *ngIf="currentStep === 8">
+          <app-step-preview></app-step-preview>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

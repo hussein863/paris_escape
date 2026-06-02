@@ -1,0 +1,273 @@
+<div class="step-availability-container">
+  <!-- Left Column: Form -->
+  <div class="form-column">
+    <!-- Recurring Availability -->
+    <div class="form-section">
+      <h3>Recurring Availability</h3>
+
+      <div class="pattern-options">
+        <label
+          *ngFor="let pattern of availabilityPatterns"
+          class="pattern-option"
+          [class.selected]="formData.recurringPattern === pattern.id">
+          <i class="fas fa-circle"
+             [style.color]="formData.recurringPattern === pattern.id ? '#007bff' : '#ddd'"
+             (click)="selectPattern(pattern.id)"></i>
+          <input
+            type="radio"
+            [value]="pattern.id"
+            [(ngModel)]="formData.recurringPattern"
+            (change)="selectPattern(pattern.id)"
+            name="recurringPattern"
+            style="display: none;">
+          <div class="pattern-content">
+            <span class="pattern-title">{{pattern.title}}</span>
+            <span class="pattern-description">{{pattern.description}}</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>You can override specific dates later using the calendar</span>
+      </div>
+    </div>
+
+    <!-- Time Slots -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Time Slots</h3>
+        <button class="btn-add" (click)="openAddTimeSlotModal()">
+          <i class="fas fa-plus"></i>
+          Add Time Slot
+        </button>
+      </div>
+
+      <div class="time-slots-list" *ngIf="timeSlots.length > 0">
+        <div class="time-slot-item" *ngFor="let slot of timeSlots">
+          <div class="slot-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="slot-details">
+            <h5>{{slot.time}}</h5>
+            <p>{{slot.label}}</p>
+          </div>
+          <div class="slot-actions">
+            <button class="btn-icon" (click)="openEditTimeSlotModal(slot)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon danger" (click)="deleteTimeSlot(slot.id)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Rules -->
+    <div class="form-section">
+      <h3>Booking Rules</h3>
+
+      <div class="rules-grid">
+        <div class="form-group">
+          <label>Minimum Notice <span class="required">*</span></label>
+          <select
+            [(ngModel)]="formData.minimumNotice"
+            (change)="onDataChange()"
+            class="form-select">
+            <option *ngFor="let option of minimumNoticeOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+          <p class="field-hint">How far in advance travelers must book</p>
+        </div>
+
+        <div class="form-group">
+          <label>Same Day Cutoff</label>
+          <div class="time-input-wrapper">
+            <input
+              type="text"
+              [(ngModel)]="formData.sameDayCutoff"
+              (change)="onDataChange()"
+              class="form-input">
+            <i class="far fa-clock input-icon"></i>
+          </div>
+          <p class="field-hint">Latest time to book for today</p>
+        </div>
+      </div>
+
+      <div class="info-box timezone-info">
+        <i class="fas fa-info-circle"></i>
+        <div class="info-content">
+          <strong>Time Zone</strong>
+          <p>All times are displayed in Paris local time (CET/CEST). Travelers will see times converted to their local timezone.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blackout Dates -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Blackout Dates</h3>
+        <button class="btn-add-outline" (click)="openAddBlackoutModal()">
+          <i class="fas fa-plus"></i>
+          Add Dates
+        </button>
+      </div>
+
+      <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p class="empty-title">No blackout dates set</p>
+        <p class="empty-description">Block specific dates when you're unavailable</p>
+      </div>
+    </div>
+
+    <!-- Calendar Sync -->
+    <div class="form-section">
+      <h3>Calendar Sync</h3>
+
+      <div class="calendar-options">
+        <div class="calendar-option">
+          <div class="calendar-info">
+            <div class="calendar-icon google">
+              <i class="fab fa-google"></i>
+            </div>
+            <div class="calendar-details">
+              <h5>Google Calendar</h5>
+              <p>Sync with your Google Calendar</p>
+            </div>
+          </div>
+          <button
+            class="btn-connect"
+            [class.connected]="formData.googleCalendarConnected"
+            (click)="connectGoogleCalendar()">
+            {{formData.googleCalendarConnected ? 'Connected' : 'Connect'}}
+          </button>
+        </div>
+
+        <div class="calendar-option">
+          <div class="calendar-info">
+            <div class="calendar-icon ical">
+              <i class="fas fa-calendar"></i>
+            </div>
+            <div class="calendar-details">
+              <h5>iCal / Outlook</h5>
+              <p>Import from iCal feed</p>
+            </div>
+          </div>
+          <button
+            class="btn-connect"
+            [class.connected]="formData.iCalConnected"
+            (click)="connectICal()">
+            {{formData.iCalConnected ? 'Connected' : 'Connect'}}
+          </button>
+        </div>
+      </div>
+
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Calendar sync helps prevent double bookings by blocking dates when you're busy</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Preview/Tips -->
+  <div class="preview-column">
+    <!-- Availability Tips -->
+    <div class="tips-card">
+      <h4>Availability Tips</h4>
+      <div class="tip-item" *ngFor="let tip of availabilityTips">
+        <i class="fas {{tip.icon}} icon-{{tip.color}}"></i>
+        <div class="tip-content">
+          <h5>{{tip.title}}</h5>
+          <p>{{tip.description}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Time Slots -->
+    <div class="stats-card">
+      <h4>Popular Time Slots</h4>
+      <div class="stat-item" *ngFor="let slot of popularTimeSlots">
+        <span class="stat-name">{{slot.time}}</span>
+        <span class="stat-value">{{slot.status}}</span>
+      </div>
+      <p class="stats-footer">Based on similar experiences in Paris</p>
+    </div>
+
+    <!-- Setup Progress -->
+    <div class="checklist-card">
+      <h4>Setup Progress</h4>
+      <div class="checklist-item" [class.completed]="setupProgress.patternChosen">
+        <i class="fas" [class.fa-check-circle]="setupProgress.patternChosen" [class.fa-circle]="!setupProgress.patternChosen"></i>
+        <span>Choose availability pattern</span>
+      </div>
+      <div class="checklist-item" [class.completed]="setupProgress.timeSlotsAdded">
+        <i class="fas" [class.fa-check-circle]="setupProgress.timeSlotsAdded" [class.fa-circle]="!setupProgress.timeSlotsAdded"></i>
+        <span>Add time slots</span>
+      </div>
+      <div class="checklist-item" [class.completed]="setupProgress.bookingRulesSet">
+        <i class="fas" [class.fa-check-circle]="setupProgress.bookingRulesSet" [class.fa-circle]="!setupProgress.bookingRulesSet"></i>
+        <span>Set booking rules</span>
+      </div>
+      <div class="checklist-item" [class.completed]="setupProgress.calendarConnected">
+        <i class="fas" [class.fa-check-circle]="setupProgress.calendarConnected" [class.fa-circle]="!setupProgress.calendarConnected"></i>
+        <span>Connect calendar sync</span>
+      </div>
+    </div>
+
+    <!-- Calendar Management -->
+    <div class="info-card">
+      <h4>Calendar Management</h4>
+      <p class="info-intro">After publishing, you can:</p>
+      <ul class="info-list">
+        <li>Block specific dates</li>
+        <li>Add custom time slots</li>
+        <li>Set different prices by date</li>
+        <li>Manage bookings in real-time</li>
+      </ul>
+      <button class="btn-learn-more">Learn More</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Time Slot Modal -->
+<div class="modal-overlay" *ngIf="showAddTimeSlotModal" (click)="closeTimeSlotModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{editingSlot ? 'Edit' : 'Add'}} Time Slot</h3>
+      <button class="btn-close" (click)="closeTimeSlotModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Time <span class="required">*</span></label>
+        <input
+          type="time"
+          [(ngModel)]="newTimeSlot.time"
+          class="form-input">
+      </div>
+
+      <div class="form-group">
+        <label>Label <span class="required">*</span></label>
+        <input
+          type="text"
+          [(ngModel)]="newTimeSlot.label"
+          placeholder="e.g., Morning slot"
+          class="form-input">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeTimeSlotModal()">Cancel</button>
+      <button
+        class="btn-primary"
+        (click)="saveTimeSlot()"
+        [disabled]="!newTimeSlot.time || !newTimeSlot.label">
+        {{editingSlot ? 'Update' : 'Add'}} Slot
+      </button>
+    </div>
+  </div>
+</div>
