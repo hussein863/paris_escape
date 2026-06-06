@@ -37,9 +37,15 @@
           (click)="selectConversation(conversation)"
         >
           <img
-            [src]="conversation.guide_avatar || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'"
+            *ngIf="conversation.guide_avatar"
+            [src]="conversation.guide_avatar"
             alt="Guide"
-            class="conversation-avatar">
+            class="conversation-avatar"
+            (error)="onAvatarError($event)"
+          >
+          <div class="avatar-badge-small guide" *ngIf="!conversation.guide_avatar">
+            {{ (conversation.guide_name || 'G').charAt(0).toUpperCase() }}
+          </div>
           <div class="conversation-body">
             <div class="conversation-top">
               <span class="conversation-name">{{ conversation.guide_name || ('Guide #' + conversation.guide) }}</span>
@@ -66,7 +72,16 @@
     <section class="messages-main" *ngIf="selectedConversation; else noSelection">
       <header class="chat-header">
         <div class="chat-header-left">
-          <img [src]="selectedConversation.guide_avatar || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'" alt="Guide" class="chat-avatar">
+          <img
+            *ngIf="selectedConversation?.guide_avatar"
+            [src]="selectedConversation.guide_avatar"
+            alt="Guide"
+            class="chat-avatar"
+            (error)="onAvatarError($event)"
+          >
+          <div class="avatar-badge-header guide" *ngIf="!selectedConversation?.guide_avatar">
+            {{ (selectedConversation?.guide_name || 'G').charAt(0).toUpperCase() }}
+          </div>
           <div class="chat-header-info">
             <h2>{{ selectedConversation.guide_name || ('Guide #' + selectedConversation.guide) }}</h2>
             <p>{{ selectedConversation.status }}</p>
@@ -99,21 +114,37 @@
 
         <ng-container *ngFor="let message of messages">
           <div class="message-row" [class.user]="message.sender_type === 'Customer'">
-            <img
-              *ngIf="message.sender_type === 'Guide'"
-              src="assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg"
-              alt="Guide"
-              class="message-avatar"
-            >
+            <!-- Guide Avatar -->
+            <div class="avatar-wrapper" *ngIf="message.sender_type === 'Guide'">
+              <img
+                *ngIf="selectedConversation?.guide_avatar"
+                [src]="selectedConversation.guide_avatar"
+                alt="Guide"
+                class="message-avatar"
+                (error)="onAvatarError($event)"
+              >
+              <div class="avatar-badge guide" *ngIf="!selectedConversation?.guide_avatar">
+                {{ (selectedConversation?.guide_name || 'G').charAt(0).toUpperCase() }}
+              </div>
+            </div>
+
             <div class="message-bubble" [class.user]="message.sender_type === 'Customer'">
               {{ message.text }}
             </div>
-            <img
-              *ngIf="message.sender_type === 'Customer'"
-              src="assets/images/avatar/sophie.png"
-              alt="You"
-              class="message-avatar"
-            >
+
+            <!-- Customer Avatar -->
+            <div class="avatar-wrapper" *ngIf="message.sender_type === 'Customer'">
+              <img
+                *ngIf="currentUserAvatar"
+                [src]="currentUserAvatar"
+                alt="You"
+                class="message-avatar"
+                (error)="onAvatarError($event)"
+              >
+              <div class="avatar-badge" *ngIf="!currentUserAvatar">
+                {{ (currentUserName || 'U').charAt(0).toUpperCase() }}
+              </div>
+            </div>
           </div>
           <div class="message-time" [class.user]="message.sender_type === 'Customer'">
             {{ message.timestamp | date:'shortTime' }}
@@ -126,16 +157,23 @@
       </div>
 
       <div class="chat-divider"></div>
+
       <div class="message-input-area">
+        <div *ngIf="messageError" class="message-error">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ messageError }}
+        </div>
+
         <div class="message-input">
           <input
             type="text"
             placeholder="Type your message..."
             [(ngModel)]="newMessage"
             (keydown.enter)="$event.preventDefault(); sendMessage()"
+            [disabled]="sendingMessage"
           >
-          <button class="send-btn" type="button" (click)="sendMessage()" aria-label="Send">
-            <i class="fas fa-paper-plane"></i>
+          <button class="send-btn" type="button" (click)="sendMessage()" [disabled]="sendingMessage" aria-label="Send">
+            <i class="fas" [class.fa-paper-plane]="!sendingMessage" [class.fa-spinner]="sendingMessage" [class.fa-spin]="sendingMessage"></i>
           </button>
         </div>
         <div class="chat-footer">

@@ -17,9 +17,14 @@
     <!-- Header -->
     <div class="sidebar-header">
       <h1>Messages</h1>
-      <button class="btn-add" type="button" (click)="openAddContact()">
-        <i class="fas fa-plus"></i>
-      </button>
+      <div class="header-buttons">
+        <button class="btn-add" type="button" (click)="loadConversations()" title="Refresh messages" [disabled]="loading">
+          <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        </button>
+        <button class="btn-add" type="button" (click)="openAddContact()">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Contact Quota -->
@@ -68,9 +73,8 @@
         <img [src]="conversation.avatar" [alt]="conversation.name" class="conversation-avatar" />
         <div class="conversation-content">
           <div class="conversation-header">
-            <span class="conversation-name">
+            <span class="conversation-name" [class.unread-text]="conversation.unread">
               {{ conversation.name }}
-              <span *ngIf="conversation.unread" class="unread-dot"></span>
             </span>
             <span class="conversation-time">{{ conversation.timestamp }}</span>
           </div>
@@ -161,11 +165,34 @@
         <div class="message-date" *ngIf="message.id === 3">Today</div>
 
         <div class="message" [class.message-user]="message.sender === 'user'" [class.message-guide]="message.sender === 'guide'">
-          <img
-            *ngIf="message.sender === 'user'"
-            [src]="selectedConversation.avatar"
-            class="message-avatar"
-          />
+          <!-- Customer Avatar -->
+          <div class="avatar-wrapper" *ngIf="message.sender === 'user'">
+            <img
+              *ngIf="selectedConversation"
+              [src]="selectedConversation.avatar"
+              alt="Customer"
+              class="message-avatar"
+              (error)="onAvatarError($event)"
+            />
+            <div class="avatar-badge" *ngIf="!selectedConversation || !selectedConversation.avatar">
+              {{ (selectedConversation?.name || 'U').charAt(0).toUpperCase() }}
+            </div>
+          </div>
+
+          <!-- Guide Avatar -->
+          <div class="avatar-wrapper" *ngIf="message.sender === 'guide'">
+            <img
+              *ngIf="selectedConversation && selectedConversation.guide_avatar"
+              [src]="selectedConversation.guide_avatar"
+              alt="Guide"
+              class="message-avatar"
+              (error)="onAvatarError($event)"
+            />
+            <div class="avatar-badge guide" *ngIf="!selectedConversation || !selectedConversation.guide_avatar">
+              {{ (selectedConversation?.guide_name || 'G').charAt(0).toUpperCase() }}
+            </div>
+          </div>
+
           <div class="message-content" [class.guide-bubble]="message.sender === 'guide'">
             {{ message.text }}
           </div>

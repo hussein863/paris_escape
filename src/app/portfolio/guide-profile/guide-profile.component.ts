@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { IdEncryptService } from '../../core/services/id-encrypt.service';
+import { MessagingService } from '../../core/services/messaging.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ProfileHeaderComponent } from './profile-header/profile-header.component';
 import { ProfileAboutComponent } from './profile-about/profile-about.component';
 import { ProfileLocationComponent } from './profile-location/profile-location.component';
@@ -95,7 +97,9 @@ export interface SimilarGuide {
 export class GuideProfileComponent implements OnInit {
   loading = true;
   error = '';
+  messageSending = false;
 
+  guideId: number | null = null;
   guide!: Guide;
   experiences: Experience[] = [];
   reviews: Review[] = [];
@@ -107,6 +111,8 @@ export class GuideProfileComponent implements OnInit {
     private router: Router,
     private http: HttpClient,
     private idEncrypt: IdEncryptService,
+    private messagingService: MessagingService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -114,6 +120,7 @@ export class GuideProfileComponent implements OnInit {
     if (!encryptedId) { this.router.navigate(['/landing']); return; }
     const id = this.idEncrypt.decryptId(encryptedId);
     if (!id) { this.router.navigate(['/landing']); return; }
+    this.guideId = id;
     this.loadGuide(id);
   }
 
@@ -224,5 +231,21 @@ export class GuideProfileComponent implements OnInit {
       reviewCount: g.review_count ?? 0,
       specialty: (g.specialties ?? []).map((s: any) => s.name).join(', '),
     };
+  }
+
+  messageGuide(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    if (!this.guideId) return;
+    this.messageSending = true;
+    this.messagingService.startConversation(this.guideId).subscribe({
+      next: (conv) => {
+        this.messageSending = false;
+        this.router.navigate(['/client/messages'], { queryParams: { conversationId: conv.id } });
+      },
+      error: () => { this.messageSending = false; }
+    });
   }
 }

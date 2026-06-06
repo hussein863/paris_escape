@@ -18,16 +18,21 @@ export class NotificationService {
   constructor(private http: HttpClient) {}
 
   loadNotifications(): void {
-    this.http.get<{ results: Notification[] }>(`${environment.apiUrl}/notifications/`).subscribe({
+    this.http.get<{ results: Notification[] }>(`${environment.apiUrl}/users/notifications/`).subscribe({
       next: (res) => {
         this.notifications.set(res.results);
         this.unreadCount.set(res.results.filter(n => !n.read).length);
+      },
+      error: () => {
+        // Notifications endpoint not available, set empty
+        this.notifications.set([]);
+        this.unreadCount.set(0);
       }
     });
   }
 
   markAsRead(id: number): void {
-    this.http.patch(`${environment.apiUrl}/notifications/${id}/`, { read: true }).subscribe({
+    this.http.patch(`${environment.apiUrl}/users/notifications/${id}/`, { read: true }).subscribe({
       next: () => {
         const notif = this.notifications().find(n => n.id === id);
         if (notif) notif.read = true;

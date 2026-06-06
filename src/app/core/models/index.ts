@@ -30,6 +30,7 @@ export interface User {
 export interface Guide {
   id: number;
   pronouns: string;
+  headline: string;
   bio: string;
   cover_image: string | null;
   years_of_experience: number;
@@ -256,11 +257,16 @@ export interface Conversation {
   guide: number;
   guide_name?: string;
   guide_avatar?: string;
+  customer_name?: string;
+  customer_avatar?: string;
   booking: number | null;
   status: 'Confirmed' | 'Pending' | 'Pre-contact' | 'Open';
   last_message: string;
   last_message_at: string;
   messages?: Message[];
+  is_unread?: boolean;
+  is_archived?: boolean;
+  is_flagged?: boolean;
 }
 
 export interface Message {

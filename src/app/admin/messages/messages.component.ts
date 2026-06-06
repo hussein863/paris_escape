@@ -5,6 +5,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { MessagingService } from '../../core/services/messaging.service';
 import { Conversation as ApiConversation, Message as ApiMessage } from '../../core/models';
+import { environment } from '../../../environments/environment';
 
 interface Message {
   id: number;
@@ -15,13 +16,18 @@ interface Message {
 
 interface Conversation {
   id: number;
+  customerId: number;
   name: string;
   avatar: string;
+  guide_name?: string;
+  guide_avatar?: string;
   lastMessage: string;
   timestamp: string;
   status: 'Confirmed' | 'Pending' | 'Pre-contact' | 'Open';
   tourName: string;
-  unread?: boolean;
+  unread: boolean;
+  flagged?: boolean;
+  archived?: boolean;
 }
 
 @Component({
@@ -56,14 +62,24 @@ export class MessagesComponent implements OnInit {
       next: (res) => {
         this.conversations = res.results.map((c: ApiConversation) => ({
           id: c.id,
-          name: `User #${c.customer}`,
-          avatar: 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
+          customerId: c.customer,
+          name: c.customer_name || `Customer #${c.customer}`,
+          avatar: c.customer_avatar || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
+          guide_name: c.guide_name,
+          guide_avatar: c.guide_avatar,
           lastMessage: c.last_message,
           timestamp: new Date(c.last_message_at).toLocaleDateString(),
           status: c.status as any,
           tourName: '',
-          unread: false
-        }));
+          unread: c.is_unread || false,
+          flagged: c.is_flagged || false,
+          archived: c.is_archived || false
+        })).sort((a, b) => {
+          // Unread conversations first, then by timestamp
+          if (a.unread && !b.unread) return -1;
+          if (!a.unread && b.unread) return 1;
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        });
         this.contactQuota.used = res.count;
         if (this.conversations.length > 0) {
           this.selectConversation(this.conversations[0]);
@@ -79,6 +95,10 @@ export class MessagesComponent implements OnInit {
     conversation.unread = false;
     this.messagingService.getConversation(conversation.id).subscribe({
       next: (c: ApiConversation) => {
+        // Update guide avatar from API response
+        if (this.selectedConversation) {
+          this.selectedConversation.guide_avatar = c.guide_avatar;
+        }
         this.messages = (c.messages || []).map((m: ApiMessage) => ({
           id: m.id,
           sender: m.sender_type === 'Guide' ? 'guide' : 'user',
@@ -160,6 +180,7 @@ export class MessagesComponent implements OnInit {
     // Create a new conversation
     const newConversation: Conversation = {
       id: Date.now(),
+      customerId: 0,
       name: guideName,
       avatar: 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
       lastMessage: 'Conversation started',
@@ -206,6 +227,12 @@ export class MessagesComponent implements OnInit {
     event.stopPropagation();
     conversation.unread = !conversation.unread;
     this.openMenuId = null;
+    // Re-sort conversations to move unread to top
+    this.conversations.sort((a, b) => {
+      if (a.unread && !b.unread) return -1;
+      if (!a.unread && b.unread) return 1;
+      return 0;
+    });
   }
 
   deleteConversation(conversation: Conversation, event: Event): void {
@@ -247,5 +274,14 @@ export class MessagesComponent implements OnInit {
 
       return matchesFilter && matchesSearch;
     });
+  }
+
+  getUnreadCount(): number {
+    return this.conversations.filter(c => c.unread).length;
+  }
+
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
   }
 }

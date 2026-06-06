@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { ExperienceService } from '../../../core/services/experience.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Favorite, Experience } from '../../../core/models';
 
 @Component({
@@ -30,10 +31,11 @@ export class FavoritesComponent implements OnInit {
   constructor(
     private favoriteService: FavoriteService,
     private experienceService: ExperienceService,
-    private router: Router
+    private router: Router,
+    private idEncrypt: IdEncryptService
   ) {}
 
-  ngOnInit(): void {
+  private loadFavoritesData(): void {
     this.loading = true;
     this.favoriteService.list().subscribe({
       next: (res) => {
@@ -50,6 +52,10 @@ export class FavoritesComponent implements OnInit {
     });
   }
 
+  ngOnInit(): void {
+    this.loadFavoritesData();
+  }
+
   removeFromFavorites(experience: Experience, event: Event): void {
     event.stopPropagation();
     const fav = this.favoriteRecords.find(f => f.experience === experience.id);
@@ -63,7 +69,8 @@ export class FavoritesComponent implements OnInit {
   }
 
   viewExperience(experience: Experience): void {
-    this.router.navigate(['/landing/experience', experience.id]);
+    const encryptedId = this.idEncrypt.encryptId(experience.id);
+    this.router.navigate(['/landing/experience', encryptedId]);
   }
 
   get filteredExperiences(): Experience[] {

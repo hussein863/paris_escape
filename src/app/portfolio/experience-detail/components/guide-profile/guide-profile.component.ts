@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MessagingService } from '../../../../core/services/messaging.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { IdEncryptService } from '../../../../core/services/id-encrypt.service';
 
 interface Guide {
   name: string;
@@ -29,7 +30,12 @@ export class GuideProfileComponent {
     private router: Router,
     private messagingService: MessagingService,
     private auth: AuthService,
+    private idEncrypt: IdEncryptService,
   ) {}
+
+  get encryptedGuideId(): string | null {
+    return this.guideId ? this.idEncrypt.encryptId(this.guideId) : null;
+  }
 
   messageGuide(): void {
     if (!this.auth.isLoggedIn()) {

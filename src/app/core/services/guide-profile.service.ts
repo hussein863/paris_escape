@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 export interface GuideProfile {
   id: number;
   pronouns: string;
+  headline: string;
   bio: string;
   cover_image: string | null;
   cover_image_url: string | null;

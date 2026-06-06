@@ -73,6 +73,23 @@ export class ProfileSidebarComponent implements OnInit {
     }
   }
 
+  messageGuide(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    const id = this.guideId;
+    if (!id) return;
+    this.messageSending = true;
+    this.messagingService.startConversation(id).subscribe({
+      next: (conv) => {
+        this.messageSending = false;
+        this.router.navigate(['/client/messages'], { queryParams: { conversationId: conv.id } });
+      },
+      error: () => { this.messageSending = false; }
+    });
+  }
+
   submitContact(): void {
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/auth/login']);

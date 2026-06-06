@@ -29,7 +29,16 @@
   <!-- Contact Section -->
   <div class="sidebar-card contact-card">
     <h3>Contact {{ guide.name.split(' ')[0] }}</h3>
-    
+
+    <button class="btn btn-primary message-btn" (click)="messageGuide()" [disabled]="messageSending" type="button" style="width: 100%; margin-bottom: 1rem;">
+      <i class="fas fa-envelope"></i>
+      {{ messageSending ? 'Opening messages...' : 'Message Guide' }}
+    </button>
+
+    <div style="text-align: center; color: #9ca3af; font-size: 0.875rem; margin-bottom: 1.5rem;">
+      or send a detailed inquiry below
+    </div>
+
     <form (ngSubmit)="submitContact()">
       <div class="form-group">
         <label>Subject</label>

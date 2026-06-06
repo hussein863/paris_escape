@@ -49,8 +49,8 @@
         </button>
         <button
           class="tab"
-          [class.active]="activeTab === 'danger'"
-          (click)="setTab('danger')">
+          [class.active]="activeTab === 'danger-zone'"
+          (click)="setTab('danger-zone')">
           Data and danger zone
         </button>
       </div>
@@ -84,13 +84,17 @@
               <label class="field-label">Display Name</label>
               <input type="text" class="field-input" value="Marie Dubois" placeholder="Your display name">
             </div>
-            <div class="form-field">
+            <div class="form-field full-width">
               <label class="field-label">Headline</label>
-              <input type="text" class="field-input" value="Local Parisian guide specializing in food and culture" placeholder="Your headline">
+              <input type="text" class="field-input" [(ngModel)]="headline" placeholder="Your professional headline">
+            </div>
+            <div class="form-field full-width">
+              <label class="field-label">Bio</label>
+              <textarea class="field-textarea" [(ngModel)]="bio" placeholder="Tell customers about yourself..."></textarea>
             </div>
             <div class="form-field">
               <label class="field-label">Company Name (optional)</label>
-              <input type="text" class="field-input" placeholder="Your company name">
+              <input type="text" class="field-input" [(ngModel)]="companyName" placeholder="Your company name">
             </div>
             <div class="form-field">
               <label class="field-label">Timezone</label>
@@ -455,9 +459,6 @@
           {{ saving ? 'Saving...' : 'Save Changes' }}
         </button>
       </div>
-    </section>
-  </main>
-</div>
     </section>
   </main>
 </div>

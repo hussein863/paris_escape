@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { ReviewService } from '../../../core/services/review.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Review } from '../../../core/models';
 
 @Component({
@@ -34,7 +35,8 @@ export class ClientReviewsComponent implements OnInit {
 
   constructor(
     private reviewService: ReviewService,
-    public router: Router
+    public router: Router,
+    private idEncrypt: IdEncryptService
   ) {}
 
   ngOnInit(): void {
@@ -98,7 +100,8 @@ export class ClientReviewsComponent implements OnInit {
   }
 
   viewExperience(experienceId: number): void {
-    this.router.navigate(['/landing/experience', experienceId]);
+    const encryptedId = this.idEncrypt.encryptId(experienceId);
+    this.router.navigate(['/landing/experience', encryptedId]);
   }
 
   formatDate(date: string): string {

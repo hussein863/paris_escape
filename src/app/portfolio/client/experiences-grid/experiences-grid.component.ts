@@ -5,6 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ExperienceService } from '../../../core/services/experience.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Experience } from '../../../core/models';
 import { ExperienceFilters } from '../filters-sidebar/filters-sidebar.component';
 
@@ -33,7 +34,8 @@ export class ExperiencesGridComponent implements OnInit, OnChanges {
     private route: ActivatedRoute,
     private experienceService: ExperienceService,
     private favoriteService: FavoriteService,
-    private auth: AuthService
+    private auth: AuthService,
+    private idEncrypt: IdEncryptService
   ) {}
 
   ngOnInit(): void {
@@ -120,14 +122,32 @@ export class ExperiencesGridComponent implements OnInit, OnChanges {
   toggleFavorite(experience: Experience): void {
     if (!this.auth.isLoggedIn()) { this.router.navigate(['/auth/login']); return; }
     if (this.isFavorite(experience.id)) {
+      // Remove from favorites
       this.favoriteIds.delete(experience.id);
+      this.favoriteService.list().subscribe({
+        next: (res) => {
+          const favRecord = res.results.find(f => f.experience === experience.id);
+          if (favRecord) {
+            this.favoriteService.remove(favRecord.id).subscribe({
+              error: () => this.favoriteIds.add(experience.id)
+            });
+          }
+        }
+      });
     } else {
+      // Add to favorites
       this.favoriteIds.add(experience.id);
-      this.favoriteService.add(experience.id).subscribe();
+      this.favoriteService.add(experience.id).subscribe({
+        next: () => { /* Success, keep in local set */ },
+        error: () => this.favoriteIds.delete(experience.id)
+      });
     }
   }
 
-  goToExperience(id: number): void { this.router.navigate(['/landing/experience', id]); }
+  goToExperience(id: number): void {
+    const encryptedId = this.idEncrypt.encryptId(id);
+    this.router.navigate(['/landing/experience', encryptedId]);
+  }
 
 
   get totalPages(): number { return Math.ceil(this.totalCount / this.itemsPerPage); }

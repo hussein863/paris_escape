@@ -27,6 +27,7 @@ export class SettingsComponent implements OnInit {
   profileVisibility = 'public';
   displayName = '';
   headline = '';
+  bio = '';
   companyName = '';
   timezone = '';
   language = '';
@@ -89,7 +90,8 @@ export class SettingsComponent implements OnInit {
     // Load guide-profile from the API
     this.guideProfileService.load().subscribe({
       next: (profile) => {
-        this.headline = profile.bio ?? '';
+        this.headline = profile.headline ?? '';
+        this.bio = profile.bio ?? '';
         this.companyName = profile.company_name ?? '';
         this.timezone = profile.timezone ?? '';
         this.showEmail = profile.show_email_on_profile ?? false;
@@ -121,19 +123,19 @@ export class SettingsComponent implements OnInit {
     });
 
     // Load calendar settings
-    this.http.get<any>(`${environment.apiUrl}/users/calendar-settings/`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/users/calendar-settings/me/`).subscribe({
       next: (cal) => { this.calendarSettings = { ...this.calendarSettings, ...cal }; },
       error: (err) => console.error('Failed to load calendar settings', err)
     });
 
     // Load integration settings
-    this.http.get<any>(`${environment.apiUrl}/users/integration-settings/`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/users/integration-settings/me/`).subscribe({
       next: (int) => { this.integrations = { ...this.integrations, ...int }; },
       error: (err) => console.error('Failed to load integration settings', err)
     });
 
     // Load danger zone settings
-    this.http.get<any>(`${environment.apiUrl}/users/danger-zone/`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/users/danger-zone/me/`).subscribe({
       next: (dz) => { this.dangerZone = { ...this.dangerZone, ...dz }; },
       error: (err) => console.error('Failed to load danger zone settings', err)
     });
@@ -169,7 +171,8 @@ export class SettingsComponent implements OnInit {
       this.guideProfileService.patch({
         company_name: this.companyName,
         timezone: this.timezone,
-        bio: this.headline,
+        headline: this.headline,
+        bio: this.bio,
         show_email_on_profile: this.showEmail,
         show_phone_on_profile: this.showPhone
       }).subscribe({
@@ -224,7 +227,7 @@ export class SettingsComponent implements OnInit {
       this.changePassword();
 
     } else if (this.activeTab === 'calendar') {
-      this.http.patch(`${environment.apiUrl}/users/calendar-settings/`, this.calendarSettings).subscribe({
+      this.http.patch(`${environment.apiUrl}/users/calendar-settings/me/`, this.calendarSettings).subscribe({
         next: () => { this.saving = false; this.saveSuccess = true; },
         error: (err) => {
           this.saving = false;
@@ -233,7 +236,7 @@ export class SettingsComponent implements OnInit {
       });
 
     } else if (this.activeTab === 'integrations') {
-      this.http.patch(`${environment.apiUrl}/users/integration-settings/`, this.integrations).subscribe({
+      this.http.patch(`${environment.apiUrl}/users/integration-settings/me/`, this.integrations).subscribe({
         next: () => { this.saving = false; this.saveSuccess = true; },
         error: (err) => {
           this.saving = false;
@@ -242,7 +245,7 @@ export class SettingsComponent implements OnInit {
       });
 
     } else if (this.activeTab === 'danger-zone') {
-      this.http.patch(`${environment.apiUrl}/users/danger-zone/`, this.dangerZone).subscribe({
+      this.http.patch(`${environment.apiUrl}/users/danger-zone/me/`, this.dangerZone).subscribe({
         next: () => { this.saving = false; this.saveSuccess = true; },
         error: (err) => {
           this.saving = false;

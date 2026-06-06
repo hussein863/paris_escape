@@ -495,11 +495,72 @@
   }
 }
 
+.avatar-wrapper {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
 .message-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-badge {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 12px;
+  color: white;
+  background: #3b82f6;
+
+  &.guide {
+    background: #10b981;
+  }
+}
+
+.avatar-badge-small {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  background: #3b82f6;
+
+  &.guide {
+    background: #10b981;
+  }
+}
+
+.avatar-badge-header {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 18px;
+  color: white;
+  background: #3b82f6;
+
+  &.guide {
+    background: #10b981;
+  }
 }
 
 .message-bubble {
@@ -624,6 +685,23 @@
 
   .booking-actions {
     grid-column: auto;
+  }
+}
+
+.message-error {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+
+  i {
+    flex-shrink: 0;
   }
 }
 
