@@ -184,11 +184,280 @@
         </div>
       </div>
 
-      <div class="settings-content" *ngIf="activeTab !== 'profile'">
-        <div class="placeholder-content">
-          <p class="placeholder-text">{{ activeTab }} settings coming soon...</p>
+      <!-- Notifications Tab -->
+      <div class="settings-content" *ngIf="activeTab === 'notifications'">
+        <h2>Notification Preferences</h2>
+        <div class="settings-section">
+          <div class="section-title">Email Notifications</div>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.email_booking_confirmation">
+            <span>Booking confirmations</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.email_booking_reminder">
+            <span>Booking reminders</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.email_new_message">
+            <span>New messages</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.email_review_request">
+            <span>Review requests</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.email_promotions">
+            <span>Promotional offers</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.email_platform_updates">
+            <span>Platform updates</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">Push Notifications</div>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="notifPrefs.push_enabled">
+            <span>Enable push notifications</span>
+          </label>
+          <label class="checkbox-item" [class.disabled]="!notifPrefs.push_enabled">
+            <input type="checkbox" [(ngModel)]="notifPrefs.push_messages" [disabled]="!notifPrefs.push_enabled">
+            <span>Messages</span>
+          </label>
+          <label class="checkbox-item" [class.disabled]="!notifPrefs.push_enabled">
+            <input type="checkbox" [(ngModel)]="notifPrefs.push_booking_updates" [disabled]="!notifPrefs.push_enabled">
+            <span>Booking updates</span>
+          </label>
         </div>
       </div>
+
+      <!-- Calendar & Availability Tab -->
+      <div class="settings-content" *ngIf="activeTab === 'calendar'">
+        <h2>Calendar and Availability</h2>
+
+        <div class="settings-section">
+          <div class="section-title">Booking Windows</div>
+          <div class="form-group">
+            <label>Default booking window (days in advance)</label>
+            <input type="number" [(ngModel)]="calendarSettings.default_booking_window" min="1" max="180">
+          </div>
+          <div class="form-group">
+            <label>Minimum hours before booking</label>
+            <input type="number" [(ngModel)]="calendarSettings.min_hours_before_booking" min="0" max="48">
+          </div>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="calendarSettings.allow_same_day_bookings">
+            <span>Allow same-day bookings</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">Buffer Time Between Tours</div>
+          <div class="form-group">
+            <label>Minutes of buffer (for setup/cleanup)</label>
+            <input type="number" [(ngModel)]="calendarSettings.buffer_between_tours" min="0" max="180">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">Work Schedule</div>
+          <div class="form-group">
+            <label>Timezone</label>
+            <input type="text" [(ngModel)]="calendarSettings.timezone" placeholder="e.g., Europe/Paris">
+          </div>
+          <div class="form-group">
+            <label>Working Days (0=Sun, 1=Mon...6=Sat)</label>
+            <input type="text" [(ngModel)]="calendarSettings.work_days" placeholder="e.g., 1,2,3,4,5">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Time</label>
+              <input type="time" [(ngModel)]="calendarSettings.work_start_time">
+            </div>
+            <div class="form-group">
+              <label>End Time</label>
+              <input type="time" [(ngModel)]="calendarSettings.work_end_time">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integrations Tab -->
+      <div class="settings-content" *ngIf="activeTab === 'integrations'">
+        <h2>Integrations</h2>
+
+        <div class="integration-card">
+          <div class="integration-header">
+            <i class="fab fa-google"></i>
+            <div class="integration-info">
+              <h3>Google Calendar</h3>
+              <p>Sync your availability and bookings with Google Calendar</p>
+            </div>
+          </div>
+          <div class="integration-status">
+            <span class="status-badge" [class.connected]="integrations.google_calendar_connected">
+              {{ integrations.google_calendar_connected ? 'Connected' : 'Not Connected' }}
+            </span>
+          </div>
+          <div *ngIf="integrations.google_calendar_connected" class="integration-details">
+            <p><strong>Email:</strong> {{ integrations.google_calendar_email }}</p>
+            <label class="checkbox-item">
+              <input type="checkbox" [(ngModel)]="integrations.auto_sync_google_calendar">
+              <span>Auto-sync availability</span>
+            </label>
+            <button class="btn btn-secondary" type="button">Disconnect</button>
+          </div>
+          <div *ngIf="!integrations.google_calendar_connected">
+            <button class="btn btn-primary" type="button">Connect Calendar</button>
+          </div>
+        </div>
+
+        <div class="integration-card">
+          <div class="integration-header">
+            <i class="fab fa-stripe"></i>
+            <div class="integration-info">
+              <h3>Stripe</h3>
+              <p>Accept payments directly to your Stripe account</p>
+            </div>
+          </div>
+          <div class="integration-status">
+            <span class="status-badge" [class.connected]="integrations.stripe_connected">
+              {{ integrations.stripe_connected ? 'Connected' : 'Not Connected' }}
+            </span>
+          </div>
+          <div *ngIf="integrations.stripe_connected" class="integration-details">
+            <p><strong>Account ID:</strong> {{ integrations.stripe_account_id }}</p>
+            <button class="btn btn-secondary" type="button">Disconnect</button>
+          </div>
+          <div *ngIf="!integrations.stripe_connected">
+            <button class="btn btn-primary" type="button">Connect Stripe</button>
+          </div>
+        </div>
+
+        <div class="integration-card">
+          <div class="integration-header">
+            <i class="fas fa-envelope"></i>
+            <div class="integration-info">
+              <h3>Mailchimp</h3>
+              <p>Manage your email marketing lists</p>
+            </div>
+          </div>
+          <div class="integration-status">
+            <span class="status-badge" [class.connected]="integrations.mailchimp_connected">
+              {{ integrations.mailchimp_connected ? 'Connected' : 'Not Connected' }}
+            </span>
+          </div>
+          <div *ngIf="!integrations.mailchimp_connected">
+            <button class="btn btn-primary" type="button">Connect Mailchimp</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy & Security Tab -->
+      <div class="settings-content" *ngIf="activeTab === 'privacy'">
+        <h2>Privacy and Security</h2>
+
+        <div class="settings-section">
+          <div class="section-title">Profile Visibility</div>
+          <div class="visibility-options">
+            <label class="radio-item">
+              <input type="radio" [(ngModel)]="profileVisibility" value="public" name="visibility">
+              <span>Public - Visible to all users</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" [(ngModel)]="profileVisibility" value="hidden" name="visibility">
+              <span>Hidden - Only visible to guides</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">Contact Information</div>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="showEmail">
+            <span>Show email on profile</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="showPhone">
+            <span>Show phone on profile</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <div class="section-title">Change Password</div>
+          <div class="form-group">
+            <label>Current password</label>
+            <input type="password" [(ngModel)]="oldPassword" placeholder="Enter current password">
+          </div>
+          <div class="form-group">
+            <label>New password</label>
+            <input type="password" [(ngModel)]="newPassword" placeholder="Enter new password">
+          </div>
+          <div class="form-group">
+            <label>Confirm new password</label>
+            <input type="password" [(ngModel)]="newPassword2" placeholder="Confirm new password">
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone Tab -->
+      <div class="settings-content" *ngIf="activeTab === 'danger-zone'">
+        <h2>Data and Danger Zone</h2>
+
+        <div class="settings-section">
+          <div class="section-title">Data Export</div>
+          <p class="help-text">Download all your data in a portable format</p>
+          <button class="btn btn-secondary" type="button">
+            <i class="fas fa-download"></i> Export My Data
+          </button>
+        </div>
+
+        <div class="settings-section danger">
+          <div class="section-title">Deactivate Account</div>
+          <p class="help-text">Temporarily deactivate your account. You can reactivate it anytime.</p>
+          <label class="checkbox-item">
+            <input type="checkbox" [(ngModel)]="dangerZone.account_deactivated">
+            <span>I want to deactivate my account</span>
+          </label>
+          <div *ngIf="dangerZone.account_deactivated" class="form-group">
+            <label>Reason for deactivation (optional)</label>
+            <textarea [(ngModel)]="dangerZone.deactivation_reason" placeholder="Tell us why you're deactivating..."></textarea>
+          </div>
+        </div>
+
+        <div class="settings-section danger">
+          <div class="section-title">Delete Account Permanently</div>
+          <p class="help-text">Permanently delete your account and all associated data. This action cannot be undone.</p>
+          <div class="danger-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>This will permanently delete your account, all your experiences, bookings, and data.</span>
+          </div>
+          <button class="btn btn-danger" type="button">Delete My Account</button>
+        </div>
+      </div>
+
+      <!-- Feedback Messages -->
+      <div class="settings-feedback" *ngIf="saveSuccess || saveError">
+        <div class="feedback-message" [class.success]="saveSuccess" [class.error]="saveError">
+          <i class="fas" [class.fa-check-circle]="saveSuccess" [class.fa-exclamation-circle]="saveError"></i>
+          <span *ngIf="saveSuccess">Settings saved successfully!</span>
+          <span *ngIf="saveError">{{ saveError }}</span>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="settings-actions" *ngIf="activeTab !== 'profile'">
+        <button
+          class="btn btn-primary"
+          (click)="saveChanges()"
+          [disabled]="saving">
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
     </section>
   </main>
 </div>

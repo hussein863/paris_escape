@@ -450,6 +450,235 @@ text-align: center;
     width: 100%;
   }
 }
+/* ─── New Settings Sections ───────────────────────────────────────────────────────────── */
+.checkbox-item,
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+
+  span {
+    color: #1f2937;
+    font-weight: 500;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    input {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.visibility-options,
+.help-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.help-text {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Integration Cards */
+.integration-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+
+  .integration-header {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+
+    i {
+      font-size: 32px;
+      color: #3b82f6;
+      width: 50px;
+    }
+
+    .integration-info {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+      }
+
+      p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .integration-status {
+    margin-bottom: 16px;
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #fee2e2;
+      color: #991b1b;
+
+      &.connected {
+        background: #dcfce7;
+        color: #15803d;
+      }
+    }
+  }
+
+  .integration-details {
+    padding: 12px 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 12px 0;
+
+    p {
+      margin: 8px 0;
+      color: #374151;
+      font-size: 14px;
+    }
+
+    .btn {
+      margin-top: 12px;
+    }
+  }
+}
+
+/* Danger Zone Styling */
+.settings-section.danger {
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  padding: 20px;
+
+  .section-title {
+    color: #991b1b;
+  }
+
+  .danger-warning {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #991b1b;
+
+    i {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+
+  &:hover {
+    background: #b91c1c;
+  }
+
+  &:disabled {
+    background: #d1d5db;
+  }
+}
+
+/* Settings Actions */
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+
+  .btn {
+    min-width: 120px;
+  }
+}
+
+.settings-feedback {
+  margin-top: 20px;
+
+  .feedback-message {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+
+    &.success {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    &.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    i {
+      font-size: 18px;
+    }
+  }
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  min-height: 100px;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
 i.fa-solid {
   font-family: "Font Awesome 6 Free" !important;
   font-weight: 900;

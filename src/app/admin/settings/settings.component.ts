@@ -37,10 +37,39 @@ export class SettingsComponent implements OnInit {
   // ─── Notifications tab ───────────────────────────────────────────────────────
   notifPrefs: any = {};
 
+  // ─── Calendar & Availability ─────────────────────────────────────────────────
+  calendarSettings: any = {
+    default_booking_window: 7,
+    min_hours_before_booking: 2,
+    allow_same_day_bookings: true,
+    buffer_between_tours: 30,
+    timezone: 'UTC',
+    work_days: '1,2,3,4,5',
+    work_start_time: '09:00',
+    work_end_time: '18:00'
+  };
+
+  // ─── Integrations ───────────────────────────────────────────────────────────
+  integrations: any = {
+    google_calendar_connected: false,
+    google_calendar_email: '',
+    auto_sync_google_calendar: false,
+    stripe_connected: false,
+    stripe_account_id: '',
+    mailchimp_connected: false
+  };
+
   // ─── Security tab ────────────────────────────────────────────────────────────
   oldPassword = '';
   newPassword = '';
   newPassword2 = '';
+
+  // ─── Danger Zone ────────────────────────────────────────────────────────────
+  dangerZone: any = {
+    account_deletion_requested: false,
+    account_deactivated: false,
+    deactivation_reason: ''
+  };
 
   constructor(
     private guideProfileService: GuideProfileService,
@@ -89,6 +118,24 @@ export class SettingsComponent implements OnInit {
         }
       },
       error: (err) => console.error('Failed to load privacy settings', err)
+    });
+
+    // Load calendar settings
+    this.http.get<any>(`${environment.apiUrl}/users/calendar-settings/`).subscribe({
+      next: (cal) => { this.calendarSettings = { ...this.calendarSettings, ...cal }; },
+      error: (err) => console.error('Failed to load calendar settings', err)
+    });
+
+    // Load integration settings
+    this.http.get<any>(`${environment.apiUrl}/users/integration-settings/`).subscribe({
+      next: (int) => { this.integrations = { ...this.integrations, ...int }; },
+      error: (err) => console.error('Failed to load integration settings', err)
+    });
+
+    // Load danger zone settings
+    this.http.get<any>(`${environment.apiUrl}/users/danger-zone/`).subscribe({
+      next: (dz) => { this.dangerZone = { ...this.dangerZone, ...dz }; },
+      error: (err) => console.error('Failed to load danger zone settings', err)
     });
   }
 
@@ -175,6 +222,33 @@ export class SettingsComponent implements OnInit {
 
     } else if (this.activeTab === 'security') {
       this.changePassword();
+
+    } else if (this.activeTab === 'calendar') {
+      this.http.patch(`${environment.apiUrl}/users/calendar-settings/`, this.calendarSettings).subscribe({
+        next: () => { this.saving = false; this.saveSuccess = true; },
+        error: (err) => {
+          this.saving = false;
+          this.saveError = err?.error?.detail ?? 'Failed to save calendar settings.';
+        }
+      });
+
+    } else if (this.activeTab === 'integrations') {
+      this.http.patch(`${environment.apiUrl}/users/integration-settings/`, this.integrations).subscribe({
+        next: () => { this.saving = false; this.saveSuccess = true; },
+        error: (err) => {
+          this.saving = false;
+          this.saveError = err?.error?.detail ?? 'Failed to save integration settings.';
+        }
+      });
+
+    } else if (this.activeTab === 'danger-zone') {
+      this.http.patch(`${environment.apiUrl}/users/danger-zone/`, this.dangerZone).subscribe({
+        next: () => { this.saving = false; this.saveSuccess = true; },
+        error: (err) => {
+          this.saving = false;
+          this.saveError = err?.error?.detail ?? 'Failed to update account settings.';
+        }
+      });
 
     } else {
       // No-op for tabs without save support yet

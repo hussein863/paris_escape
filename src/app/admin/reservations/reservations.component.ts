@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { BookingService } from '../../core/services/booking.service';
 import { Booking } from '../../core/models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-reservations',
@@ -21,18 +24,24 @@ export class ReservationsComponent implements OnInit {
   searchQuery = '';
   isSidebarOpen = false;
   allBookings: Booking[] = [];
+  blockedDays: any[] = [];
   loading = false;
   actionInProgress = false;
 
   // Modal states
   showBlockDaysModal = false;
   showAddBookingModal = false;
+  showReservationModal = false;
+  selectedReservation: Booking | null = null;
   blockDaysForm = { startDate: '', endDate: '', reason: '' };
   addBookingForm = { guestName: '', date: '', time: '', guests: 1 };
   feedbackMessage = '';
   feedbackType: 'success' | 'error' = 'success';
 
-  constructor(private bookingService: BookingService) {}
+  constructor(
+    private bookingService: BookingService,
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
     this.loadBookings();
@@ -40,9 +49,16 @@ export class ReservationsComponent implements OnInit {
 
   loadBookings(): void {
     this.loading = true;
-    this.bookingService.list().subscribe({
-      next: (res) => {
-        this.allBookings = res.results;
+    const experienceId = this.allBookings[0]?.experience || 1;
+
+    // Load bookings and blocked days in parallel
+    forkJoin([
+      this.bookingService.list(),
+      this.bookingService.getBlockedDays(experienceId)
+    ]).subscribe({
+      next: ([bookingsRes, blockedRes]: any) => {
+        this.allBookings = bookingsRes.results || [];
+        this.blockedDays = blockedRes.results || [];
         this.loading = false;
       },
       error: () => { this.loading = false; }
@@ -127,14 +143,35 @@ export class ReservationsComponent implements OnInit {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const dayBookings = this.bookings.filter(b => {
-        const bookingDate = new Date(b.date);
-        return bookingDate.getDate() === day && bookingDate.getMonth() === month && bookingDate.getFullYear() === year;
+      const currentDate = new Date(year, month, day);
+
+      // Filter bookings for this day
+      const dayBookings = this.allBookings
+        .filter(b => {
+          const bookingDate = new Date(b.date);
+          return bookingDate.getDate() === day &&
+                 bookingDate.getMonth() === month &&
+                 bookingDate.getFullYear() === year;
+        })
+        .map(b => ({
+          id: b.id,
+          time: b.time?.slice(0, 5) || 'N/A',
+          status: b.status || 'Pending',
+          booking: b
+        }));
+
+      // Check if this day is blocked
+      const isBlocked = this.blockedDays.some(bd => {
+        const startDate = new Date(bd.start_date);
+        const endDate = new Date(bd.end_date);
+        return currentDate >= startDate && currentDate <= endDate;
       });
+
       days.push({
         day,
         isCurrentMonth: true,
         isToday: day === today.getDate() && month === today.getMonth() && year === today.getFullYear(),
+        isBlocked: isBlocked,
         bookings: dayBookings
       });
     }
@@ -235,17 +272,21 @@ export class ReservationsComponent implements OnInit {
     const experienceId = this.allBookings[0]?.experience || 1;
     this.actionInProgress = true;
 
+    // For now, create a simple booking with minimal data
+    // Manual bookings are typically created through a different flow
     const bookingData = {
-      experience: experienceId,
+      experience_id: experienceId,
       date: this.addBookingForm.date,
       time: this.addBookingForm.time,
       adults: this.addBookingForm.guests || 1,
       children: 0,
       status: 'Confirmed',
-      customer_name: this.addBookingForm.guestName
+      customer_name: this.addBookingForm.guestName,
+      is_manual: true  // Mark as manual booking
     };
 
-    this.bookingService.create(bookingData).subscribe({
+    // Call the manual booking creation endpoint
+    this.http.post(`${environment.apiUrl}/bookings/create_manual/`, bookingData).subscribe({
       next: () => {
         this.feedbackMessage = `✓ Booking added for ${this.addBookingForm.guestName}`;
         this.feedbackType = 'success';
@@ -256,11 +297,21 @@ export class ReservationsComponent implements OnInit {
         this.actionInProgress = false;
       },
       error: (err) => {
-        this.feedbackMessage = 'Failed to add booking: ' + (err.error?.detail || 'Unknown error');
+        this.feedbackMessage = 'Failed to add booking: ' + (err.error?.detail || JSON.stringify(err.error) || 'Unknown error');
         this.feedbackType = 'error';
         this.actionInProgress = false;
       }
     });
+  }
+
+  openReservationModal(booking: Booking): void {
+    this.selectedReservation = booking;
+    this.showReservationModal = true;
+  }
+
+  closeReservationModal(): void {
+    this.showReservationModal = false;
+    this.selectedReservation = null;
   }
 
   connectCalendar(): void {

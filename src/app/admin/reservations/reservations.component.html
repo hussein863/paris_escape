@@ -98,17 +98,24 @@
           *ngFor="let day of calendarDays"
           class="calendar-day"
           [class.other-month]="!day.isCurrentMonth"
-          [class.today]="day.isToday">
+          [class.today]="day.isToday"
+          [class.blocked]="day.isBlocked">
           <span class="day-number">{{ day.day }}</span>
 
           <div class="day-bookings">
+            <div *ngIf="day.isBlocked" class="blocked-badge">
+              <i class="fas fa-ban"></i> Blocked
+            </div>
             <div
               *ngFor="let booking of day.bookings"
               class="booking-badge"
-              [class.confirmed]="booking.status === 'confirmed'"
-              [class.pending]="booking.status === 'pending'"
-              [class.cancelled]="booking.status === 'cancelled'">
-              {{ booking.time }} {{ booking.status === 'confirmed' ? 'Confirmed' : booking.status === 'pending' ? 'Pending' : 'Cancelled' }}
+              [class.confirmed]="booking.status.toLowerCase() === 'confirmed'"
+              [class.pending]="booking.status.toLowerCase() === 'pending'"
+              [class.cancelled]="booking.status.toLowerCase() === 'cancelled'"
+              (click)="openReservationModal(booking.booking)"
+              style="cursor: pointer;">
+              <span class="booking-time">{{ booking.time }}</span>
+              <span class="booking-status">{{ booking.status }}</span>
             </div>
             <div *ngIf="day.isToday" class="today-indicator">Today</div>
           </div>
@@ -293,6 +300,99 @@
         <button class="btn btn-secondary" (click)="closeAddBookingModal()" type="button">Cancel</button>
         <button class="btn btn-primary" (click)="submitAddBooking()" [disabled]="actionInProgress" type="button">
           {{ actionInProgress ? 'Adding...' : 'Add Booking' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservation Details Modal -->
+  <div class="modal-overlay" *ngIf="showReservationModal && selectedReservation" (click)="closeReservationModal()">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-calendar-check"></i> Reservation Details</h2>
+        <button class="modal-close" (click)="closeReservationModal()" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="reservation-grid">
+          <!-- Booking Info -->
+          <div class="reservation-section">
+            <h3>Booking Information</h3>
+            <div class="info-row">
+              <span class="label">Booking ID:</span>
+              <span class="value">{{ selectedReservation.booking_ref }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Status:</span>
+              <span class="value" [class]="'status-' + selectedReservation.status.toLowerCase()">
+                {{ selectedReservation.status }}
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="label">Date:</span>
+              <span class="value">{{ selectedReservation.date | date: 'MMM dd, yyyy' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Time:</span>
+              <span class="value">{{ selectedReservation.time }}</span>
+            </div>
+          </div>
+
+          <!-- Guest Info -->
+          <div class="reservation-section">
+            <h3>Guest Information</h3>
+            <div class="info-row">
+              <span class="label">Guest Name:</span>
+              <span class="value">{{ selectedReservation.customer_name || 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Adults:</span>
+              <span class="value">{{ selectedReservation.adults }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Children:</span>
+              <span class="value">{{ selectedReservation.children }}</span>
+            </div>
+          </div>
+
+          <!-- Pricing Info -->
+          <div class="reservation-section">
+            <h3>Pricing</h3>
+            <div class="info-row">
+              <span class="label">Base Price:</span>
+              <span class="value">€ {{ selectedReservation.base_price }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Subtotal:</span>
+              <span class="value">€ {{ selectedReservation.subtotal }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Service Fee:</span>
+              <span class="value">€ {{ selectedReservation.service_fee }}</span>
+            </div>
+            <div class="info-row total">
+              <span class="label">Total Amount:</span>
+              <span class="value">€ {{ selectedReservation.total_amount }}</span>
+            </div>
+          </div>
+
+          <!-- Experience Info -->
+          <div class="reservation-section" *ngIf="selectedReservation.experience_title">
+            <h3>Experience</h3>
+            <div class="info-row">
+              <span class="label">Experience:</span>
+              <span class="value">{{ selectedReservation.experience_title }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Guide:</span>
+              <span class="value">{{ selectedReservation.guide_name || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeReservationModal()" type="button">Close</button>
+        <button class="btn btn-primary" type="button">
+          <i class="fas fa-edit"></i> Edit Reservation
         </button>
       </div>
     </div>
