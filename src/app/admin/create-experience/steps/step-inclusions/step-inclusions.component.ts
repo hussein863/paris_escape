@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 interface InclusionItem {
   id: string;
@@ -26,6 +27,24 @@ interface Template {
 })
 export class StepInclusionsComponent {
   @Output() dataChange = new EventEmitter<any>();
+
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  saveToApi(): Promise<void> {
+    const id = this.wizardService.experienceId;
+    if (!id) return Promise.resolve();
+
+    const items = [
+      ...this.includedItems.map((item, i) => ({ text: item.text, type: 'included', ordering: i })),
+      ...this.notIncludedItems.map((item, i) => ({ text: item.text, type: 'not-included', ordering: i })),
+      ...this.toBringItems.map((item, i) => ({ text: item.text, type: 'to-bring', ordering: i })),
+    ].filter(item => item.text.trim());
+
+    return new Promise((resolve, reject) => {
+      this.wizardService.replaceInclusions(id, items)
+        .subscribe({ next: () => resolve(), error: reject });
+    });
+  }
 
   includedItems: InclusionItem[] = [
     { id: 'inc1', text: 'Professional local guide', type: 'included' },
@@ -196,7 +215,7 @@ export class StepInclusionsComponent {
   }
 
   previewExperience(): void {
-    console.log('Preview experience');
+    /* not implemented */
     // Placeholder for preview functionality
   }
 
@@ -208,3 +227,4 @@ export class StepInclusionsComponent {
     });
   }
 }
+

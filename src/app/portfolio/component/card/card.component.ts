@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 export interface ExperienceCard {
   id: number;
@@ -13,7 +14,7 @@ export interface ExperienceCard {
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })

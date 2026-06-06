@@ -1,119 +1,126 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { AdminHeaderComponent } from '../header/admin-header.component';
+import { environment } from '../../../environments/environment';
 
 interface Ticket {
-  id: string;
+  id: number;
   status: string;
   priority: string;
   title: string;
-  openedDate: string;
-  lastUpdate: string;
-  linkedReservation?: string;
-  additionalInfo?: string;
-  additionalInfoIcon?: string;
-  actions: string[];
-  feedbackEnabled?: boolean;
+  opened_date: string;
+  last_update: string;
+  booking: number | null;
+  disputes: any[];
 }
 
 @Component({
   selector: 'app-support',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, SidebarComponent, AdminHeaderComponent],
   templateUrl: './support.component.html',
   styleUrl: './support.component.scss'
 })
-export class SupportComponent {
+export class SupportComponent implements OnInit {
   isSidebarOpen = false;
   activeTab = 'tickets';
   searchQuery = '';
   selectedStatus = 'all';
-  selectedSort = 'newest';
+  selectedPriority = 'all';
 
-  tickets: Ticket[] = [
-    {
-      id: '#SUP-2847',
-      status: 'Awaiting my reply',
-      priority: 'Urgent',
-      title: 'Payout not received for November bookings',
-      openedDate: 'Nov 28, 2024',
-      lastUpdate: '2 hours ago',
-      linkedReservation: '#RES-4521',
-      additionalInfo: 'First response within 24h',
-      additionalInfoIcon: 'fas fa-clock',
-      actions: ['View Details', 'Add Note']
-    },
-    {
-      id: '#SUP-2832',
-      status: 'Pending platform',
-      priority: 'Normal',
-      title: 'KYC document verification taking longer than expected',
-      openedDate: 'Nov 25, 2024',
-      lastUpdate: '1 day ago',
-      additionalInfo: 'Support team is reviewing your documents',
-      additionalInfoIcon: 'fas fa-hourglass-half',
-      actions: ['View Details', 'Add Note']
-    },
-    {
-      id: '#SUP-2819',
-      status: 'Resolved',
-      priority: 'Normal',
-      title: 'Calendar sync issue with Google Calendar',
-      openedDate: 'Nov 20, 2024',
-      lastUpdate: 'Nov 22, 2024',
-      actions: ['View Details', 'Reopen'],
-      feedbackEnabled: true
-    },
-    {
-      id: '#DIS-1042',
-      status: 'Dispute',
-      priority: 'Urgent',
-      title: 'Traveler no-show dispute for November 15 booking',
-      openedDate: 'Nov 16, 2024',
-      lastUpdate: '5 days ago',
-      linkedReservation: '#RES-4398',
-      additionalInfo: 'Under review by dispute resolution team',
-      additionalInfoIcon: 'fas fa-gavel',
-      actions: ['View Details', 'Add Evidence']
-    },
-    {
-      id: '#SUP-2805',
-      status: 'Open',
-      priority: 'Normal',
-      title: 'Question about Originals program eligibility',
-      openedDate: 'Nov 18, 2024',
-      lastUpdate: '3 days ago',
-      additionalInfo: 'Awaiting support response',
-      additionalInfoIcon: 'fas fa-share',
-      actions: ['View Details', 'Close Ticket']
-    }
-  ];
+  tickets: Ticket[] = [];
+  loading = false;
 
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
+  // New ticket form
+  showNewTicketForm = false;
+  newTitle = '';
+  newPriority = 'Normal';
+  submitting = false;
+  submitError = '';
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.loadTickets();
   }
 
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
+  loadTickets(): void {
+    this.loading = true;
+    this.http.get<{ results: Ticket[] }>(`${environment.apiUrl}/support/tickets/`).subscribe({
+      next: (res) => { this.tickets = res.results; this.loading = false; },
+      error: () => { this.loading = false; }
+    });
   }
 
-  setTab(tab: string): void {
-    this.activeTab = tab;
+  submitTicket(): void {
+    if (!this.newTitle.trim()) return;
+    this.submitting = true;
+    this.submitError = '';
+    this.http.post<Ticket>(`${environment.apiUrl}/support/tickets/`, {
+      title: this.newTitle,
+      priority: this.newPriority,
+    }).subscribe({
+      next: (ticket) => {
+        this.tickets.unshift(ticket);
+        this.newTitle = '';
+        this.newPriority = 'Normal';
+        this.showNewTicketForm = false;
+        this.submitting = false;
+      },
+      error: () => { this.submitError = 'Failed to submit ticket.'; this.submitting = false; }
+    });
   }
+
+  closeTicket(ticket: Ticket): void {
+    this.http.patch<Ticket>(`${environment.apiUrl}/support/tickets/${ticket.id}/`, { status: 'Resolved' }).subscribe({
+      next: (updated) => { ticket.status = updated.status; }
+    });
+  }
+
+  reopenTicket(ticket: Ticket): void {
+    this.http.patch<Ticket>(`${environment.apiUrl}/support/tickets/${ticket.id}/`, { status: 'Open' }).subscribe({
+      next: (updated) => { ticket.status = updated.status; }
+    });
+  }
+
+  get filteredTickets(): Ticket[] {
+    return this.tickets.filter(t => {
+      const matchStatus = this.selectedStatus === 'all' || t.status === this.selectedStatus;
+      const matchPriority = this.selectedPriority === 'all' || t.priority === this.selectedPriority;
+      const matchSearch = !this.searchQuery || t.title.toLowerCase().includes(this.searchQuery.toLowerCase());
+      return matchStatus && matchPriority && matchSearch;
+    });
+  }
+
+  get openCount(): number { return this.tickets.filter(t => t.status !== 'Resolved').length; }
+  get resolvedCount(): number { return this.tickets.filter(t => t.status === 'Resolved').length; }
+  get urgentCount(): number { return this.tickets.filter(t => t.priority === 'Urgent' && t.status !== 'Resolved').length; }
 
   getStatusClass(status: string): string {
-    const statusMap: { [key: string]: string } = {
+    const map: Record<string, string> = {
       'Awaiting my reply': 'awaiting',
       'Pending platform': 'pending',
       'Resolved': 'resolved',
       'Dispute': 'dispute',
-      'Open': 'open'
+      'Open': 'open',
     };
-    return statusMap[status] || 'default';
+    return map[status] || 'open';
   }
 
-  getPriorityClass(priority: string): string {
-    return priority.toLowerCase();
+  formatDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - d.getTime()) / 1000);
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
+
+  toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
+  closeSidebar(): void { this.isSidebarOpen = false; }
+  setTab(tab: string): void { this.activeTab = tab; }
 }

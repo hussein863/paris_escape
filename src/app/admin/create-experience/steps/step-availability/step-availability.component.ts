@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 interface TimeSlot {
   id: string;
@@ -17,6 +18,26 @@ interface TimeSlot {
 })
 export class StepAvailabilityComponent {
   @Output() dataChange = new EventEmitter<any>();
+
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  saveToApi(): Promise<void> {
+    const id = this.wizardService.experienceId;
+    if (!id) return Promise.resolve();
+
+    const availData = {
+      recurring_pattern: this.formData.recurringPattern,
+      minimum_notice: this.formData.minimumNotice,
+      same_day_cutoff: this.formData.sameDayCutoff || null,
+      google_calendar_connected: this.formData.googleCalendarConnected,
+      ical_connected: this.formData.iCalConnected,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.wizardService.saveAvailability(id, availData, this.timeSlots)
+        .subscribe({ next: () => resolve(), error: reject });
+    });
+  }
 
   formData = {
     recurringPattern: 'weekends',
@@ -169,14 +190,14 @@ export class StepAvailabilityComponent {
 
   connectGoogleCalendar(): void {
     // Placeholder for Google Calendar OAuth flow
-    console.log('Connect Google Calendar');
+    /* not implemented */
     this.formData.googleCalendarConnected = true;
     this.emitData();
   }
 
   connectICal(): void {
     // Placeholder for iCal connection
-    console.log('Connect iCal/Outlook');
+    /* not implemented */
     this.formData.iCalConnected = true;
     this.emitData();
   }
@@ -190,3 +211,4 @@ export class StepAvailabilityComponent {
     this.dataChange.emit(this.formData);
   }
 }
+

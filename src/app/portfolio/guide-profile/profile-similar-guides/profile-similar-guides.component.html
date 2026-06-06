@@ -3,7 +3,7 @@
     <h2 class="section-title">Similar Guides in Paris</h2>
     
     <div class="guides-grid">
-      <div class="guide-card" *ngFor="let guide of guides">
+      <div class="guide-card" *ngFor="let guide of guides" [routerLink]="['/landing/profil', guide.id]" style="cursor:pointer">
         <div class="card-image">
           <img [src]="guide.image" [alt]="guide.name" />
         </div>

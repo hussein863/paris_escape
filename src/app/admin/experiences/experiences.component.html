@@ -1,3 +1,5 @@
+<app-admin-header></app-admin-header>
+
 <div class="app-shell" [class.sidebar-open]="isSidebarOpen">
   <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
     <span></span>
@@ -37,6 +39,7 @@
         type="text"
         placeholder="Search by title or category..."
         [(ngModel)]="searchQuery"
+        (change)="onSearchChange()"
       >
     </div>
 
@@ -101,23 +104,17 @@
 
   <!-- Experience List -->
   <div class="experience-list">
-    <article class="experience-card" *ngFor="let exp of experiences">
+    <article class="experience-card" *ngFor="let exp of filteredExperiences">
       <div class="card-content">
         <img [src]="exp.image" [alt]="exp.title" class="experience-image">
 
         <div class="experience-info">
           <h3>{{exp.title}}</h3>
-          <p class="meta">{{exp.category}} • {{exp.duration}}</p>
+          <p class="meta">{{exp.category}} • {{exp.duration_value}} {{exp.duration_unit}}</p>
 
           <div class="badges">
-            <span class="badge" [class]="exp.status.toLowerCase().replace(' ', '-')">
+            <span class="badge" [ngClass]="exp.status.toLowerCase().replace(' ', '-')">
               {{exp.status}}
-            </span>
-            <span class="badge originals" *ngIf="exp.badges.includes('Originals')">
-              Originals
-            </span>
-            <span class="badge originals-pending" *ngIf="exp.badges.includes('Originals Pending')">
-              Originals Pending
             </span>
           </div>
 
@@ -132,11 +129,11 @@
               <span *ngIf="exp.status !== 'Draft'">{{exp.bookings}} bookings</span>
               <span *ngIf="exp.status === 'Draft'">—</span>
             </span>
-            <span class="stat" *ngIf="exp.status !== 'Draft' && exp.reviews > 0">
+            <span class="stat" *ngIf="exp.status !== 'Draft' && exp.rating > 0">
               <i class="fa-solid fa-star"></i>
-              {{exp.rating}} ({{exp.reviews}} reviews)
+              {{exp.rating}}
             </span>
-            <span class="stat" *ngIf="exp.status !== 'Draft' && exp.reviews === 0">
+            <span class="stat" *ngIf="exp.status !== 'Draft' && exp.rating === 0">
               <i class="fa-solid fa-star grey"></i>
               No reviews yet
             </span>
@@ -147,27 +144,27 @@
           </div>
 
           <div class="actions">
-            <button class="btn-action primary">
+            <button class="btn-action primary" (click)="editExperience(exp)" [disabled]="actionInProgress">
               <i class="fa-solid fa-edit"></i>
               Edit
             </button>
-            <button class="btn-action">
+            <button class="btn-action" (click)="duplicateExperience(exp)" [disabled]="actionInProgress">
               <i class="fa-solid fa-copy"></i>
               Duplicate
             </button>
-            <button class="btn-action" *ngIf="exp.status === 'Active' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review'">
+            <button class="btn-action" *ngIf="exp.status === 'Active' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review' || actionInProgress" (click)="previewExperience(exp)">
               <i class="fa-solid fa-eye"></i>
               Preview
             </button>
-            <button class="btn-action" *ngIf="exp.status === 'Active'">
+            <button class="btn-action" *ngIf="exp.status === 'Active'" (click)="pauseExperience(exp)" [disabled]="actionInProgress">
               <i class="fa-solid fa-pause"></i>
               Pause
             </button>
-            <button class="btn-action" *ngIf="exp.status === 'Draft' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review'">
+            <button class="btn-action" *ngIf="exp.status === 'Draft' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review' || actionInProgress" (click)="publishExperience(exp)">
               <i class="fa-solid fa-rocket"></i>
               Publish
             </button>
-            <button class="btn-action danger" *ngIf="exp.status === 'Draft'">
+            <button class="btn-action danger" *ngIf="exp.status === 'Draft'" (click)="deleteExperience(exp)" [disabled]="actionInProgress">
               <i class="fa-solid fa-trash"></i>
               Delete
             </button>
@@ -178,7 +175,7 @@
         </div>
 
         <div class="price-section">
-          <div class="price">From €{{exp.price}}</div>
+          <div class="price">From €{{exp.base_price}}</div>
           <div class="price-label">per person</div>
         </div>
       </div>

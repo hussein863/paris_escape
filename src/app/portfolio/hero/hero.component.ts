@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero',
@@ -12,13 +13,17 @@ import { FormsModule } from '@angular/forms';
 export class HeroComponent {
   searchQuery = '';
 
+  constructor(private router: Router) {}
+
   onSearch(): void {
     if (this.searchQuery.trim()) {
-      console.log('Searching for:', this.searchQuery);
+      this.router.navigate(['/landing/experience'], { queryParams: { search: this.searchQuery } });
+    } else {
+      this.router.navigate(['/landing/experience']);
     }
   }
 
   onBrowseGuides(): void {
-    console.log('Browse guides clicked');
+    this.router.navigate(['/landing/experience']);
   }
 }

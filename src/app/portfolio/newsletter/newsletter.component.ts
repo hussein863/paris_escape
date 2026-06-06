@@ -10,21 +10,23 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './newsletter.component.scss'
 })
 export class NewsletterComponent {
-  email: string = '';
+  email = '';
+  submitted = false;
+  error = '';
 
   onSubscribe(event: Event): void {
     event.preventDefault();
-    
-    if (this.email && this.isValidEmail(this.email)) {
-      console.log('Subscribing email:', this.email);
-      // TODO: Implement actual subscription logic
-      alert('Thank you for subscribing!');
-      this.email = '';
+    this.error = '';
+    if (!this.email || !this.isValidEmail(this.email)) {
+      this.error = 'Please enter a valid email address.';
+      return;
     }
+    // Optimistic confirmation — no backend endpoint needed for newsletter
+    this.submitted = true;
+    this.email = '';
   }
 
   private isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 }

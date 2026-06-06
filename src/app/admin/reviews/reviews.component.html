@@ -1,32 +1,21 @@
-<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
-  <button type="button" class="hamburger" (click)="toggleSidebar()"
-    aria-label="Toggle menu">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
+<app-admin-header></app-admin-header>
 
+<div class="app-shell" [class.sidebar-open]="isSidebarOpen">
+  <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
   <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
-  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()"
-    aria-label="Close menu"></div>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
 
   <main class="app-main">
-    <section class="reviews-page"
-      style="background-color: rgba(255, 255, 255, 1); border-bottom: 1px solid rgba(229, 231, 235, 1)">
+
+    <!-- ── Top bar ─────────────────────────────────────────────────────── -->
+    <section class="reviews-page" style="background:#fff;border-bottom:1px solid #e5e7eb">
       <header class="page-header">
         <h1 class="page-title">Reviews</h1>
         <div class="header-actions">
           <button class="btn-outline" (click)="exportCSV()">
-            <i class="fas fa-download"></i>
-            Export CSV
-          </button>
-          <button class="btn-outline" (click)="exportPDF()">
-            <i class="fas fa-file-pdf"></i>
-            Export PDF
-          </button>
-          <button class="btn-primary" (click)="askForReviews()">
-            <i class="fas fa-envelope"></i>
-            Ask for Reviews
+            <i class="fas fa-download"></i> Export CSV
           </button>
         </div>
       </header>
@@ -35,208 +24,209 @@
       <div class="filters-section">
         <div class="search-bar">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search by traveler name or keyword..."
-            class="search-input">
+          <input type="text" placeholder="Search by name or keyword…"
+            class="search-input" [(ngModel)]="searchQuery">
         </div>
         <div class="filter-dropdowns">
-          <select class="filter-select">
-            <option>All ratings</option>
-            <option>5 stars</option>
-            <option>4 stars</option>
-            <option>3 stars</option>
-            <option>2 stars</option>
-            <option>1 star</option>
+          <select class="filter-select" [(ngModel)]="filterRating">
+            <option [value]="0">All ratings</option>
+            <option [value]="5">5 stars</option>
+            <option [value]="4">4 stars</option>
+            <option [value]="3">3 stars</option>
+            <option [value]="2">2 stars</option>
+            <option [value]="1">1 star</option>
           </select>
-          <select class="filter-select">
-            <option>All experiences</option>
-            <option>Hidden Montmartre Walking Tour</option>
-            <option>Latin Quarter Food Tour</option>
+          <select class="filter-select" [(ngModel)]="filterExperience">
+            <option [value]="0">All experiences</option>
+            <option *ngFor="let e of experiences" [value]="e.id">{{ e.title }}</option>
           </select>
-          <select class="filter-select">
-            <option>All reviews</option>
-            <option>With reply</option>
-            <option>Without reply</option>
+          <select class="filter-select" [(ngModel)]="filterReply">
+            <option value="all">All reviews</option>
+            <option value="replied">With reply</option>
+            <option value="not_replied">Without reply</option>
           </select>
-          <select class="filter-select">
-            <option>Newest first</option>
-            <option>Oldest first</option>
-            <option>Highest rated</option>
-            <option>Lowest rated</option>
+          <select class="filter-select" [(ngModel)]="sortBy">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="highest">Highest rated</option>
+            <option value="lowest">Lowest rated</option>
           </select>
         </div>
       </div>
 
       <!-- Filter Pills -->
       <div class="filter-pills">
-        <button class="pill active">All</button>
-        <button class="pill">With photos</button>
-        <button class="pill">Not yet replied</button>
-        <button class="pill">Last 30 days</button>
+        <button class="pill" [class.active]="filterPill==='all'"         (click)="setFilterPill('all')">All</button>
+        <button class="pill" [class.active]="filterPill==='photos'"      (click)="setFilterPill('photos')">With photos</button>
+        <button class="pill" [class.active]="filterPill==='not_replied'" (click)="setFilterPill('not_replied')">Not yet replied</button>
+        <button class="pill" [class.active]="filterPill==='last30'"      (click)="setFilterPill('last30')">Last 30 days</button>
       </div>
     </section>
 
+    <!-- ── Body ────────────────────────────────────────────────────────── -->
     <section class="reviews-page">
-      <!-- Header -->
 
-      <!-- Review Summary -->
-      <div class="review-summary">
-        <h2 class="section-title">Review Summary</h2>
+      <!-- Loading skeleton -->
+      <div *ngIf="loading" class="skeleton-wrap">
+        <div class="skel" *ngFor="let i of [1,2,3]"></div>
+      </div>
 
-        <div class="summary-grid">
-          <!-- Overall Rating -->
-          <div class="overall-rating">
-            <div class="rating-number">{{ overallRating }}</div>
-            <div class="rating-stars">
-              <i class="fas fa-star" *ngFor="let star of [1,2,3,4]"></i>
-              <i class="fas fa-star-half-alt"></i>
-            </div>
-            <div class="rating-text">Based on {{ totalReviews }} reviews</div>
-          </div>
+      <ng-container *ngIf="!loading">
 
-          <!-- Rating Distribution -->
-          <div class="rating-distribution">
-            <div class="rating-bar" *ngFor="let rating of ratingDistribution">
-              <span class="bar-label">{{ rating.stars }}<i
-                  class="fas fa-star"></i></span>
-              <div class="bar-track">
-                <div class="bar-fill"
-                  [style.width.%]="rating.percentage"></div>
+        <!-- Review Summary -->
+        <div class="review-summary">
+          <h2 class="section-title">Review Summary</h2>
+          <div class="summary-grid">
+
+            <!-- Overall rating -->
+            <div class="overall-rating">
+              <div class="rating-number">{{ overallRating || '—' }}</div>
+              <div class="rating-stars">
+                <i class="fas fa-star" *ngFor="let s of filledStars(overallRating)" style="color:#facc15"></i>
+                <i class="far fa-star" *ngFor="let s of emptyStars(overallRating)" style="color:#d1d5db"></i>
               </div>
-              <span class="bar-count">{{ rating.count }}</span>
+              <div class="rating-text">Based on {{ totalReviews }} reviews</div>
             </div>
-          </div>
-          <!-- Stats -->
-          <div class="review-stats">
-            <div class="stat-card">
-              <i class="fas fa-image"></i>
-              <div class="stat-content">
-                <div class="stat-number">{{ photosCount }} with photos</div>
-                <div class="stat-label">{{ photosPercentage }}% of
-                  reviews</div>
+
+            <!-- Distribution bars -->
+            <div class="rating-distribution">
+              <div class="rating-bar" *ngFor="let r of ratingDistribution">
+                <span class="bar-label">{{ r.stars }}<i class="fas fa-star" style="color:#facc15;font-size:11px"></i></span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="r.percentage"></div>
+                </div>
+                <span class="bar-count">{{ r.count }}</span>
               </div>
             </div>
-            <div class="stat-card">
-              <i class="fas fa-reply"></i>
-              <div class="stat-content">
-                <div class="stat-number">{{ repliedPercentage }}%
-                  replied</div>
-                <div class="stat-label">{{ repliedCount }} of {{ totalReviews
-                  }}
-                  reviews</div>
+
+            <!-- Stats -->
+            <div class="review-stats">
+              <div class="stat-card">
+                <i class="fas fa-image"></i>
+                <div class="stat-content">
+                  <div class="stat-number">{{ photosCount }} with photos</div>
+                  <div class="stat-label">{{ photosPercentage }}% of reviews</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <i class="fas fa-reply"></i>
+                <div class="stat-content">
+                  <div class="stat-number">{{ repliedPercentage }}% replied</div>
+                  <div class="stat-label">{{ repliedCount }} of {{ totalReviews }} reviews</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Originals Badge -->
-          <div class="originals-badge">
-            <img src="assets/images/question.svg" alt="Question"
-              class="badge-icon">
-            <div class="badge-content">
-              <div class="badge-title">Originals Eligible</div>
-              <div class="badge-text">Your average rating meets the Originals
-                requirement (4.7+)</div>
+            <!-- Originals badge -->
+            <div class="originals-badge" *ngIf="overallRating >= 4.7">
+              <i class="fas fa-award" style="font-size:28px;color:#facc15"></i>
+              <div class="badge-content">
+                <div class="badge-title">Originals Eligible</div>
+                <div class="badge-text">Your average rating meets the Originals requirement (4.7+)</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <hr class="separator" style="color: f3f4f6; opacity: 0.2;margin-bottom: 3px;">
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="filteredReviews.length === 0">
+          <i class="fas fa-star"></i>
+          <p *ngIf="totalReviews === 0">No reviews yet. Complete bookings to start receiving reviews.</p>
+          <p *ngIf="totalReviews > 0">No reviews match your current filters.</p>
+        </div>
 
-        <button class="btn-analytics" (click)="viewAnalytics()">
-          <i class="fas fa-chart-line"></i>
-          View Analytics
-        </button>
-      </div>
+        <!-- Reviews list -->
+        <div class="reviews-list" *ngIf="filteredReviews.length > 0">
+          <div class="review-card" *ngFor="let review of filteredReviews">
 
-      <!-- Reviews List -->
-      <div class="reviews-list">
-        <div class="review-card" *ngFor="let review of reviews">
-          <!-- Review Header -->
-          <div class="review-header">
-            <img [src]="review.userAvatar" [alt]="review.userName"
-              class="user-avatar">
-            <div class="review-meta">
-              <div class="user-info">
-                <span class="user-name">{{ review.userName }}</span>
-                <span class="verified-badge" *ngIf="review.verified">
-                  Verified
-                </span>
-                <span class="language-badge">{{ review.language }}</span>
+            <!-- Review header -->
+            <div class="review-header">
+              <div class="avatar-initials">
+                {{ getInitial(review) }}
               </div>
-              <div class="review-rating">
-                <i class="fa-solid fa-star"
-                  *ngFor="let star of [1,2,3,4,5].slice(0, review.rating)"></i>
-                <span class="review-date">{{ review.date }}</span>
+              <div class="review-meta">
+                <div class="user-info">
+                  <span class="user-name">{{ getCustomerName(review) }}</span>
+                  <span class="verified-badge" *ngIf="review.verified">Verified</span>
+                  <span class="language-badge" *ngIf="review.language">{{ review.language }}</span>
+                </div>
+                <div class="review-rating">
+                  <i class="fa-solid fa-star" *ngFor="let s of filledStars(review.rating)" style="color:#facc15"></i>
+                  <i class="far fa-star" *ngFor="let s of emptyStars(review.rating)" style="color:#d1d5db"></i>
+                  <span class="review-date">{{ review.date | date:'mediumDate' }}</span>
+                </div>
               </div>
-              <a href="#" class="experience-link">{{ review.experienceName
-                }}</a>
-            </div>
-            <button class="btn-menu">
-              <i class="fas fa-ellipsis-v"></i>
-            </button>
-          </div>
-
-          <!-- Review Content -->
-          <div class="review-content">
-            <p class="review-text">{{ review.content }}</p>
-
-            <!-- Review Photos -->
-            <div class="review-photos"
-              *ngIf="review.photos && review.photos.length > 0">
-              <img [src]="photo" *ngFor="let photo of review.photos"
-                class="review-photo" alt="Review photo">
-            </div>
-          </div>
-
-          <!-- Reply Section -->
-          <div class="reply-section" *ngIf="review.hasReply && review.reply">
-            <div class="reply-header">
-              <img [src]="review.reply.userAvatar" [alt]="review.reply.userName"
-                class="user-avatar small">
-              <div class="reply-meta">
-                <span class="reply-name">{{ review.reply.userName }} <span
-                    class="reply-date" style="color: rgba(107, 114, 128, 1);">
-                    {{ review.reply.date }}
-                    <span style="color: rgba(156, 163, 175, 1);"
-                      *ngIf="review.reply.lastEdited"> • Last edited {{
-                      review.reply.lastEdited }}</span>
-                  </span></span>
-
+              <div class="review-not-replied-badge" *ngIf="!review.reply">
+                <i class="fas fa-exclamation-circle"></i> Awaiting reply
               </div>
             </div>
-            <p class="reply-text">{{ review.reply.content }}</p>
-            <span class="btn-edit-reply" (click)="editReply(review.id)">
-              <i class="fas fa-pencil-alt"></i>
-              Edit reply
-            </span>
-          </div>
-          <!-- Review Actions -->
-          <div class="review-actions">
-            <div class="action-buttons-group">
-              <button class="btn-action primary"
-                (click)="replyToReview(review.id)" *ngIf="!review.hasReply">
-                <i class="fas fa-reply"
-                  style="color: rgba(255, 255, 255, 1);"></i>
-                Reply
-              </button>
-              <button class="btn-action" (click)="translateReview(review.id)">
-                <i class="fas fa-language"></i>
-                Translate
-              </button>
-              <button class="btn-action" (click)="reportReview(review.id)">
-                <i class="fas fa-flag"></i>
-                Report
+
+            <!-- Review content -->
+            <div class="review-content">
+              <p class="review-text">{{ review.content }}</p>
+              <div class="review-photos" *ngIf="review.photos && review.photos.length > 0">
+                <img *ngFor="let photo of review.photos" [src]="photo" class="review-photo" alt="Review photo">
+              </div>
+            </div>
+
+            <!-- Existing reply -->
+            <div class="reply-section" *ngIf="review.reply && editingReplyId !== review.id">
+              <div class="reply-header">
+                <i class="fas fa-user-circle reply-avatar-icon"></i>
+                <div class="reply-meta">
+                  <span class="reply-name">You</span>
+                  <span class="reply-date">{{ review.reply.date | date:'mediumDate' }}</span>
+                  <span class="reply-edited" *ngIf="review.reply.last_edited"> · Edited</span>
+                </div>
+              </div>
+              <p class="reply-text">{{ review.reply.content }}</p>
+              <button class="btn-edit-reply" (click)="startEditReply(review)">
+                <i class="fas fa-pencil-alt"></i> Edit reply
               </button>
             </div>
-            <div>
-              <span class="helpful" (click)="markHelpful(review.id)">
+
+            <!-- Edit reply inline form -->
+            <div class="reply-form" *ngIf="editingReplyId === review.id">
+              <textarea class="reply-textarea" [(ngModel)]="editDraft" rows="3"
+                placeholder="Edit your reply…"></textarea>
+              <div class="reply-form-actions">
+                <button class="btn-reply-save" (click)="submitEdit(review)" [disabled]="editSaving || !editDraft.trim()">
+                  {{ editSaving ? 'Saving…' : 'Save changes' }}
+                </button>
+                <button class="btn-reply-cancel" (click)="cancelEdit()">Cancel</button>
+              </div>
+            </div>
+
+            <!-- New reply inline form -->
+            <div class="reply-form" *ngIf="replyingToId === review.id">
+              <textarea class="reply-textarea" [(ngModel)]="replyDraft" rows="3"
+                placeholder="Write a reply to this review…"></textarea>
+              <div class="reply-form-actions">
+                <button class="btn-reply-save" (click)="submitReply(review)" [disabled]="replySaving || !replyDraft.trim()">
+                  {{ replySaving ? 'Posting…' : 'Post reply' }}
+                </button>
+                <button class="btn-reply-cancel" (click)="cancelReply()">Cancel</button>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="review-actions">
+              <div class="action-buttons-group">
+                <button class="btn-action primary" (click)="startReply(review.id)"
+                  *ngIf="!review.reply && replyingToId !== review.id">
+                  <i class="fas fa-reply" style="color:#fff"></i> Reply
+                </button>
+              </div>
+              <span class="helpful">
                 <i class="fas fa-thumbs-up"></i>
-                {{ review.helpful > 0 ? review.helpful + ' found helpful' :
-                'Found helpful' }}
+                {{ review.helpful > 0 ? review.helpful + ' found helpful' : 'Found helpful' }}
               </span>
             </div>
+
           </div>
         </div>
-      </div>
+
+      </ng-container>
     </section>
   </main>
 </div>

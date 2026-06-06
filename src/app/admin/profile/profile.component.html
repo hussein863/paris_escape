@@ -1,3 +1,5 @@
+<app-admin-header></app-admin-header>
+
 <div class="app-shell" [class.sidebar-open]="isSidebarOpen">
   <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
     <span></span>
@@ -14,11 +16,11 @@
       <div class="profile-header">
         <div class="profile-header-left">
           <div class="profile-avatar">
-            <img [src]="profileImageUrl || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'" alt="Profile photo" />
+            <img [src]="avatarPreview || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'" alt="Profile photo" />
             <input
               type="file"
               id="avatarUpload"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
               (change)="onFileSelected($event)"
               style="display: none;"
             />
@@ -27,16 +29,20 @@
             </button>
           </div>
           <div class="profile-header-info">
-            <h1 class="profile-name">Marie Dubois</h1>
-            <p class="profile-tagline">Passionate local guide specializing in art and culture</p>
+            <h1 class="profile-name">{{ userName || 'Guide' }}</h1>
+            <p class="profile-tagline">{{ profile?.bio ? (profile!.bio | slice:0:80) : 'Complete your profile to add a tagline' }}</p>
             <div class="profile-badges">
-              <span class="badge badge-verified">Verified</span>
-              <span class="badge badge-originals">Originals</span>
+              <span class="badge badge-verified" *ngIf="profile?.is_verified">Verified</span>
+              <span class="badge badge-originals" *ngIf="profile?.is_original">Originals</span>
               <span class="badge badge-public">Public</span>
             </div>
           </div>
         </div>
         <div class="profile-header-actions">
+          <button class="btn btn-secondary" type="button" *ngIf="avatarFile" (click)="saveAvatar()" [disabled]="avatarSaving">
+            <i class="fas fa-save"></i>
+            {{ avatarSaving ? 'Saving…' : 'Save Photo' }}
+          </button>
           <button class="btn btn-secondary" type="button">
             <i class="fa-solid fa-eye" style="color: rgba(55, 65, 81, 1);"></i>
             Preview Profile

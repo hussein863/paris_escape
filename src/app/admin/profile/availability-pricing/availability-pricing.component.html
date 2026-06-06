@@ -1,40 +1,58 @@
 <div class="availability-pricing-wrapper">
-   <!-- Social Links -->
+  <!-- Social Links -->
   <div class="section-card">
     <h2 class="section-title">Social Links</h2>
 
-    <div class="form-group" *ngFor="let social of socialLinks">
-      <label [for]="social.platform">{{ social.platform }}</label>
+    <div class="form-group">
+      <label for="instagram">Instagram</label>
       <div class="social-input-wrapper">
-        <input
-          [id]="social.platform"
-          type="text"
-          class="form-control"
-          [placeholder]="social.username"
-        />
+        <input id="instagram" type="text" class="form-control" placeholder="@username" [(ngModel)]="instagram" />
         <div class="form-checkbox-inline">
-          <input
-            type="checkbox"
-            [id]="'show-' + social.platform"
-            [(ngModel)]="social.showOnProfile"
-          />
+          <input type="checkbox" id="show-instagram" [(ngModel)]="showInstagram" />
         </div>
       </div>
     </div>
+
+    <div class="form-group">
+      <label for="tiktok">TikTok</label>
+      <div class="social-input-wrapper">
+        <input id="tiktok" type="text" class="form-control" placeholder="@username" [(ngModel)]="tiktok" />
+        <div class="form-checkbox-inline">
+          <input type="checkbox" id="show-tiktok" [(ngModel)]="showTiktok" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="youtube">YouTube</label>
+      <div class="social-input-wrapper">
+        <input id="youtube" type="text" class="form-control" placeholder="Channel URL" [(ngModel)]="youtube" />
+        <div class="form-checkbox-inline">
+          <input type="checkbox" id="show-youtube" [(ngModel)]="showYoutube" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="website">Website</label>
+      <div class="social-input-wrapper">
+        <input id="website" type="text" class="form-control" placeholder="https://yourwebsite.com" [(ngModel)]="website" />
+        <div class="form-checkbox-inline">
+          <input type="checkbox" id="show-website" [(ngModel)]="showWebsite" />
+        </div>
+      </div>
+    </div>
+
     <p class="form-hint">
       <i class="fas fa-info-circle"></i>
       Check to show on public profile
     </p>
   </div>
 
-  <!-- Row 1: Availability Defaults + Social Links -->
   <!-- Availability Defaults -->
   <div class="section-card">
     <div class="section-header">
       <h2 class="section-title">Availability Defaults</h2>
-      <button class="btn-link" type="button" (click)="manageCalendar()">
-        Manage Calendar
-      </button>
     </div>
 
     <div class="form-group">
@@ -43,58 +61,11 @@
         <button
           type="button"
           class="day-btn"
-          [class.active]="workingDays.monday"
-          (click)="toggleDay('monday')"
+          *ngFor="let day of dayKeys"
+          [class.active]="workingDays[day]"
+          (click)="toggleDay(day)"
         >
-          M
-        </button>
-        <button
-          type="button"
-          class="day-btn"
-          [class.active]="workingDays.tuesday"
-          (click)="toggleDay('tuesday')"
-        >
-          T
-        </button>
-        <button
-          type="button"
-          class="day-btn"
-          [class.active]="workingDays.wednesday"
-          (click)="toggleDay('wednesday')"
-        >
-          W
-        </button>
-        <button
-          type="button"
-          class="day-btn"
-          [class.active]="workingDays.thursday"
-          (click)="toggleDay('thursday')"
-        >
-          T
-        </button>
-        <button
-          type="button"
-          class="day-btn"
-          [class.active]="workingDays.friday"
-          (click)="toggleDay('friday')"
-        >
-          F
-        </button>
-        <button
-          type="button"
-          class="day-btn"
-          [class.active]="workingDays.saturday"
-          (click)="toggleDay('saturday')"
-        >
-          S
-        </button>
-        <button
-          type="button"
-          class="day-btn"
-          [class.active]="workingDays.sunday"
-          (click)="toggleDay('sunday')"
-        >
-          S
+          {{ dayLabels[day] }}
         </button>
       </div>
     </div>
@@ -102,22 +73,11 @@
     <div class="form-grid-2">
       <div class="form-group">
         <label for="startTime">Start Time</label>
-        <input
-          type="time"
-          id="startTime"
-          class="form-control"
-          [(ngModel)]="startTime"
-        />
+        <input type="time" id="startTime" class="form-control" [(ngModel)]="startTime" />
       </div>
-
       <div class="form-group">
         <label for="endTime">End Time</label>
-        <input
-          type="time"
-          id="endTime"
-          class="form-control"
-          [(ngModel)]="endTime"
-        />
+        <input type="time" id="endTime" class="form-control" [(ngModel)]="endTime" />
       </div>
     </div>
 
@@ -127,34 +87,17 @@
         <option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
       </select>
     </div>
-
-    <div class="form-group">
-      <label>Blackout Dates</label>
-      <button class="btn-add-large" type="button" (click)="addBlackoutPeriod()">
-        <i class="fa-solid fa-calendar-xmark"></i>
-        Add Blackout Period
-      </button>
-    </div>
   </div>
 
-
-
-  <!-- Row 2: Inclusions Defaults + Pricing Defaults -->
-    <!-- Pricing Defaults -->
+  <!-- Pricing Defaults -->
   <div class="section-card">
     <h2 class="section-title">Pricing Defaults</h2>
 
     <div class="form-group">
       <label for="baseRate">Base Rate (per person)</label>
       <div class="input-with-currency">
-        <input
-          type="number"
-          id="baseRate"
-          class="form-control"
-          [(ngModel)]="baseRate"
-          min="0"
-        />
-        <select class="form-control form-select currency-select" [(ngModel)]="currency">
+        <input type="number" id="baseRate" class="form-control" [(ngModel)]="baseRate" min="0" />
+        <select class="form-control form-select currency-select" [(ngModel)]="defaultCurrency">
           <option *ngFor="let curr of currencies" [value]="curr">{{ curr }}</option>
         </select>
       </div>
@@ -162,48 +105,28 @@
 
     <div class="form-group">
       <label for="privateRate">Private Rate</label>
-      <input
-        type="number"
-        id="privateRate"
-        class="form-control"
-        [(ngModel)]="privateRate"
-        min="0"
-      />
+      <input type="number" id="privateRate" class="form-control" [(ngModel)]="privateRate" min="0" />
     </div>
 
     <div class="form-grid-2">
       <div class="form-group">
         <label for="minGroupSize">Min Group Size</label>
-        <input
-          type="number"
-          id="minGroupSize"
-          class="form-control"
-          [(ngModel)]="minGroupSize"
-          min="1"
-        />
+        <input type="number" id="minGroupSize" class="form-control" [(ngModel)]="minGroupSize" min="1" />
       </div>
-
       <div class="form-group">
         <label for="maxGroupSize">Max Group Size</label>
-        <input
-          type="number"
-          id="maxGroupSize"
-          class="form-control"
-          [(ngModel)]="maxGroupSize"
-          min="1"
-        />
+        <input type="number" id="maxGroupSize" class="form-control" [(ngModel)]="maxGroupSize" min="1" />
       </div>
     </div>
 
     <div class="form-group">
       <label for="childPricing">Child Pricing</label>
       <select id="childPricing" class="form-control form-select" [(ngModel)]="childPricing">
-        <option *ngFor="let option of childPricingOptions" [value]="option">
-          {{ option }}
-        </option>
+        <option *ngFor="let option of childPricingOptions" [value]="option">{{ option }}</option>
       </select>
     </div>
   </div>
+
   <!-- Inclusions Defaults -->
   <div class="section-card">
     <h2 class="section-title">Inclusions Defaults</h2>
@@ -213,24 +136,14 @@
         <label>What's Included</label>
         <div class="inclusions-list">
           <div class="inclusion-item" *ngFor="let item of whatsIncluded; let i = index">
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="item.text"
-              placeholder="e.g., Expert guide"
-            />
-            <button
-              class="btn-icon btn-remove"
-              type="button"
-              (click)="removeIncluded(i)"
-            >
+            <input type="text" class="form-control" [(ngModel)]="item.text" placeholder="e.g., Expert guide" />
+            <button class="btn-icon btn-remove" type="button" (click)="removeIncluded(i)">
               <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
         <button class="btn-add" type="button" (click)="addIncluded()">
-          <i class="fas fa-plus"></i>
-          Add Item
+          <i class="fas fa-plus"></i> Add Item
         </button>
       </div>
 
@@ -238,24 +151,14 @@
         <label>Not Included</label>
         <div class="inclusions-list">
           <div class="inclusion-item" *ngFor="let item of notIncluded; let i = index">
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="item.text"
-              placeholder="e.g., Food & drinks"
-            />
-            <button
-              class="btn-icon btn-remove"
-              type="button"
-              (click)="removeNotIncluded(i)"
-            >
+            <input type="text" class="form-control" [(ngModel)]="item.text" placeholder="e.g., Food &amp; drinks" />
+            <button class="btn-icon btn-remove" type="button" (click)="removeNotIncluded(i)">
               <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
         <button class="btn-add" type="button" (click)="addNotIncluded()">
-          <i class="fas fa-plus"></i>
-          Add Item
+          <i class="fas fa-plus"></i> Add Item
         </button>
       </div>
 
@@ -263,35 +166,26 @@
         <label>Optional Add-ons</label>
         <div class="inclusions-list">
           <div class="addon-item" *ngFor="let addon of optionalAddons; let i = index">
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="addon.text"
-              placeholder="e.g., Photographer"
-            />
-            <input
-              type="number"
-              class="form-control addon-price"
-              [(ngModel)]="addon.price"
-              placeholder="Price"
-              min="0"
-            />
-            <button
-              class="btn-icon btn-remove"
-              type="button"
-              (click)="removeAddon(i)"
-            >
+            <input type="text" class="form-control" [(ngModel)]="addon.text" placeholder="e.g., Photographer" />
+            <input type="number" class="form-control addon-price" [(ngModel)]="addon.price" placeholder="Price" min="0" />
+            <button class="btn-icon btn-remove" type="button" (click)="removeAddon(i)">
               <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
         <button class="btn-add" type="button" (click)="addAddon()">
-          <i class="fas fa-plus"></i>
-          Add Add-on
+          <i class="fas fa-plus"></i> Add Add-on
         </button>
       </div>
     </div>
   </div>
 
-
+  <!-- Save -->
+  <div class="save-row">
+    <span class="save-success" *ngIf="saveSuccess">Saved!</span>
+    <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
+    <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
+      {{ saving ? 'Saving…' : 'Save Changes' }}
+    </button>
+  </div>
 </div>

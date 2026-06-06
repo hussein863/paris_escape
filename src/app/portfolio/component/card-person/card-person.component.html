@@ -1,4 +1,4 @@
-<div class="card-person" *ngIf="guide">
+<a class="card-person" *ngIf="guide" [routerLink]="['/landing/profil', guide.id]" style="text-decoration:none;display:block;cursor:pointer">
   <div class="guide-photo-wrapper">
     <img [src]="guide.photo" [alt]="guide.name" class="guide-photo">
   </div>
@@ -11,5 +11,5 @@
       <i class="fas fa-star"></i>
       <span class="rating-value">{{ guide.rating.toFixed(1) }}</span>
     </div>
-  </div>
-</div>
+    </div>
+</a>

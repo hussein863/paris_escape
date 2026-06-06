@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MiniCardComponent, TodayExperience } from '../component/mini-card/mini-card.component';
+import { ExperienceService } from '../../core/services/experience.service';
 
 @Component({
   selector: 'app-available-today-in-paris',
@@ -9,39 +11,31 @@ import { MiniCardComponent, TodayExperience } from '../component/mini-card/mini-
   templateUrl: './available-today-in-paris.component.html',
   styleUrl: './available-today-in-paris.component.scss'
 })
-export class AvailableTodayInParisComponent {
-  todayExperiences: TodayExperience[] = [
-    {
-      id: 1,
-      title: 'Food Market Tour',
-      timeSlot: '2:00 PM - 4:00 PM',
-      image: '/assets/images/card_image/food-market.png',
-      isToday: true
-    },
-    {
-      id: 2,
-      title: 'Latin Quarter Walk',
-      timeSlot: '5:00 PM - 7:00 PM',
-      image: '/assets/images/card_image/latin-quarter.png',
-      isToday: true
-    },
-    {
-      id: 3,
-      title: 'Wine Tasting',
-      timeSlot: '7:30 PM - 9:30 PM',
-      image: '/assets/images/card_image/wine-tasting.png',
-      isToday: true
-    },
-    {
-      id: 4,
-      title: 'Photo Walk',
-      timeSlot: '6:00 PM - 8:00 PM',
-      image: '/assets/images/card_image/photo-walk.png',
-      isToday: true
-    }
-  ];
+export class AvailableTodayInParisComponent implements OnInit {
+  todayExperiences: TodayExperience[] = [];
+  loading = true;
+
+  constructor(private experienceService: ExperienceService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.experienceService.list({ ordering: '-views', page: 1 }).subscribe({
+      next: (res) => {
+        this.todayExperiences = res.results.slice(0, 4).map(e => ({
+          id: e.id,
+          title: e.title,
+          timeSlot: (e as any).availability?.time_slots?.[0]?.time
+            ? `From ${(e as any).availability.time_slots[0].time}`
+            : 'Various times',
+          image: (e as any).image_url ?? (e as any).image ?? 'assets/images/card_image/louvre.png',
+          isToday: true,
+        }));
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
 
   onSeeAllForToday(): void {
-    console.log('See all for today clicked');
+    this.router.navigate(['/landing/experience']);
   }
 }

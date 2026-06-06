@@ -1,20 +1,37 @@
 <div class="guide-profile-page">
-    <app-header></app-header>
+  <app-header></app-header>
+
+  <!-- Loading -->
+  <div class="page-loading" *ngIf="loading" style="padding:4rem;text-align:center;color:#6b7280;">
+    <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+    <p style="margin-top:1rem;">Loading guide profile...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="page-error" *ngIf="error && !loading" style="padding:4rem;text-align:center;color:#dc2626;">
+    <i class="fas fa-exclamation-circle" style="font-size:2rem;"></i>
+    <p style="margin-top:1rem;">{{ error }}</p>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!loading && !error">
     <app-profile-header [guide]="guide"></app-profile-header>
 
     <div class="profile-content">
-        <div class="main-content">
-            <app-profile-about [guide]="guide"></app-profile-about>
-            <app-profile-location [guide]="guide"></app-profile-location>
-            <app-profile-experiences [experiences]="experiences" [guideName]="guide.name"></app-profile-experiences>
-            <app-profile-reviews [reviews]="reviews" [stats]="reviewStats"></app-profile-reviews>
-        </div>
+      <div class="main-content">
+        <app-profile-about [guide]="guide"></app-profile-about>
+        <app-profile-location [guide]="guide"></app-profile-location>
+        <app-profile-experiences [experiences]="experiences" [guideName]="guide.name"></app-profile-experiences>
+        <app-profile-reviews [reviews]="reviews" [stats]="reviewStats"></app-profile-reviews>
+      </div>
 
-        <aside class="sidebar">
-            <app-profile-sidebar [guide]="guide"></app-profile-sidebar>
-        </aside>
+      <aside class="sidebar">
+        <app-profile-sidebar [guide]="guide" [guideId]="guide.id"></app-profile-sidebar>
+      </aside>
     </div>
 
     <app-profile-similar-guides [guides]="similarGuides"></app-profile-similar-guides>
-    <app-footer></app-footer>
+  </ng-container>
+
+  <app-footer></app-footer>
 </div>

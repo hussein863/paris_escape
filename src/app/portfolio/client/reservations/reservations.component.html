@@ -18,38 +18,44 @@
       </button>
     </div>
 
-    <section class="reservations-list">
+    <div *ngIf="loading" class="empty-state">Loading reservations…</div>
+
+    <section class="reservations-list" *ngIf="!loading">
       <article class="reservation-card" *ngFor="let reservation of filteredReservations">
         <div class="card-media">
-          <img [src]="reservation.imageUrl" [alt]="reservation.title">
+          <img
+            [src]="reservation.experience_image || 'assets/images/card_image/louvre.png'"
+            [alt]="reservation.experience_title || 'Experience'">
         </div>
 
         <div class="card-body">
           <div class="card-top">
             <div class="card-info">
-              <h3 class="card-title">{{ reservation.title }}</h3>
+              <h3 class="card-title">{{ reservation.experience_title || ('Booking #' + reservation.booking_ref) }}</h3>
+
+              <div class="meta-row" *ngIf="reservation.guide_name">
+                <i class="fas fa-user"></i>
+                <span>Guide: {{ reservation.guide_name }}</span>
+              </div>
 
               <div class="meta-row">
                 <i class="fas fa-calendar"></i>
-                <span>
-                  {{ reservation.date }} at {{ reservation.time }} ({{ reservation.timeZone }})
-                </span>
-                <span class="meta-badge" *ngIf="reservation.badge">{{ reservation.badge }}</span>
+                <span>{{ reservation.date | date:'fullDate' }} at {{ reservation.time }}</span>
               </div>
 
               <div class="meta-row">
-                <img [src]="reservation.guideAvatar" [alt]="reservation.guide" class="guide-avatar">
-                <span>Guide: {{ reservation.guide }}</span>
+                <i class="fas fa-users"></i>
+                <span>{{ reservation.adults }} adult(s){{ reservation.children > 0 ? ', ' + reservation.children + ' child(ren)' : '' }}</span>
               </div>
 
               <div class="meta-row">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>{{ reservation.location }}</span>
+                <i class="fas fa-euro-sign"></i>
+                <span>Total: €{{ reservation.total_amount }}</span>
               </div>
 
-              <div class="meta-row cancellation">
-                <i class="fa-solid fa-clock"></i>
-                <span>{{ reservation.cancellation }}</span>
+              <div class="meta-row" style="font-size:12px;color:#9ca3af">
+                <i class="fas fa-hashtag"></i>
+                <span>{{ reservation.booking_ref }}</span>
               </div>
             </div>
 
@@ -63,46 +69,68 @@
               >
                 {{ reservation.status }}
               </span>
-              <div class="price">&euro;{{ reservation.price }}</div>
-              <div class="booking">Booking #{{ reservation.bookingId }}</div>
+              <div class="price">&euro;{{ reservation.total_amount }}</div>
             </div>
           </div>
 
           <div class="card-actions">
-            <button class="btn primary">
-              View Details
+            <a class="btn primary" [routerLink]="['/landing/experience', reservation.experience]">View Experience</a>
+            <button
+              class="btn outline"
+              *ngIf="activeTab === 'past' && reservation.status === 'Confirmed'"
+              (click)="openReviewModal(reservation)">
+              <i class="fas fa-star"></i> Leave Review
             </button>
-            <button class="btn black">
-              <i class="fas fa-qrcode"></i>
-              QR Code
-            </button>
-            <button class="btn outline">
-              <i class="fas fa-message"></i>
-              Contact Guide
+            <button
+              class="btn outline danger"
+              *ngIf="reservation.status === 'Confirmed' || reservation.status === 'Pending'"
+              (click)="cancelBooking(reservation)"
+            >
+              Cancel
             </button>
           </div>
         </div>
       </article>
 
-      <div class="empty-state" *ngIf="filteredReservations.length === 0">
+      <div class="empty-state" *ngIf="filteredReservations.length === 0 && !loading">
         No reservations in this category yet.
       </div>
     </section>
 
-    <section class="recently-viewed">
-      <h2 class="section-title">Recently Viewed</h2>
-      <div class="recent-grid">
-        <article class="recent-card" *ngFor="let item of recentlyViewed">
-          <div class="recent-image">
-            <img [src]="item.imageUrl" [alt]="item.title">
-          </div>
-          <div class="recent-content">
-            <h3>{{ item.title }}</h3>
-            <p>From &euro;{{ item.price }} &bull; {{ item.duration }}</p>
-          </div>
-        </article>
+    <!-- Review Modal -->
+    <div class="modal-overlay" *ngIf="reviewModalOpen" (click)="closeReviewModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Leave a Review</h3>
+          <button class="modal-close" (click)="closeReviewModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <p class="modal-exp-title" *ngIf="reviewTarget">{{ reviewTarget.experience_title }}</p>
+
+        <div class="star-picker">
+          <button *ngFor="let s of [1,2,3,4,5]"
+            class="star-btn"
+            [class.filled]="s <= reviewRating"
+            (click)="reviewRating = s">
+            <i class="fas fa-star"></i>
+          </button>
+        </div>
+
+        <textarea
+          class="review-textarea"
+          placeholder="Share your experience…"
+          [(ngModel)]="reviewContent"
+          rows="4">
+        </textarea>
+
+        <div class="modal-error" *ngIf="reviewError">{{ reviewError }}</div>
+
+        <button class="btn primary modal-submit"
+          (click)="submitReview()"
+          [disabled]="reviewSubmitting || !reviewContent.trim() || reviewRating === 0">
+          {{ reviewSubmitting ? 'Submitting…' : 'Submit Review' }}
+        </button>
       </div>
-    </section>
+    </div>
 
     <section class="support-card">
       <div class="support-text">

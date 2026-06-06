@@ -7,13 +7,19 @@
     </nav>
 
     <div class="header-main">
-      <h1 class="page-title">Experiences in Paris</h1>
-      <p class="experiences-count">{{ experiencesCount }} experiences found</p>
+      <div>
+        <h1 class="page-title">Experiences in Paris</h1>
+        <p class="experiences-count">{{ experiencesCount }} experiences found</p>
+      </div>
+      <button class="mobile-filter-btn" (click)="filterDrawerOpen = !filterDrawerOpen; filterDrawerToggled.emit(filterDrawerOpen)">
+        <i class="fas fa-sliders-h"></i>
+        Filters
+      </button>
     </div>
 
     <div class="category-filters">
-      <button 
-        *ngFor="let category of categories" 
+      <button
+        *ngFor="let category of categories"
         class="category-btn"
         [class.active]="category.active"
         (click)="toggleCategory(category)">
@@ -21,14 +27,11 @@
       </button>
     </div>
 
-    <div class="active-filters" *ngIf="hasActiveFilters()">
-      <div class="filter-chip" *ngFor="let filter of activeFilters">
-        <span>{{ filter.label }}</span>
-        <button class="remove-btn" (click)="removeFilter(filter)">
-          <i class="fas fa-times"></i>
-        </button>
+    <div class="active-filters" *ngIf="hasActiveFilters">
+      <div class="filter-chip" *ngFor="let label of activeFilterLabels">
+        <span>{{ label }}</span>
       </div>
-      <button class="clear-all-btn" (click)="clearAll()">Clear all</button>
+      <button class="clear-all-btn" (click)="onClearAll()">Clear all</button>
     </div>
   </div>
 </div>

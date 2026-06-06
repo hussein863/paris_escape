@@ -1,9 +1,24 @@
 <app-header></app-header>
 <div class="experience-container">
-  <app-catalog-header></app-catalog-header>
+  <app-catalog-header
+    [totalCount]="totalCount"
+    [activeFilters]="activeFilters"
+    (filterDrawerToggled)="mobileFiltersOpen = !mobileFiltersOpen">
+  </app-catalog-header>
+
+  <!-- Mobile filter drawer overlay -->
+  <div class="mobile-filter-overlay" *ngIf="mobileFiltersOpen" (click)="mobileFiltersOpen = false"></div>
+  <div class="mobile-filter-drawer" [class.open]="mobileFiltersOpen">
+    <div class="drawer-header">
+      <span>Filters</span>
+      <button (click)="mobileFiltersOpen = false"><i class="fas fa-times"></i></button>
+    </div>
+    <app-filters-sidebar (filtersChanged)="onFiltersChanged($event)"></app-filters-sidebar>
+  </div>
+
   <div class="main-layout">
-    <app-filters-sidebar></app-filters-sidebar>
-    <app-experiences-grid></app-experiences-grid>
+    <app-filters-sidebar (filtersChanged)="onFiltersChanged($event)"></app-filters-sidebar>
+    <app-experiences-grid [filters]="activeFilters" (totalChanged)="onTotalChanged($event)"></app-experiences-grid>
   </div>
   <app-recently-viewed></app-recently-viewed>
   <app-share-your-paris></app-share-your-paris>

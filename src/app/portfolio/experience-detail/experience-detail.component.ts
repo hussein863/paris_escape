@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ExperienceHeaderComponent } from './components/experience-header/experience-header.component';
@@ -12,12 +13,20 @@ import { ReviewsSectionComponent } from './components/reviews-section/reviews-se
 import { FaqSectionComponent } from './components/faq-section/faq-section.component';
 import { PoliciesSectionComponent } from './components/policies-section/policies-section.component';
 import { SimilarExperiencesComponent } from './components/similar-experiences/similar-experiences.component';
+import { ExperienceService } from '../../core/services/experience.service';
+import { ReviewService } from '../../core/services/review.service';
+import { FavoriteService } from '../../core/services/favorite.service';
+import { AuthService } from '../../core/services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { Experience } from '../../core/models';
 
 @Component({
   selector: 'app-experience-detail',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     HeaderComponent,
     FooterComponent,
     ExperienceHeaderComponent,
@@ -222,7 +231,209 @@ export class ExperienceDetailComponent implements OnInit {
     }
   ];
 
+  experience: Experience | null = null;
+  guideId: number | null = null;
+  loading = false;
+  error = '';
+  // Favorites
+  isFavorited = false;
+  favoriteId: number | null = null;
+  favoriteLoading = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private experienceService: ExperienceService,
+    private reviewService: ReviewService,
+    private favoriteService: FavoriteService,
+    private auth: AuthService,
+    private http: HttpClient
+  ) {}
+
   ngOnInit(): void {
-    // Component initialization
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (id) {
+      this.loadExperience(id);
+      if (this.auth.isLoggedIn()) this.checkFavoriteStatus(id);
+    }
+  }
+
+  loadExperience(id: number): void {
+    this.loading = true;
+    this.experienceService.get(id).subscribe({
+      next: (exp) => {
+        this.experience = exp;
+        this.mapToDisplayData(exp);
+        this.loading = false;
+        this.loadReviews(id, exp);
+      },
+      error: () => { this.error = 'Experience not found.'; this.loading = false; }
+    });
+  }
+
+  private loadReviews(expId: number, exp: Experience): void {
+    this.reviewService.list({ experience: expId }).subscribe({
+      next: (res) => {
+        this.reviewsData = {
+          reviews: res.results.map(r => ({
+            author: (r as any).customer_name || 'Anonymous',
+            avatar: '',
+            rating: r.rating,
+            date: new Date(r.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+            comment: r.content,
+            reply: r.reply ? { content: (r.reply as any).content, date: (r.reply as any).date } : null,
+          })),
+          averageRating: Number(exp.rating),
+          totalReviews: res.count
+        };
+      }
+    });
+  }
+
+  checkFavoriteStatus(expId: number): void {
+    this.favoriteService.list().subscribe({
+      next: (res) => {
+        const fav = res.results.find(f => f.experience === expId);
+        if (fav) { this.isFavorited = true; this.favoriteId = fav.id; }
+      }
+    });
+  }
+
+  toggleFavorite(): void {
+    if (!this.auth.isLoggedIn() || !this.experience) return;
+    this.favoriteLoading = true;
+    if (this.isFavorited && this.favoriteId) {
+      this.favoriteService.remove(this.favoriteId).subscribe({
+        next: () => { this.isFavorited = false; this.favoriteId = null; this.favoriteLoading = false; },
+        error: () => { this.favoriteLoading = false; }
+      });
+    } else {
+      this.favoriteService.add(this.experience.id).subscribe({
+        next: (fav) => { this.isFavorited = true; this.favoriteId = fav.id; this.favoriteLoading = false; },
+        error: () => { this.favoriteLoading = false; }
+      });
+    }
+  }
+
+  mapToDisplayData(exp: Experience): void {
+    const expAny = exp as any;
+
+    // Badges from experience properties
+    const badges: string[] = [];
+    if (expAny.is_original) badges.push('Originals');
+    if (exp.policy?.cancellation_window) badges.push(`Free cancellation up to ${exp.policy.cancellation_window}`);
+    badges.push('Instant confirmation');
+
+    this.experienceData = {
+      title: exp.title,
+      category: exp.category,
+      location: exp.subcategory || exp.category || 'Paris',
+      rating: Number(exp.rating),
+      reviewsCount: 0,
+      badges
+    };
+
+    // Gallery: prefer uploaded media; fall back to cover image
+    const mediaImages = (exp.media || [])
+      .filter(m => m.type === 'image')
+      .sort((a, b) => a.ordering - b.ordering)
+      .map(m => ({ url: (m as any).file_url || m.url, alt: exp.title }));
+
+    const coverUrl = expAny.image_url || exp.image;
+    const galleryImages = mediaImages.length > 0
+      ? mediaImages
+      : coverUrl
+        ? [{ url: coverUrl, alt: exp.title }]
+        : [{ url: 'assets/images/multi-image/louvre.png', alt: exp.title }];
+
+    this.galleryData = {
+      images: galleryImages,
+      duration: `${exp.duration_value} ${exp.duration_unit}`,
+      maxGuests: exp.max_people
+    };
+
+    this.overviewData = {
+      description: exp.long_description || exp.short_description,
+      highlights: (exp.highlights || []).map((h: string) => ({ text: h })),
+      whatYouWillDo: exp.short_description,
+      audienceTags: (exp.tags || []).map((t: string) => ({ label: t })),
+      itinerary: (exp.itinerary || []).map(item => ({
+        order: item.order,
+        title: item.title,
+        duration: item.duration,
+        description: item.description
+      })),
+      includedItems: (exp.inclusions || [])
+        .filter(i => i.type === 'included' || i.type === 'not-included')
+        .map(i => ({ text: i.text, included: i.type === 'included' })),
+      whatToBring: (exp.inclusions || [])
+        .filter(i => i.type === 'to-bring')
+        .map(i => ({ text: i.text, type: 'recommended' as const }))
+    };
+
+    // Policies from real policy object
+    if (exp.policy) {
+      const p = exp.policy;
+      const pols = [];
+      if (p.cancellation_window) pols.push({ title: 'Cancellation policy', description: `Free cancellation up to ${p.cancellation_window} before the tour starts. Cancellations within this window are non-refundable.` });
+      if (p.late_arrival_policy) pols.push({ title: 'Late arrival', description: { 'wait-15': 'Guide will wait up to 15 minutes.', 'start-on-time': 'Tour starts on time — please arrive 10 minutes early.', 'custom': 'Contact your guide for late arrival policy.' }[p.late_arrival_policy] || p.late_arrival_policy });
+      if (p.weather_policy) pols.push({ title: 'Weather', description: { 'light-rain': 'Tour runs in light rain — bring an umbrella.', 'cancel-bad': 'Tour is cancelled in bad weather with full refund.', 'reschedule-severe': 'Tour rescheduled in severe weather.' }[p.weather_policy] || p.weather_policy });
+      if (p.safety_notes) pols.push({ title: 'Safety', description: p.safety_notes });
+      if (p.insurance_coverage) pols.push({ title: 'Insurance', description: 'Professional liability insurance included.' });
+      this.policiesData = pols.length > 0 ? pols : this.policiesData;
+    }
+
+    // FAQ generated from experience policy + accessibility info
+    const faqs: { question: string; answer: string; isOpen: boolean }[] = [];
+    if (exp.wheelchair_accessible !== undefined) faqs.push({ question: 'Is this experience wheelchair accessible?', answer: exp.wheelchair_accessible ? 'Yes, this experience is fully wheelchair accessible.' : 'This experience is not fully wheelchair accessible. Contact the guide for details.', isOpen: false });
+    if (exp.has_min_age && exp.min_age) faqs.push({ question: 'Is there a minimum age requirement?', answer: `Yes, participants must be at least ${exp.min_age} years old.`, isOpen: false });
+    if (exp.languages?.length) faqs.push({ question: 'In which languages is this experience offered?', answer: `This experience is available in: ${exp.languages.join(', ')}.`, isOpen: false });
+    if (exp.policy?.cancellation_window) faqs.push({ question: 'What is the cancellation policy?', answer: `You can cancel for free up to ${exp.policy.cancellation_window} before the start time.`, isOpen: false });
+    if (exp.max_people) faqs.push({ question: 'What is the maximum group size?', answer: `This experience accommodates up to ${exp.max_people} people.`, isOpen: false });
+    if (faqs.length > 0) this.faqData = faqs;
+
+    // Guide profile
+    this.guideId = exp.guide;
+    this.http.get<any>(`${environment.apiUrl}/users/guides/${exp.guide}/`).subscribe({
+      next: (guide) => {
+        const user = guide.user;
+        this.guideData = {
+          name: user?.name ?? `Guide #${exp.guide}`,
+          avatar: user?.avatar_url || user?.avatar || 'assets/images/avatar/sophie.png',
+          rating: Number(guide.rating),
+          reviewsCount: guide.review_count,
+          languages: (guide.languages ?? []).map((l: any) => `${l.name} (${l.level})`),
+          bio: guide.bio ?? ''
+        };
+        // Use first meeting point if available, else fall back to meeting_point_name
+        const mp = guide.meeting_points?.[0];
+        this.meetingPointData = {
+          name: mp?.name || guide.meeting_point_name || 'Meeting point',
+          address: mp?.address || guide.meeting_point_address || '',
+          instructions: guide.pickup_options || '',
+          metro: ''
+        };
+        // Also set review count on experience header
+        this.experienceData = { ...this.experienceData, reviewsCount: guide.review_count };
+      }
+    });
+
+    // Similar experiences
+    this.experienceService.list({ search: exp.category }).subscribe({
+      next: (res) => {
+        this.similarExperiencesData = res.results
+          .filter(e => e.id !== exp.id)
+          .slice(0, 3)
+          .map(e => ({
+            id: String(e.id),
+            title: e.title,
+            image: (e as any).image_url || e.image || 'assets/images/card_image/louvre.png',
+            duration: `${e.duration_value} ${e.duration_unit}`,
+            category: e.category,
+            price: Number(e.base_price),
+            currency: '€',
+            rating: Number(e.rating)
+          }));
+      }
+    });
   }
 }

@@ -73,6 +73,9 @@
     </div>
 
     <!-- CTA Buttons -->
+    <div class="booking-error" *ngIf="bookingError" style="margin-bottom:8px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#dc2626;font-size:13px;display:flex;gap:8px;align-items:center;">
+      <i class="fas fa-exclamation-circle"></i> {{ bookingError }}
+    </div>
     <div class="cta-buttons">
       <button class="btn btn-primary" (click)="bookNow()">Book now</button>
       <button class="btn btn-outline" (click)="contactGuide()">Contact the guide</button>

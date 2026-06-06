@@ -3,18 +3,22 @@
     <h2 class="section-title">Stay inspired</h2>
     <p class="section-subtitle">Get exclusive travel tips, hidden gems, and special offers delivered to your inbox</p>
     
-    <form class="newsletter-form" (ngSubmit)="onSubscribe($event)">
+    <div *ngIf="submitted" style="text-align:center;padding:1.5rem;background:#dcfce7;border-radius:12px;color:#166534;font-weight:500">
+      <i class="fas fa-check-circle"></i> You're subscribed! We'll send you the best of Paris.
+    </div>
+
+    <form class="newsletter-form" *ngIf="!submitted" (ngSubmit)="onSubscribe($event)">
       <div class="input-wrapper">
-        <input 
-          type="email" 
-          class="email-input" 
+        <input
+          type="email"
+          class="email-input"
           placeholder="Enter your email"
           [(ngModel)]="email"
           name="email"
           required>
         <button type="submit" class="subscribe-button">Subscribe</button>
       </div>
-      
+      <p class="error-text" *ngIf="error" style="color:#dc2626;font-size:13px;margin-top:0.5rem">{{ error }}</p>
       <p class="privacy-text">
         By subscribing, you agree to receive marketing emails from Paris Escape. You can unsubscribe at any time.
       </p>

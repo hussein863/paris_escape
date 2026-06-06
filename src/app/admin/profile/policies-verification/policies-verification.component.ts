@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { GuideProfileService } from '../../../core/services/guide-profile.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-policies-verification',
@@ -9,45 +13,95 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './policies-verification.component.html',
   styleUrl: './policies-verification.component.scss',
 })
-export class PoliciesVerificationComponent {
-  freeCancellationWindow = '24 hours before';
+export class PoliciesVerificationComponent implements OnInit {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  cancellationWindow = '24 hours before';
   latePolicyNotes = '';
   safetyNotes = '';
-  uniqueExperienceDescription = '';
+  uniqueDescription = '';
 
-  kycStatus = 'Approved';
-  kycVerifications = [
-    { type: 'ID Document', verified: true, date: '15 Jan 2024' },
-    { type: 'Address Proof', verified: true, date: '15 Jan 2024' },
-    { type: 'Business Info', verified: true, date: '15 Jan 2024' }
-  ];
+  kycStatus = 'Pending';
+  guideId: number | null = null;
 
-  profileUrl = 'paris-escape.com/guide/marie-dubois';
-  lastUpdated = '2 hours ago by Marie Dubois';
+  cancellationWindows = ['24 hours before', '48 hours before', '72 hours before', '1 week before'];
 
-  cancellationWindows = [
-    '24 hours before',
-    '48 hours before',
-    '72 hours before',
-    '1 week before'
-  ];
+  saving = false;
+  saveSuccess = false;
+  saveError = '';
 
-  copyProfileUrl() {
-    navigator.clipboard.writeText(this.profileUrl);
-    alert('Profile URL copied!');
+  showDeactivateConfirm = false;
+  deactivating = false;
+
+  constructor(
+    private guideService: GuideProfileService,
+    private auth: AuthService,
+    private http: HttpClient,
+  ) {}
+
+  ngOnInit(): void {
+    const user = this.auth.user();
+    this.kycStatus = user?.status ?? 'Active';
+
+    this.guideService.profile$.subscribe(p => {
+      if (!p) return;
+      this.guideId = p.id;
+      this.cancellationWindow = p.cancellation_window;
+      this.latePolicyNotes = p.late_policy_notes;
+      this.safetyNotes = p.safety_notes;
+      this.uniqueDescription = p.unique_description;
+    });
   }
 
-  viewAuditLog() {
-    alert('Audit log would open here');
+  get profileUrl(): string {
+    return this.guideId ? `paris-escape.com/guide/${this.guideId}` : 'paris-escape.com/guide/...';
   }
 
-  submitForReview() {
-    alert('Application would be submitted for review');
+  save(): void {
+    this.saving = true;
+    this.saveSuccess = false;
+    this.saveError = '';
+    this.guideService.patch({
+      cancellation_window: this.cancellationWindow,
+      late_policy_notes: this.latePolicyNotes,
+      safety_notes: this.safetyNotes,
+      unique_description: this.uniqueDescription,
+    }).subscribe({
+      next: () => {
+        this.saving = false;
+        this.saveSuccess = true;
+        setTimeout(() => (this.saveSuccess = false), 3000);
+      },
+      error: (err) => {
+        this.saving = false;
+        this.saveError = err?.error?.detail ?? 'Save failed.';
+      },
+    });
   }
 
-  deactivateProfile() {
-    if (confirm('Are you sure you want to deactivate your profile? Your profile will be hidden from public view.')) {
-      alert('Profile deactivated');
-    }
+  copyProfileUrl(): void {
+    if (!this.isBrowser) return;
+    navigator.clipboard.writeText(this.profileUrl).catch(() => {});
+  }
+
+  confirmDeactivate(): void {
+    this.showDeactivateConfirm = true;
+  }
+
+  cancelDeactivate(): void {
+    this.showDeactivateConfirm = false;
+  }
+
+  doDeactivate(): void {
+    this.deactivating = true;
+    this.http.delete(`${environment.apiUrl}/users/delete_account/`).subscribe({
+      next: () => {
+        this.auth.logout();
+      },
+      error: () => {
+        this.deactivating = false;
+        this.showDeactivateConfirm = false;
+      },
+    });
   }
 }

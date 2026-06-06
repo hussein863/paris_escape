@@ -1,16 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GuideProfileService } from '../../../core/services/guide-profile.service';
 
 interface Inclusion {
   text: string;
-}
-
-interface SocialLink {
-  platform: string;
-  username: string;
-  icon: string;
-  showOnProfile: boolean;
 }
 
 @Component({
@@ -20,92 +14,129 @@ interface SocialLink {
   templateUrl: './availability-pricing.component.html',
   styleUrl: './availability-pricing.component.scss',
 })
-export class AvailabilityPricingComponent {
+export class AvailabilityPricingComponent implements OnInit {
   // Availability
-  workingDays = {
+  workingDays: Record<string, boolean> = {
     monday: true,
     tuesday: true,
     wednesday: true,
     thursday: true,
     friday: true,
     saturday: false,
-    sunday: false
+    sunday: false,
   };
   startTime = '09:00';
   endTime = '18:00';
-  timezone = 'Europe/Paris (GMT+1)';
+  timezone = 'Europe/Paris';
 
   // Pricing
-  baseRate = 75;
-  currency = 'EUR';
-  privateRate = 250;
+  baseRate = 0;
+  defaultCurrency = 'EUR';
+  privateRate = 0;
   minGroupSize = 1;
   maxGroupSize = 8;
-  childPricing = '50% discount under 12';
+  childPricing = 'No discount';
 
   // Social Links
-  socialLinks: SocialLink[] = [
-    { platform: 'Instagram', username: '@username', icon: 'fa-brands fa-instagram', showOnProfile: true },
-    { platform: 'TikTok', username: '@username', icon: 'fa-brands fa-tiktok', showOnProfile: false },
-    { platform: 'YouTube', username: 'Channel URL', icon: 'fa-brands fa-youtube', showOnProfile: false },
-    { platform: 'Website', username: 'https://yourwebsite.com', icon: 'fa-solid fa-globe', showOnProfile: true }
-  ];
+  instagram = '';
+  showInstagram = true;
+  tiktok = '';
+  showTiktok = false;
+  youtube = '';
+  showYoutube = false;
+  website = '';
+  showWebsite = true;
 
-  // Inclusions
-  whatsIncluded: Inclusion[] = [
-    { text: 'Expert guide' },
-    { text: 'Walking tour' }
-  ];
-  notIncluded: Inclusion[] = [
-    { text: 'Food & drinks' },
-    { text: 'Transport' }
-  ];
-  optionalAddons: { text: string; price: number }[] = [
-    { text: 'Photographer', price: 50 }
-  ];
+  // Inclusions (local only, no DB backing in current scope)
+  whatsIncluded: Inclusion[] = [{ text: 'Expert guide' }, { text: 'Walking tour' }];
+  notIncluded: Inclusion[] = [{ text: 'Food & drinks' }, { text: 'Transport' }];
+  optionalAddons: { text: string; price: number }[] = [{ text: 'Photographer', price: 50 }];
 
   currencies = ['EUR', 'USD', 'GBP'];
-  timezones = ['Europe/Paris (GMT+1)', 'Europe/London (GMT+0)', 'America/New_York (GMT-5)'];
-  childPricingOptions = [
-    '50% discount under 12',
-    'Free under 6',
-    '30% discount under 16',
-    'No discount'
-  ];
+  timezones = ['Europe/Paris', 'Europe/London', 'America/New_York'];
+  childPricingOptions = ['50% discount under 12', 'Free under 6', '30% discount under 16', 'No discount'];
+  dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  dayLabels: Record<string, string> = {
+    monday: 'M', tuesday: 'T', wednesday: 'W', thursday: 'T',
+    friday: 'F', saturday: 'S', sunday: 'S',
+  };
 
-  toggleDay(day: keyof typeof this.workingDays) {
+  saving = false;
+  saveSuccess = false;
+  saveError = '';
+
+  constructor(private guideService: GuideProfileService) {}
+
+  ngOnInit(): void {
+    this.guideService.profile$.subscribe(p => {
+      if (!p) return;
+      if (p.working_days && Object.keys(p.working_days).length > 0) {
+        this.workingDays = { ...this.workingDays, ...p.working_days };
+      }
+      this.startTime = p.availability_start_time;
+      this.endTime = p.availability_end_time;
+      this.timezone = p.timezone;
+      this.baseRate = p.base_rate;
+      this.defaultCurrency = p.default_currency;
+      this.privateRate = p.private_rate;
+      this.minGroupSize = p.min_group_size;
+      this.maxGroupSize = p.max_group_size;
+      this.childPricing = p.child_pricing;
+      this.instagram = p.instagram;
+      this.showInstagram = p.show_instagram;
+      this.tiktok = p.tiktok;
+      this.showTiktok = p.show_tiktok;
+      this.youtube = p.youtube;
+      this.showYoutube = p.show_youtube;
+      this.website = p.website;
+      this.showWebsite = p.show_website;
+    });
+  }
+
+  toggleDay(day: string): void {
     this.workingDays[day] = !this.workingDays[day];
   }
 
-  addBlackoutPeriod() {
-    alert('Date picker would open here');
+  save(): void {
+    this.saving = true;
+    this.saveSuccess = false;
+    this.saveError = '';
+    this.guideService.patch({
+      working_days: { ...this.workingDays },
+      availability_start_time: this.startTime,
+      availability_end_time: this.endTime,
+      timezone: this.timezone,
+      base_rate: this.baseRate,
+      default_currency: this.defaultCurrency,
+      private_rate: this.privateRate,
+      min_group_size: this.minGroupSize,
+      max_group_size: this.maxGroupSize,
+      child_pricing: this.childPricing,
+      instagram: this.instagram,
+      show_instagram: this.showInstagram,
+      tiktok: this.tiktok,
+      show_tiktok: this.showTiktok,
+      youtube: this.youtube,
+      show_youtube: this.showYoutube,
+      website: this.website,
+      show_website: this.showWebsite,
+    }).subscribe({
+      next: () => {
+        this.saving = false;
+        this.saveSuccess = true;
+        setTimeout(() => (this.saveSuccess = false), 3000);
+      },
+      error: (err) => {
+        this.saving = false;
+        this.saveError = err?.error?.detail ?? 'Save failed.';
+      },
+    });
   }
 
-  manageCalendar() {
-    alert('Calendar integration would open here');
-  }
-
-  addIncluded() {
-    this.whatsIncluded.push({ text: '' });
-  }
-
-  removeIncluded(index: number) {
-    this.whatsIncluded.splice(index, 1);
-  }
-
-  addNotIncluded() {
-    this.notIncluded.push({ text: '' });
-  }
-
-  removeNotIncluded(index: number) {
-    this.notIncluded.splice(index, 1);
-  }
-
-  addAddon() {
-    this.optionalAddons.push({ text: '', price: 0 });
-  }
-
-  removeAddon(index: number) {
-    this.optionalAddons.splice(index, 1);
-  }
+  addIncluded(): void { this.whatsIncluded.push({ text: '' }); }
+  removeIncluded(i: number): void { this.whatsIncluded.splice(i, 1); }
+  addNotIncluded(): void { this.notIncluded.push({ text: '' }); }
+  removeNotIncluded(i: number): void { this.notIncluded.splice(i, 1); }
+  addAddon(): void { this.optionalAddons.push({ text: '', price: 0 }); }
+  removeAddon(i: number): void { this.optionalAddons.splice(i, 1); }
 }

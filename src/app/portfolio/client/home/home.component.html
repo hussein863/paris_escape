@@ -1,28 +1,21 @@
-<!-- Main Home Container -->
 <div class="home-container">
-
-  <!-- Header Section -->
   <app-client-header></app-client-header>
 
-  <!-- Content Wrapper -->
   <div class="content-wrapper">
+
     <!-- Welcome Section -->
     <section class="welcome-section">
       <h1 class="welcome-title">Welcome back, {{ userName }}!</h1>
       <p class="welcome-subtitle">Ready for your next Parisian adventure?</p>
-
       <div class="action-buttons">
-        <button class="btn btn-primary">
-          <i class="fas fa-search"></i>
-          Search Experiences
+        <button class="btn btn-primary" (click)="searchExperiences()">
+          <i class="fas fa-search"></i> Search Experiences
         </button>
-        <button class="btn btn-secondary">
-          <i class="fa-solid fa-user-friends"></i>
-          Browse Guides
+        <button class="btn btn-secondary" (click)="browseGuides()">
+          <i class="fa-solid fa-user-friends"></i> Browse Guides
         </button>
-        <button class="btn btn-secondary">
-          <i class="fas fa-headset"></i>
-          Contact Support
+        <button class="btn btn-secondary" (click)="contactSupport()">
+          <i class="fas fa-headset"></i> Contact Support
         </button>
       </div>
     </section>
@@ -30,13 +23,37 @@
     <!-- Stats Cards -->
     <section class="stats-section">
       <div class="stats-grid">
-        <div class="stat-card" *ngFor="let stat of stats">
+        <div class="stat-card" (click)="goToReservations()">
           <div class="stat-content">
-            <i class="fas {{ stat.icon }} stat-icon"></i>
-            <div class="stat-label">{{ stat.label }}</div>
-            <div class="stat-subtitle">{{ stat.subtitle }}</div>
+            <i class="fas fa-calendar-check stat-icon"></i>
+            <div class="stat-label">Upcoming Trips</div>
+            <div class="stat-subtitle">{{ upcomingSubtitle }}</div>
           </div>
-          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-value">{{ upcomingCount }}</div>
+        </div>
+        <div class="stat-card" (click)="goToMessages()">
+          <div class="stat-content">
+            <i class="fas fa-message stat-icon"></i>
+            <div class="stat-label">Messages</div>
+            <div class="stat-subtitle">{{ unreadCount > 0 ? 'From ' + unreadCount + ' guide(s)' : '—' }}</div>
+          </div>
+          <div class="stat-value">{{ unreadCount }}</div>
+        </div>
+        <div class="stat-card" (click)="goToFavorites()">
+          <div class="stat-content">
+            <i class="fas fa-heart stat-icon"></i>
+            <div class="stat-label">Saved Items</div>
+            <div class="stat-subtitle">{{ savedCount > 0 ? savedCount + ' saved' : '—' }}</div>
+          </div>
+          <div class="stat-value">{{ savedCount }}</div>
+        </div>
+        <div class="stat-card" (click)="goToReservations()">
+          <div class="stat-content">
+            <i class="fas fa-clock-rotate-left stat-icon"></i>
+            <div class="stat-label">Completed Trips</div>
+            <div class="stat-subtitle">{{ completedCount > 0 ? completedCount + ' completed' : '—' }}</div>
+          </div>
+          <div class="stat-value">{{ completedCount }}</div>
         </div>
       </div>
     </section>
@@ -45,22 +62,17 @@
     <section class="weather-section">
       <div class="weather-card">
         <div class="weather-info">
-          <svg width="60" height="48" viewBox="0 0 60 48" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M27.5812 0.11235C28.0593 0.309225 28.3968 0.740475 28.4812 1.24673L29.8031 9.18735L37.7437 10.5092C38.25 10.5936 38.6812 10.9311 38.8781 11.4092C39.075 11.8874 39.0187 12.4311 38.7281 12.853L35.1187 18.0092C34.9125 17.9999 34.7062 17.9905 34.4906 17.9905C32.3062 17.9905 30.2625 18.5717 28.4906 19.5936V19.4905C28.4906 14.5217 24.4593 10.4905 19.4906 10.4905C14.5218 10.4905 10.4906 14.5217 10.4906 19.4905C10.4906 24.4592 14.5218 28.4905 19.4906 28.4905C20.25 28.4905 20.9812 28.3967 21.6843 28.2186C18.2531 29.9155 15.75 33.1967 15.1406 37.1155L12.8531 38.7092C12.4312 39.0092 11.8875 39.0655 11.4093 38.8592C10.9312 38.653 10.5937 38.2311 10.5093 37.7248L9.19685 29.803L1.25622 28.4811C0.749972 28.3967 0.318722 28.0592 0.121847 27.5811C-0.0750278 27.103 -0.0187778 26.5592 0.271847 26.1373L4.92185 19.4999L0.271847 12.8624C-0.0281528 12.4405 -0.0844028 11.8967 0.121847 11.4186C0.328097 10.9405 0.749972 10.603 1.25622 10.5186L9.19685 9.19672L10.5187 1.2561C10.6031 0.74985 10.9406 0.3186 11.4187 0.121725C11.8968 -0.0751499 12.4406 -0.0188999 12.8625 0.271725L19.5 4.92173L26.1375 0.271725C26.5593 -0.0282749 27.1031 -0.0845249 27.5812 0.121725V0.11235ZM13.5 19.4999C13.5 17.9086 14.1321 16.3824 15.2573 15.2572C16.3825 14.132 17.9087 13.4999 19.5 13.4999C21.0913 13.4999 22.6174 14.132 23.7426 15.2572C24.8678 16.3824 25.5 17.9086 25.5 19.4999C25.5 21.0911 24.8678 22.6173 23.7426 23.7425C22.6174 24.8677 21.0913 25.4999 19.5 25.4999C17.9087 25.4999 16.3825 24.8677 15.2573 23.7425C14.1321 22.6173 13.5 21.0911 13.5 19.4999ZM59.9906 40.4905C59.9906 44.6342 56.6343 47.9905 52.4906 47.9905H27C22.0312 47.9905 18 43.9592 18 38.9905C18 34.528 21.2437 30.8342 25.5 30.1217V29.9999C25.5 25.0311 29.5312 20.9999 34.5 20.9999C37.7718 20.9999 40.6312 22.7436 42.2062 25.3498C43.425 24.4967 44.9062 23.9999 46.5 23.9999C50.6437 23.9999 54 27.3561 54 31.4999C54 32.053 53.9437 32.5967 53.8218 33.1124C57.3281 33.7405 59.9906 36.8061 59.9906 40.4905Z"
-              fill="#374151" />
-          </svg>
-
+          <div class="weather-icon">
+            <i class="fas fa-cloud-sun" style="font-size:40px; color:#374151;"></i>
+          </div>
           <div class="weather-details">
-            <div class="weather-temp">18°C</div>
-            <div class="weather-desc">Partly cloudy in Paris</div>
+            <div class="weather-temp">{{ weatherLoaded ? weather.temp + '°C' : '…' }}</div>
+            <div class="weather-desc">{{ weather.description }}</div>
           </div>
         </div>
-        <div class="weather-tips">
-          <div class="tips-title">Today's Tips</div>
-          <div class="tips-text">Perfect day for outdoor tours<br>Bring a light
-            jacket for evening</div>
+        <div class="weather-tips" *ngIf="weather.tip">
+          <div class="tips-title">Today's Tip</div>
+          <div class="tips-text">{{ weather.tip }}</div>
         </div>
       </div>
     </section>
@@ -69,32 +81,35 @@
     <section class="section2">
       <div class="section-header">
         <h2 class="section-title">Upcoming Reservations</h2>
-        <a href="#" class="section-link">View all</a>
+        <a class="section-link" (click)="goToReservations()" style="cursor:pointer;">View all</a>
       </div>
 
-      <div class="reservations-list">
+      <div class="reservations-list" *ngIf="reservations.length > 0; else noReservations">
         <div class="reservation-card" *ngFor="let reservation of reservations">
           <div class="reservation-image">
-            <img [src]="reservation.imageUrl" [alt]="reservation.title">
+            <img src="assets/images/7f12ea1300756f144a0fb5daaf68dbfc01103a46.png" alt="Booking">
           </div>
           <div class="reservation-details">
-            <h3 class="reservation-title">{{ reservation.title }}</h3>
+            <h3 class="reservation-title">Booking #{{ reservation.booking_ref }}</h3>
             <div class="reservation-info">
               <div class="info-item">
                 <i class="fas fa-calendar"></i>
-                {{ reservation.date }} at {{ reservation.time }}
+                {{ reservation.date | date:'mediumDate' }} at {{ reservation.time }}
               </div>
               <div class="info-item">
-                <i class="fas fa-user"></i>
-                Guide: {{ reservation.guide }}
+                <i class="fas fa-users"></i>
+                {{ reservation.adults }} adult(s){{ reservation.children > 0 ? ', ' + reservation.children + ' child(ren)' : '' }}
+              </div>
+              <div class="info-item">
+                <i class="fas fa-euro-sign"></i>
+                Total: €{{ reservation.total_amount }}
               </div>
             </div>
             <div class="reservation-actions">
-              <button class="btn-outline" style="color: rgba(0, 0, 0, 1);">
-                <i class="fas fa-qrcode" style="color: rgba(0, 0, 0, 1);"></i>
-                QR Code
+              <button class="btn-outline" style="color:rgba(0,0,0,1);">
+                <i class="fas fa-qrcode"></i> QR Code
               </button>
-              <button class="btn-dark">Manage Booking</button>
+              <button class="btn-dark" (click)="goToReservations()">Manage Booking</button>
             </div>
           </div>
           <span class="status-badge"
@@ -104,55 +119,60 @@
           </span>
         </div>
       </div>
+      <ng-template #noReservations>
+        <p class="empty-state">No upcoming reservations.
+          <a (click)="searchExperiences()" style="cursor:pointer;color:#1a1a1a;font-weight:600;">Browse experiences</a>
+        </p>
+      </ng-template>
     </section>
 
     <!-- Messages and Tasks Grid -->
     <div class="messages-tasks-grid">
-      <!-- Messages Section -->
 
+      <!-- Messages Section -->
       <div>
         <div class="section-header">
           <h2 class="section-title">Messages</h2>
           <div class="message-tabs">
-            <button class="tab">Recent</button>
-            <button class="tab active">Unread (3)</button>
+            <button class="tab active">Recent</button>
+            <button class="tab">Unread ({{ unreadCount }})</button>
           </div>
         </div>
         <section class="section">
-          <div class="messages-list">
-            <div class="message-item" *ngFor="let message of messages"
-              [class.unread]="message.unread">
-              <img [src]="message.avatar" [alt]="message.name"
-                class="message-avatar">
+          <div class="messages-list" *ngIf="conversations.length > 0; else noMessages">
+            <div class="message-item" *ngFor="let conv of conversations" (click)="goToMessages()" style="cursor:pointer;">
+              <img [src]="conv.guide_avatar || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'"
+                class="message-avatar" alt="Guide">
               <div class="message-content">
                 <div class="message-header">
-                  <span class="message-name">{{ message.name }}</span>
-                  <span class="message-time">{{ message.time }}</span>
+                  <span class="message-name">{{ conv.guide_name || ('Guide #' + conv.guide) }}</span>
+                  <span class="message-time">{{ conv.last_message_at | date:'shortDate' }}</span>
                 </div>
-                <p class="message-text">{{ message.message }}</p>
-                <span class="unread-dot" *ngIf="message.unread"></span>
+                <p class="message-text">{{ conv.last_message || 'No messages yet' }}</p>
               </div>
             </div>
           </div>
+          <ng-template #noMessages>
+            <p class="empty-state">No messages yet.</p>
+          </ng-template>
 
-          <button class="btn-new-message">
+          <button class="btn-new-message" (click)="goToMessages()">
             <i class="fas fa-plus"></i>
             New Message
           </button>
         </section>
-
       </div>
+
       <!-- Tasks & Reminders -->
       <div>
         <div class="section-header">
           <h2 class="section-title">Tasks & Reminders</h2>
         </div>
-        <section class="section" style="padding-bottom: 0px;
-    margin-bottom: 0px;">
+        <section class="section" style="padding-bottom:0;margin-bottom:0;">
           <div class="tasks-list">
             <div class="task-item" *ngFor="let task of tasks; let i = index">
-              <input type="checkbox" class="task-checkbox"
-                [checked]="task.completed">
+              <input type="checkbox" class="task-checkbox" [checked]="task.completed"
+                (change)="completeTask(task)">
               <div class="task-content">
                 <div class="task-title">{{ task.title }}</div>
                 <div class="task-description">{{ task.description }}</div>
@@ -160,6 +180,9 @@
               <button class="task-remove" (click)="removeTask(i)">
                 <i class="fas fa-times"></i>
               </button>
+            </div>
+            <div *ngIf="tasks.length === 0" class="empty-state">
+              All tasks completed! 🎉
             </div>
           </div>
         </section>
@@ -169,8 +192,8 @@
           <div class="notice-content">
             <div class="notice-title">System Notice</div>
             <div class="notice-text">We've updated our cancellation policy.
-              <br>
-              <a href="#">Learn more</a></div>
+              <br><a (click)="goToFAQs()" style="cursor:pointer;">Learn more</a>
+            </div>
           </div>
         </div>
       </div>
@@ -180,60 +203,36 @@
     <section class="section2">
       <div class="section-header">
         <h2 class="section-title">Your Favorites</h2>
-        <a href="#" class="section-link">View all (12)</a>
+        <a class="section-link" (click)="goToFavorites()" style="cursor:pointer;">
+          View all ({{ savedCount }})
+        </a>
       </div>
 
-      <div class="experiences-grid">
-        <div class="experience-card" *ngFor="let experience of favorites">
+      <div class="experiences-grid" *ngIf="favoriteExperiences.length > 0; else noFavorites">
+        <div class="experience-card" *ngFor="let exp of favoriteExperiences"
+          [routerLink]="['/landing/experience', exp.id]" style="cursor:pointer;">
           <div class="experience-image">
-            <img [src]="experience.imageUrl" [alt]="experience.title">
-            <button class="favorite-btn active"
-              (click)="toggleFavorite(experience)">
+            <img [src]="exp.image || 'assets/images/card_image/louvre.png'" [alt]="exp.title">
+            <button class="favorite-btn active" (click)="$event.stopPropagation()">
               <i class="fas fa-heart"></i>
             </button>
           </div>
           <div class="experience-content">
-            <h3 class="experience-title">{{ experience.title }}</h3>
+            <h3 class="experience-title">{{ exp.title }}</h3>
             <div class="experience-meta">
-              <span class="duration">
-                <i class="fa-solid fa-clock"></i>
-                {{ experience.duration }}
-              </span>
+              <span class="duration"><i class="fa-solid fa-clock"></i> {{ exp.duration_value }} {{ exp.duration_unit }}</span>
               <span class="dot"></span>
-              <span class="rating">
-                <i class="fas fa-star"></i>
-                {{ experience.rating }} ({{ experience.reviews }})
-              </span>
+              <span class="rating"><i class="fas fa-star"></i> {{ exp.rating }}</span>
             </div>
-            <div class="experience-price">From €{{ experience.price }}</div>
+            <div class="experience-price">From €{{ exp.base_price }}</div>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- Recently Viewed -->
-    <section class="section2 recently-viewed-section">
-      <div class="section-header">
-        <h2 class="section-title">Recently Viewed</h2>
-      </div>
-
-      <div class="experiences-grid">
-        <div class="experience-card" *ngFor="let experience of recentlyViewed">
-          <div class="experience-image">
-            <img [src]="experience.imageUrl" [alt]="experience.title">
-          </div>
-          <div class="experience-content">
-            <h3 class="experience-title">{{ experience.title }}</h3>
-            <div class="experience-meta">
-              <div class="duration">From €{{ experience.price }}</div>
-              <span class="dot"></span>
-              <span class="duration">
-                {{ experience.duration }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ng-template #noFavorites>
+        <p class="empty-state">No saved experiences yet.
+          <a (click)="searchExperiences()" style="cursor:pointer;color:#1a1a1a;font-weight:600;">Explore experiences</a>
+        </p>
+      </ng-template>
     </section>
 
     <!-- Discover by Mood -->
@@ -241,9 +240,8 @@
       <div class="section-header">
         <h2 class="section-title">Discover by Mood</h2>
       </div>
-
       <div class="mood-filters">
-        <button class="mood-btn" *ngFor="let mood of moods">
+        <button class="mood-btn" *ngFor="let mood of moods" (click)="discoverByMood(mood.search)">
           <i class="fas {{ mood.icon }}"></i>
           {{ mood.label }}
         </button>
@@ -255,17 +253,14 @@
       <h3 class="help-title">Need Help?</h3>
       <p class="help-text">Our support team is here to assist you</p>
       <div class="help-buttons">
-        <button class="btn-dark">
-          <i class="fas fa-headset"></i>
-          Contact Support
+        <button class="btn-dark" (click)="contactSupport()">
+          <i class="fas fa-headset"></i> Contact Support
         </button>
-        <button class="btn-outline">
-          <i class="fa-solid fa-book"></i>
-          FAQs
+        <button class="btn-outline" (click)="goToFAQs()">
+          <i class="fa-solid fa-book"></i> FAQs
         </button>
-        <button class="btn-outline">
-          <i class="fa-solid fa-flag"></i>
-          Open Dispute
+        <button class="btn-outline" (click)="goToDisputes()">
+          <i class="fa-solid fa-flag"></i> Open Dispute
         </button>
       </div>
     </section>
@@ -274,13 +269,13 @@
     <section class="cta-section">
       <div class="cta-content">
         <h2 class="cta-title">Ready for More Adventures?</h2>
-        <p class="cta-subtitle">Explore thousands of unique experiences in
-          Paris</p>
+        <p class="cta-subtitle">Explore thousands of unique experiences in Paris</p>
         <div class="cta-buttons">
-          <button class="btn-cta-primary">Discover Experiences</button>
-          <button class="btn-cta-secondary">Browse Guides</button>
+          <button class="btn-cta-primary" (click)="searchExperiences()">Discover Experiences</button>
+          <button class="btn-cta-secondary" (click)="browseGuides()">Browse Guides</button>
         </div>
       </div>
     </section>
+
   </div>
 </div>

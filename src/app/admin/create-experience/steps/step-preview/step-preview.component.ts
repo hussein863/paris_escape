@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 @Component({
   selector: 'app-step-preview',
@@ -9,12 +10,62 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './step-preview.component.html',
   styleUrl: './step-preview.component.scss',
 })
-export class StepPreviewComponent {
+export class StepPreviewComponent implements OnChanges {
+  @Input() experienceId: number | null = null;
   @Output() dataChange = new EventEmitter<any>();
 
   previewDevice: 'desktop' | 'tablet' | 'mobile' = 'desktop';
+  experienceFromApi: any = null;
+  loading = false;
 
-  // Mock experience data
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['experienceId'] && this.experienceId) {
+      this.loadFromApi();
+    }
+  }
+
+  loadFromApi(): void {
+    if (!this.experienceId) return;
+    this.loading = true;
+    this.wizardService.get(this.experienceId).subscribe({
+      next: (exp) => {
+        this.experienceFromApi = exp;
+        // Populate experienceData from real API response
+        this.experienceData = {
+          title: exp.title,
+          location: 'Paris',
+          rating: exp.rating || 0,
+          reviewCount: 0,
+          coverImage: (exp as any).image_url || this.experienceData.coverImage,
+          categories: [exp.category, exp.subcategory].filter(Boolean),
+          shortDescription: exp.short_description,
+          duration: `${exp.duration_value} ${exp.duration_unit}`,
+          maxPeople: `Max ${exp.max_people} people`,
+          languages: exp.languages?.join(', ') || '',
+          difficulty: exp.difficulty,
+          price: Number(exp.base_price) || 0,
+          included: (exp as any).inclusions?.filter((i: any) => i.type === 'included').map((i: any) => i.text) || [],
+          toBring: (exp as any).inclusions?.filter((i: any) => i.type === 'to-bring').map((i: any) => i.text) || [],
+        };
+        // Update validation summary based on real data
+        this.validationSummary = {
+          basicInformation: !!exp.title && !!exp.category,
+          mediaGallery: !!(exp as any).image || ((exp as any).media?.length > 0),
+          pricingOptions: Number(exp.base_price) > 0,
+          availability: !!(exp as any).availability,
+          inclusions: ((exp as any).inclusions?.length || 0) > 0,
+          policies: !!(exp as any).policy,
+          readyToPublish: !!exp.title && !!exp.category && Number(exp.base_price) > 0,
+        };
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  // Mock experience data (used as fallback before API data loads)
   experienceData = {
     title: 'Secret Paris: Hidden Courtyards and Local Stories',
     location: 'Seine & Marais',
@@ -93,26 +144,22 @@ export class StepPreviewComponent {
   }
 
   completeVerification(): void {
-    console.log('Complete KYC verification');
-    // Placeholder for verification flow
+    /* not implemented */
   }
 
   contactGuide(): void {
-    console.log('Contact guide');
-    // Placeholder for contact functionality
+    /* not implemented */
   }
 
   publishExperience(): void {
     if (this.allValidationsPassed) {
-      console.log('Publishing experience');
-      // Placeholder for publish functionality
+      /* not implemented */
       this.emitData();
     }
   }
 
   saveDraft(): void {
-    console.log('Saving draft');
-    // Placeholder for save draft functionality
+    /* not implemented */
     this.emitData();
   }
 
@@ -123,3 +170,4 @@ export class StepPreviewComponent {
     });
   }
 }
+

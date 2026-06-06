@@ -1,136 +1,203 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-
-interface Review {
-  id: string;
-  userName: string;
-  userAvatar: string;
-  verified: boolean;
-  language: string;
-  rating: number;
-  date: string;
-  experienceName: string;
-  content: string;
-  photos: string[];
-  helpful: number;
-  hasReply?: boolean;
-  reply?: {
-    userName: string;
-    userAvatar: string;
-    date: string;
-    lastEdited?: string;
-    content: string;
-  };
-}
+import { AdminHeaderComponent } from '../header/admin-header.component';
+import { ReviewService } from '../../core/services/review.service';
+import { ExperienceService } from '../../core/services/experience.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Review } from '../../core/models';
 
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, SidebarComponent, AdminHeaderComponent],
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.scss']
 })
-export class ReviewsComponent {
+export class ReviewsComponent implements OnInit {
   isSidebarOpen = false;
+  loading = true;
 
-  overallRating = 4.8;
-  totalReviews = 247;
-  photosCount = 142;
-  photosPercentage = 57;
-  repliedCount = 220;
-  repliedPercentage = 89;
+  // ─── Raw data ───────────────────────────────────────────────────────────────
+  allReviews: Review[] = [];
+  experiences: { id: number; title: string }[] = [];
 
-  ratingDistribution = [
-    { stars: 5, count: 193, percentage: 78 },
-    { stars: 4, count: 38, percentage: 15 },
-    { stars: 3, count: 11, percentage: 4 },
-    { stars: 2, count: 4, percentage: 2 },
-    { stars: 1, count: 1, percentage: 1 }
-  ];
+  // ─── Filters ────────────────────────────────────────────────────────────────
+  searchQuery = '';
+  filterRating = 0;          // 0 = all
+  filterExperience = 0;      // 0 = all
+  filterReply = 'all';       // 'all' | 'replied' | 'not_replied'
+  filterPill = 'all';        // 'all' | 'photos' | 'not_replied' | 'last30'
+  sortBy = 'newest';
 
-  reviews: Review[] = [
-    {
-      id: '1',
-      userName: 'Sophie Laurent',
-      userAvatar: 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
-      verified: true,
-      language: 'EN',
-      rating: 5,
-      date: 'Nov 28, 2024',
-      experienceName: 'Hidden Montmartre Walking Tour',
-      content: 'Marie was an absolutely wonderful guide! She took us through hidden streets and shared fascinating stories about Montmartre\'s artistic history. The pace was perfect and she made sure everyone in our group felt included. Highly recommend this tour to anyone visiting Paris!',
-      photos: ['assets/images/f364592883e6ae2b3c02e1dde22f3894eaeec260.png', 'assets/images/b7fffb001d550166022c90cb67afcd24fe29bf96.png', 'assets/images/21e8430110f69a55df6ab19658dab9d04698f3c6.png'],
-      helpful: 12
-    },
-    {
-      id: '2',
-      userName: 'James Wilson',
-      userAvatar: 'assets/images/1d5ad8aaf12fd61a75197f707f6ef40c7edd6e1f.jpg',
-      verified: true,
-      language: 'EN',
-      rating: 5,
-      date: 'Nov 26, 2024',
-      experienceName: 'Latin Quarter Food Tour',
-      content: 'Best food tour I\'ve ever taken! Marie knew all the best spots and the owners personally. Every stop was delicious and she explained the history behind each dish. Perfect for foodies!',
-      photos: ['assets/images/b927b44c9a0bf7e6316e3fcfe1e5f3394ef01871.png', 'assets/images/56d0039694c4ad0d047af496ea41ba6870338762.png'],
-      helpful: 6,
-      hasReply: true,
-      reply: {
-        userName: 'Marie Dubois',
-        userAvatar: 'assets/images/f578f9c2a181ef669150341163e63e6e9da01878.jpg',
-        date: 'Nov 27, 2024',
-        lastEdited: 'Nov 27, 2024',
-        content: 'Thank you so much James! It was a pleasure showing you around the Latin Quarter. I\'m thrilled you enjoyed the food and the stories. Hope to see you again on another tour!'
+  // ─── Inline reply state ──────────────────────────────────────────────────────
+  replyingToId: number | null = null;
+  replyDraft = '';
+  replySaving = false;
+
+  editingReplyId: number | null = null;  // review id whose reply is being edited
+  editDraft = '';
+  editSaving = false;
+
+  constructor(
+    private reviewService: ReviewService,
+    private experienceService: ExperienceService,
+    private auth: AuthService,
+  ) {}
+
+  ngOnInit(): void {
+    const guideId = this.auth.user()?.guide_profile?.id;
+    if (guideId) {
+      this.reviewService.list({ guide: guideId }).subscribe({
+        next: (res) => {
+          this.allReviews = res.results;
+          this.loading = false;
+        },
+        error: () => { this.loading = false; }
+      });
+    } else {
+      this.loading = false;
+    }
+
+    this.experienceService.list().subscribe({
+      next: (res) => {
+        this.experiences = res.results.map(e => ({ id: e.id, title: e.title }));
       }
+    });
+  }
+
+  // ─── Computed / filtered list ────────────────────────────────────────────────
+  get filteredReviews(): Review[] {
+    let list = [...this.allReviews];
+
+    // Search
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase();
+      list = list.filter(r =>
+        (r as any).customer_name?.toLowerCase().includes(q) ||
+        r.content.toLowerCase().includes(q)
+      );
     }
-  ];
 
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
+    // Rating
+    if (this.filterRating > 0) list = list.filter(r => r.rating === this.filterRating);
 
-  closeSidebar() {
-    this.isSidebarOpen = false;
-  }
+    // Experience
+    if (this.filterExperience > 0) list = list.filter(r => r.experience === this.filterExperience);
 
-  exportCSV() {
-    console.log('Export CSV');
-  }
+    // Reply status
+    if (this.filterReply === 'replied')     list = list.filter(r => !!r.reply);
+    if (this.filterReply === 'not_replied') list = list.filter(r => !r.reply);
 
-  exportPDF() {
-    console.log('Export PDF');
-  }
-
-  askForReviews() {
-    console.log('Ask for reviews');
-  }
-
-  viewAnalytics() {
-    console.log('View analytics');
-  }
-
-  replyToReview(reviewId: string) {
-    console.log('Reply to review:', reviewId);
-  }
-
-  translateReview(reviewId: string) {
-    console.log('Translate review:', reviewId);
-  }
-
-  reportReview(reviewId: string) {
-    console.log('Report review:', reviewId);
-  }
-
-  editReply(reviewId: string) {
-    console.log('Edit reply:', reviewId);
-  }
-
-  markHelpful(reviewId: string) {
-    const review = this.reviews.find(r => r.id === reviewId);
-    if (review) {
-      review.helpful += 1;
-      console.log('Marked review as helpful:', reviewId);
+    // Pill
+    if (this.filterPill === 'photos')      list = list.filter(r => r.photos?.length > 0);
+    if (this.filterPill === 'not_replied') list = list.filter(r => !r.reply);
+    if (this.filterPill === 'last30') {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 30);
+      list = list.filter(r => new Date(r.date) >= cutoff);
     }
+
+    // Sort
+    if (this.sortBy === 'newest')  list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    if (this.sortBy === 'oldest')  list.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    if (this.sortBy === 'highest') list.sort((a, b) => b.rating - a.rating);
+    if (this.sortBy === 'lowest')  list.sort((a, b) => a.rating - b.rating);
+
+    return list;
+  }
+
+  // ─── Statistics (computed from real data) ────────────────────────────────────
+  get totalReviews(): number { return this.allReviews.length; }
+
+  get overallRating(): number {
+    if (!this.allReviews.length) return 0;
+    const sum = this.allReviews.reduce((acc, r) => acc + r.rating, 0);
+    return Math.round((sum / this.allReviews.length) * 10) / 10;
+  }
+
+  get ratingDistribution(): { stars: number; count: number; percentage: number }[] {
+    return [5, 4, 3, 2, 1].map(stars => {
+      const count = this.allReviews.filter(r => r.rating === stars).length;
+      return { stars, count, percentage: this.totalReviews ? Math.round((count / this.totalReviews) * 100) : 0 };
+    });
+  }
+
+  get photosCount(): number { return this.allReviews.filter(r => r.photos?.length > 0).length; }
+  get photosPercentage(): number { return this.totalReviews ? Math.round((this.photosCount / this.totalReviews) * 100) : 0; }
+  get repliedCount(): number { return this.allReviews.filter(r => !!r.reply).length; }
+  get repliedPercentage(): number { return this.totalReviews ? Math.round((this.repliedCount / this.totalReviews) * 100) : 0; }
+
+  get starArray(): number[] { return [1, 2, 3, 4, 5]; }
+  filledStars(rating: number): number[] { return Array(Math.round(rating)).fill(0); }
+  emptyStars(rating: number): number[] { return Array(5 - Math.round(rating)).fill(0); }
+
+  // ─── Reply actions ────────────────────────────────────────────────────────────
+  startReply(reviewId: number): void {
+    this.replyingToId = reviewId;
+    this.replyDraft = '';
+    this.editingReplyId = null;
+  }
+
+  cancelReply(): void { this.replyingToId = null; this.replyDraft = ''; }
+
+  submitReply(review: Review): void {
+    if (!this.replyDraft.trim()) return;
+    this.replySaving = true;
+    this.reviewService.reply(review.id, this.replyDraft).subscribe({
+      next: (reply) => {
+        review.reply = reply;
+        this.replyingToId = null;
+        this.replyDraft = '';
+        this.replySaving = false;
+      },
+      error: () => { this.replySaving = false; }
+    });
+  }
+
+  startEditReply(review: Review): void {
+    this.editingReplyId = review.id;
+    this.editDraft = review.reply?.content ?? '';
+    this.replyingToId = null;
+  }
+
+  cancelEdit(): void { this.editingReplyId = null; this.editDraft = ''; }
+
+  submitEdit(review: Review): void {
+    if (!review.reply?.id || !this.editDraft.trim()) return;
+    this.editSaving = true;
+    this.reviewService.updateReply(review.reply.id, this.editDraft).subscribe({
+      next: (updated) => {
+        review.reply = updated;
+        this.editingReplyId = null;
+        this.editDraft = '';
+        this.editSaving = false;
+      },
+      error: () => { this.editSaving = false; }
+    });
+  }
+
+  // ─── Other actions ────────────────────────────────────────────────────────────
+  getInitial(review: Review): string {
+    return ((review as any).customer_name as string)?.charAt(0)?.toUpperCase() || '?';
+  }
+
+  getCustomerName(review: Review): string {
+    return (review as any).customer_name || 'Anonymous';
+  }
+
+  toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
+  closeSidebar(): void { this.isSidebarOpen = false; }
+
+  setFilterPill(pill: string): void { this.filterPill = pill; }
+
+  exportCSV(): void {
+    const rows = ['Customer,Rating,Date,Experience,Content'];
+    this.filteredReviews.forEach(r => {
+      rows.push(`"${(r as any).customer_name || r.customer}","${r.rating}","${r.date}","${r.experience}","${r.content.replace(/"/g, '""')}"`);
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'reviews.csv'; a.click();
   }
 }

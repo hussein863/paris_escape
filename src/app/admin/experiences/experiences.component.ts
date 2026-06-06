@@ -1,110 +1,139 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { AdminHeaderComponent } from '../header/admin-header.component';
+import { ExperienceService } from '../../core/services/experience.service';
+import { Experience } from '../../core/models';
 
 @Component({
   selector: 'app-experiences',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, SidebarComponent, AdminHeaderComponent],
   templateUrl: './experiences.component.html',
   styleUrl: './experiences.component.scss',
 })
-export class ExperiencesComponent {
+export class ExperiencesComponent implements OnInit {
   isSidebarOpen = false;
-
-  constructor(private router: Router) {}
-
-  toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  closeSidebar(): void {
-    this.isSidebarOpen = false;
-  }
-
-  createExperience(): void {
-    this.router.navigate(['/admin/experiences/create']);
-  }
-
-  experiences = [
-    {
-      id: 1,
-      title: 'Montmartre Art & Culture Walk',
-      category: 'Art & Culture',
-      duration: '2.5 hours',
-      status: 'Active',
-      badges: ['Originals'],
-      views: 124,
-      bookings: 8,
-      rating: 4.8,
-      reviews: 15,
-      price: 75,
-      image: 'assets/images/584343c3e7e789860c4b423fe936db33b49f2034.png'
-    },
-    {
-      id: 2,
-      title: 'Parisian Food Market Tour',
-      category: 'Food & Wine',
-      duration: '3 hours',
-      status: 'Active',
-      badges: [],
-      views: 89,
-      bookings: 5,
-      rating: 4.9,
-      reviews: 8,
-      price: 95,
-      image: 'assets/images/7d06f372c468a3d2e82d705f8002d046acdc0d69.png'
-    },
-    {
-      id: 3,
-      title: 'Instagram Photography Walk',
-      category: 'Photography',
-      duration: '2 hours',
-      status: 'Under Review',
-      badges: ['Originals Pending'],
-      views: 45,
-      bookings: 2,
-      rating: 0,
-      reviews: 0,
-      price: 65,
-      image: 'assets/images/c1435dc9b309f4fffd428840fa4ea3067f63c271.png'
-    },
-    {
-      id: 4,
-      title: 'Evening Seine Discovery',
-      category: 'Culture',
-      duration: '1.5 hours',
-      status: 'Draft',
-      badges: [],
-      views: 0,
-      bookings: 0,
-      rating: 0,
-      reviews: 0,
-      price: 45,
-      image: 'assets/images/06d4deebcd0db308e4b3cac3cd3c636dafdcec78.png'
-    }
-  ];
+  experiences: Experience[] = [];
+  loading = false;
+  error = '';
+  actionInProgress = false;
 
   activeTab = 'all';
   searchQuery = '';
   selectedStatus = 'All Status';
   selectedCategory = 'All Categories';
 
-  get activeCount() {
-    return this.experiences.filter(e => e.status === 'Active').length;
+  constructor(private router: Router, private experienceService: ExperienceService) {}
+
+  ngOnInit(): void {
+    this.loadExperiences();
   }
 
-  get draftCount() {
-    return this.experiences.filter(e => e.status === 'Draft').length;
+  loadExperiences(): void {
+    this.loading = true;
+    this.experienceService.list({ search: this.searchQuery }).subscribe({
+      next: (res) => {
+        this.experiences = res.results;
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Failed to load experiences.';
+        this.loading = false;
+      }
+    });
   }
 
-  get originalsCount() {
-    return this.experiences.filter(e => e.badges.includes('Originals')).length;
+  toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
+  closeSidebar(): void { this.isSidebarOpen = false; }
+  createExperience(): void { this.router.navigate(['/admin/experiences/create']); }
+  setActiveTab(tab: string): void { this.activeTab = tab; }
+
+  onSearchChange(): void {
+    this.loadExperiences();
   }
 
-  setActiveTab(tab: string) {
-    this.activeTab = tab;
+  editExperience(exp: Experience): void {
+    this.router.navigate(['/admin/experiences/create'], { queryParams: { id: exp.id } });
+  }
+
+  deleteExperience(exp: Experience): void {
+    if (!confirm(`Delete "${exp.title}"? This action cannot be undone.`)) return;
+    this.actionInProgress = true;
+    this.experienceService.delete(exp.id).subscribe({
+      next: () => {
+        this.experiences = this.experiences.filter(e => e.id !== exp.id);
+        this.actionInProgress = false;
+      },
+      error: () => {
+        alert('Failed to delete experience.');
+        this.actionInProgress = false;
+      }
+    });
+  }
+
+  publishExperience(exp: Experience): void {
+    this.actionInProgress = true;
+    this.experienceService.update(exp.id, { status: 'Active' }).subscribe({
+      next: (updated) => {
+        exp.status = updated.status;
+        this.actionInProgress = false;
+      },
+      error: () => {
+        alert('Failed to publish experience.');
+        this.actionInProgress = false;
+      }
+    });
+  }
+
+  pauseExperience(exp: Experience): void {
+    this.actionInProgress = true;
+    this.experienceService.update(exp.id, { status: 'Paused' }).subscribe({
+      next: (updated) => {
+        exp.status = updated.status;
+        this.actionInProgress = false;
+      },
+      error: () => {
+        alert('Failed to pause experience.');
+        this.actionInProgress = false;
+      }
+    });
+  }
+
+  duplicateExperience(exp: Experience): void {
+    this.actionInProgress = true;
+    this.experienceService.duplicate(exp.id).subscribe({
+      next: (newExp) => {
+        this.experiences.unshift(newExp);
+        this.actionInProgress = false;
+      },
+      error: () => {
+        alert('Failed to duplicate experience.');
+        this.actionInProgress = false;
+      }
+    });
+  }
+
+  previewExperience(exp: Experience): void {
+    window.open(`/landing/experience/${exp.id}`, '_blank');
+  }
+
+  get activeCount() { return this.experiences.filter(e => e.status === 'Active').length; }
+  get draftCount() { return this.experiences.filter(e => e.status === 'Draft').length; }
+  get originalsCount() { return this.experiences.filter(e => e.status === 'Active').length; }
+
+  get filteredExperiences(): Experience[] {
+    return this.experiences.filter(e => {
+      const matchesTab =
+        this.activeTab === 'all' ||
+        (this.activeTab === 'active' && e.status === 'Active') ||
+        (this.activeTab === 'draft' && e.status === 'Draft');
+      const matchesSearch = !this.searchQuery ||
+        e.title.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const matchesStatus = this.selectedStatus === 'All Status' || e.status === this.selectedStatus;
+      return matchesTab && matchesSearch && matchesStatus;
+    });
   }
 }

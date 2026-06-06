@@ -1,7 +1,13 @@
 <header class="client-header">
   <div class="search-container">
     <i class="fas fa-search search-icon"></i>
-    <input type="text" placeholder="Search experiences or guides..." class="search-input">
+    <input
+      type="text"
+      placeholder="Search experiences or guides..."
+      class="search-input"
+      [(ngModel)]="searchQuery"
+      (keydown.enter)="search()"
+    >
   </div>
 
   <div class="header-actions">
@@ -10,11 +16,47 @@
       <span class="notification-badge" *ngIf="hasNotifications"></span>
     </button>
 
-    <div class="user-profile">
-      <img [src]="userAvatar" [alt]="userName" class="user-avatar">
+    <div class="user-profile" (click)="toggleDropdown()">
+      <!-- Avatar: image if available, else initials -->
+      <div class="avatar-wrapper">
+        <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="user-avatar">
+        <div *ngIf="!userAvatar" class="user-initials">{{ initials }}</div>
+      </div>
+
       <div class="user-info">
         <span class="user-name">{{ userName }}</span>
         <span class="user-role">{{ userRole }}</span>
+      </div>
+
+      <i class="fas fa-chevron-down dropdown-arrow" [class.open]="dropdownOpen"></i>
+
+      <!-- Dropdown -->
+      <div class="profile-dropdown" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div *ngIf="!userAvatar" class="user-initials small">{{ initials }}</div>
+          <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="user-avatar small">
+          <div>
+            <div class="dropdown-name">{{ userName }}</div>
+            <div class="dropdown-role">{{ userRole }}</div>
+          </div>
+        </div>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item" routerLink="/client/home">
+          <i class="fas fa-home"></i> Dashboard
+        </button>
+        <button class="dropdown-item" routerLink="/client/reservations">
+          <i class="fas fa-calendar-check"></i> My Reservations
+        </button>
+        <button class="dropdown-item" routerLink="/client/messages">
+          <i class="fas fa-message"></i> Messages
+        </button>
+        <button class="dropdown-item" (click)="goToSettings()">
+          <i class="fas fa-gear"></i> Settings
+        </button>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item logout" (click)="logout()">
+          <i class="fas fa-right-from-bracket"></i> Log out
+        </button>
       </div>
     </div>
   </div>

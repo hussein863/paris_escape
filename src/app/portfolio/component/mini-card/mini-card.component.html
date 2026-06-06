@@ -1,4 +1,4 @@
-<div class="mini-card" *ngIf="experience">
+<a class="mini-card" *ngIf="experience" [routerLink]="['/landing/experience', experience.id]" style="text-decoration:none;display:block">
   <div class="mini-card-image-wrapper">
     <img [src]="experience.image" [alt]="experience.title" class="mini-card-image">
     <div class="mini-card-overlay"></div>
@@ -14,4 +14,4 @@
       {{ experience.timeSlot }}
     </p>
   </div>
-</div>
+</a>

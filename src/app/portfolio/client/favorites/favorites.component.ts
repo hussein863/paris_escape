@@ -1,181 +1,110 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ClientHeaderComponent } from "../client-header/client-header.component";
-
-interface Guide {
-  id: string;
-  name: string;
-  avatar: string;
-  languages: string[];
-  rating: number;
-  reviewCount: number;
-  description: string;
-  verified?: boolean;
-  badge?: string;
-  available: boolean;
-}
-
-interface Experience {
-  id: string;
-  title: string;
-  image: string;
-  price: number;
-  duration: string;
-}
-
-interface ViewedItem {
-  title: string;
-  price: number;
-  duration: string;
-  imageUrl: string;
-}
+import { Router, RouterModule } from '@angular/router';
+import { ClientHeaderComponent } from '../client-header/client-header.component';
+import { FavoriteService } from '../../../core/services/favorite.service';
+import { ExperienceService } from '../../../core/services/experience.service';
+import { Favorite, Experience } from '../../../core/models';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClientHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ClientHeaderComponent],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.scss']
 })
-export class FavoritesComponent {
-  activeTab: 'guides' | 'experiences' = 'guides';
+export class FavoritesComponent implements OnInit {
+  activeTab: 'guides' | 'experiences' = 'experiences';
   searchQuery = '';
-  sortBy = 'recently-added';
+  loading = false;
 
-  selectedMoods: string[] = [];
-  selectedLanguages: string[] = [];
+  favoriteRecords: Favorite[] = [];
+  favoriteExperiences: Experience[] = [];
 
   moods = ['Romantic', 'Family', 'Food', 'Photo', 'Culture'];
   languages = ['FR', 'EN', 'ES', 'AR'];
+  selectedMoods: string[] = [];
+  selectedLanguages: string[] = [];
 
-  guides: Guide[] = [
-    {
-      id: '1',
-      name: 'Marie Dubois',
-      avatar: 'assets/images/avatar/sophie.png',
-      languages: ['FR', 'EN', 'ES'],
-      rating: 5,
-      reviewCount: 127,
-      description: 'Art historian specializing in Louvre and Impressionist tours',
-      available: true
-    },
-    {
-      id: '2',
-      name: 'Pierre Martin',
-      avatar: 'assets/images/avatar/james.png',
-      languages: ['FR', 'EN'],
-      rating: 4,
-      reviewCount: 89,
-      description: 'Local photographer and Montmartre walking expert',
-      verified: true,
-      available: true
-    },
-    {
-      id: '3',
-      name: 'Antoine Leroy',
-      avatar: 'assets/images/avatar/marco.png',
-      languages: ['FR', 'EN', 'ES'],
-      rating: 0,
-      reviewCount: 0,
-      description: 'Literary walks through Latin Quarter and Saint-Germain',
-      available: false
-    },
-    {
-      id: '4',
-      name: 'Camille Rousseau',
-      avatar: 'assets/images/avatar/emma.png',
-      languages: ['FR', 'EN'],
-      rating: 5,
-      reviewCount: 203,
-      description: 'Seine boat tours and romantic evening walks',
-      badge: 'Originals',
-      available: true
-    }
-  ];
+  constructor(
+    private favoriteService: FavoriteService,
+    private experienceService: ExperienceService,
+    private router: Router
+  ) {}
 
-  recentlyViewed: ViewedItem[] = [
-    {
-      title: 'Seine Sunset Cruise',
-      price: 45,
-      duration: '2h',
-      imageUrl: 'assets/images/card_image/seine-sunset.png'
-    },
-    {
-      title: 'Latin Quarter Literary Walk',
-      price: 35,
-      duration: '2h',
-      imageUrl: 'assets/images/card_image/latin-quarter.png'
-    },
-    {
-      title: 'French Pastry Workshop',
-      price: 95,
-      duration: '3h',
-      imageUrl: 'assets/images/card_image/pastry-workshop.png'
-    }
-  ];
-
-  setActiveTab(tab: 'guides' | 'experiences') {
-    this.activeTab = tab;
+  ngOnInit(): void {
+    this.loading = true;
+    this.favoriteService.list().subscribe({
+      next: (res) => {
+        this.favoriteRecords = res.results;
+        this.favoriteExperiences = [];
+        res.results.forEach(fav => {
+          this.experienceService.get(fav.experience).subscribe({
+            next: (exp) => this.favoriteExperiences.push(exp)
+          });
+        });
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
   }
 
-  toggleMood(mood: string) {
-    const index = this.selectedMoods.indexOf(mood);
-    if (index > -1) {
-      this.selectedMoods.splice(index, 1);
-    } else {
-      this.selectedMoods.push(mood);
-    }
-  }
-
-  toggleLanguage(language: string) {
-    const index = this.selectedLanguages.indexOf(language);
-    if (index > -1) {
-      this.selectedLanguages.splice(index, 1);
-    } else {
-      this.selectedLanguages.push(language);
-    }
-  }
-
-  isMoodSelected(mood: string): boolean {
-    return this.selectedMoods.includes(mood);
-  }
-
-  isLanguageSelected(language: string): boolean {
-    return this.selectedLanguages.includes(language);
-  }
-
-  getRatingStars(rating: number): string[] {
-    return Array(5).fill('').map((_, i) => i < rating ? 'full' : 'empty');
-  }
-
-  toggleFavorite(id: string, event: Event) {
+  removeFromFavorites(experience: Experience, event: Event): void {
     event.stopPropagation();
-    // Implement favorite toggle logic
+    const fav = this.favoriteRecords.find(f => f.experience === experience.id);
+    if (!fav) return;
+    this.favoriteService.remove(fav.id).subscribe({
+      next: () => {
+        this.favoriteRecords = this.favoriteRecords.filter(f => f.id !== fav.id);
+        this.favoriteExperiences = this.favoriteExperiences.filter(e => e.id !== experience.id);
+      }
+    });
   }
 
-  viewProfile(guide: Guide) {
-    // Navigate to guide profile
+  viewExperience(experience: Experience): void {
+    this.router.navigate(['/landing/experience', experience.id]);
   }
 
-  contactGuide(guide: Guide) {
-    // Open contact modal or navigate to messages
+  get filteredExperiences(): Experience[] {
+    let list = [...this.favoriteExperiences];
+
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase();
+      list = list.filter(e =>
+        e.title.toLowerCase().includes(q) || e.category.toLowerCase().includes(q)
+      );
+    }
+
+    if (this.selectedMoods.length > 0) {
+      list = list.filter(e =>
+        this.selectedMoods.some(m => e.category?.toLowerCase().includes(m.toLowerCase()) ||
+          (e as any).tags?.some((t: string) => t.toLowerCase().includes(m.toLowerCase())))
+      );
+    }
+
+    if (this.selectedLanguages.length > 0) {
+      list = list.filter(e =>
+        this.selectedLanguages.some(l =>
+          (e as any).languages?.some((lang: string) => lang.toLowerCase().startsWith(l.toLowerCase()))
+        )
+      );
+    }
+
+    return list;
   }
 
-  removeFromFavorites(guide: Guide, event: Event) {
-    event.stopPropagation();
-    // Implement remove from favorites logic
-  }
+  get experienceCount(): number { return this.favoriteExperiences.length; }
 
-  viewExperience(experience: Experience) {
-    // Navigate to experience detail
+  setActiveTab(tab: 'guides' | 'experiences'): void { this.activeTab = tab; }
+  toggleMood(mood: string): void {
+    const i = this.selectedMoods.indexOf(mood);
+    i > -1 ? this.selectedMoods.splice(i, 1) : this.selectedMoods.push(mood);
   }
-
-  contactSupport() {
-    // Navigate to support or open chat
+  toggleLanguage(lang: string): void {
+    const i = this.selectedLanguages.indexOf(lang);
+    i > -1 ? this.selectedLanguages.splice(i, 1) : this.selectedLanguages.push(lang);
   }
-
-  viewFAQs() {
-    // Navigate to FAQs page
-  }
+  isMoodSelected(mood: string): boolean { return this.selectedMoods.includes(mood); }
+  isLanguageSelected(lang: string): boolean { return this.selectedLanguages.includes(lang); }
 }

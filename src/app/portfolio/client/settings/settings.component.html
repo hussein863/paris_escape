@@ -1,194 +1,561 @@
 <div class="settings-container">
   <app-client-header></app-client-header>
+
   <div class="settings-content">
-    <!-- Header -->
     <div class="settings-header">
       <h1>Settings</h1>
-
-      <!-- Tabs -->
       <div class="tabs">
-        <button
-          class="tab"
-          [class.active]="activeTab === 'profile'"
-          (click)="setActiveTab('profile')">
-          Profile
-        </button>
-        <button
-          class="tab"
-          [class.active]="activeTab === 'account'"
-          (click)="setActiveTab('account')">
-          Account
-        </button>
-        <button
-          class="tab"
-          [class.active]="activeTab === 'notifications'"
-          (click)="setActiveTab('notifications')">
-          Notifications
-        </button>
-        <button
-          class="tab"
-          [class.active]="activeTab === 'privacy'"
-          (click)="setActiveTab('privacy')">
-          Privacy
-        </button>
-        <button
-          class="tab"
-          [class.active]="activeTab === 'security'"
-          (click)="setActiveTab('security')">
-          Security
-        </button>
+        <button class="tab" [class.active]="activeTab === 'profile'"       (click)="setActiveTab('profile')">Profile</button>
+        <button class="tab" [class.active]="activeTab === 'account'"       (click)="setActiveTab('account')">Account</button>
+        <button class="tab" [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')">Notifications</button>
+        <button class="tab" [class.active]="activeTab === 'privacy'"       (click)="setActiveTab('privacy')">Privacy</button>
+        <button class="tab" [class.active]="activeTab === 'security'"      (click)="setActiveTab('security')">Security</button>
       </div>
     </div>
 
-    <!-- Profile Tab -->
+    <!-- ══════════════════════════════════════════════════════════════════════
+         PROFILE TAB
+    ══════════════════════════════════════════════════════════════════════ -->
     <div class="tab-content" *ngIf="activeTab === 'profile'">
-      <!-- Profile Photo Section -->
+
+      <!-- Avatar -->
       <section class="settings-section">
         <h2 class="section-title">Profile Photo</h2>
         <div class="photo-section">
-          <img [src]="profilePhoto" alt="Profile" class="profile-photo">
-          <div class="photo-actions">
-            <button class="btn btn-primary" (click)="uploadPhoto()">Upload
-              Photo</button>
-            <button class="btn btn-secondary" style="border: 1px solid #e5e7eb;"
-              (click)="removePhoto()">Remove</button>
+          <div class="avatar-area">
+            <img *ngIf="avatarPreview" [src]="avatarPreview" alt="Avatar" class="profile-photo">
+            <div *ngIf="!avatarPreview" class="avatar-initials-big">{{ initials }}</div>
           </div>
+          <div class="photo-actions">
+            <button class="btn btn-primary" (click)="triggerAvatarUpload()">
+              <i class="fas fa-upload"></i> Upload Photo
+            </button>
+            <button class="btn btn-secondary" (click)="removeAvatar()">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          </div>
+          <p class="photo-hint">JPG, PNG or GIF. Max 5MB.</p>
         </div>
       </section>
 
-      <!-- Personal Information Section -->
+      <!-- Personal Information -->
       <section class="settings-section">
         <h2 class="section-title">Personal Information</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">First Name</label>
-            <input type="text" class="form-input" [(ngModel)]="firstName">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Last Name</label>
-            <input type="text" class="form-input" [(ngModel)]="lastName">
-          </div>
-        </div>
-
         <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" [(ngModel)]="email">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" [(ngModel)]="name" placeholder="Your full name">
         </div>
-
+        <div class="form-group">
+          <label class="form-label">Email <span class="field-note">(change in Account tab)</span></label>
+          <input type="email" class="form-input" [value]="email" disabled>
+        </div>
         <div class="form-group">
           <label class="form-label">Phone</label>
           <div class="phone-input">
-            <select class="country-code" [(ngModel)]="phoneCode">
-              <option *ngFor="let code of countryCodes" [value]="code.dial">{{
-                code.dial }}</option>
+            <select class="phone-flag-select" [(ngModel)]="phoneCountry">
+              <option *ngFor="let c of phoneCountries" [ngValue]="c">
+                {{ c.flag }} {{ c.dial }}
+              </option>
             </select>
-            <input type="tel" class="form-input phone-number"
-              [(ngModel)]="phoneNumber">
+            <input type="tel" class="form-input phone-number" [(ngModel)]="phoneNumber" placeholder="6 12 34 56 78">
           </div>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Country of Residence</label>
-          <select class="form-select" [(ngModel)]="country">
-            <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
-          </select>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <select class="form-select" [(ngModel)]="country">
+              <option value="">Select country</option>
+              <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" class="form-input" [(ngModel)]="city" placeholder="Your city">
+          </div>
         </div>
       </section>
 
-      <!-- Preferences Section -->
+      <!-- Preferences -->
       <section class="settings-section">
         <h2 class="section-title">Preferences</h2>
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">Preferred Language</label>
             <select class="form-select" [(ngModel)]="preferredLanguage">
-              <option *ngFor="let lang of languages" [value]="lang">{{ lang
-                }}</option>
+              <option *ngFor="let lang of languages" [value]="lang.code">{{ lang.label }}</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label">Currency</label>
             <select class="form-select" [(ngModel)]="currency">
-              <option *ngFor="let curr of currencies" [value]="curr">{{ curr
-                }}</option>
+              <option *ngFor="let curr of currencies" [value]="curr.code">{{ curr.label }}</option>
             </select>
           </div>
         </div>
       </section>
 
-      <!-- Emergency Contact Section -->
+      <!-- Emergency Contact -->
       <section class="settings-section">
         <h2 class="section-title">Emergency Contact</h2>
+        <p class="section-desc">In case of an emergency during a tour, we may contact this person.</p>
         <div class="form-group">
           <label class="form-label">Contact Name</label>
-          <input type="text" class="form-input" placeholder="Full name"
-            [(ngModel)]="emergencyContactName">
+          <input type="text" class="form-input" [(ngModel)]="emergencyContactName" placeholder="Full name">
         </div>
-
         <div class="form-group">
           <label class="form-label">Contact Phone</label>
           <div class="phone-input">
-            <select class="country-code" [(ngModel)]="emergencyContactCode">
-              <option *ngFor="let code of countryCodes" [value]="code.dial">{{
-                code.dial }}</option>
+            <select class="phone-flag-select" [(ngModel)]="emergencyPhoneCountry">
+              <option *ngFor="let c of phoneCountries" [ngValue]="c">
+                {{ c.flag }} {{ c.dial }}
+              </option>
             </select>
-            <input type="tel" class="form-input phone-number"
-              placeholder="Phone number" [(ngModel)]="emergencyContactPhone">
+            <input type="tel" class="form-input phone-number" [(ngModel)]="emergencyPhoneNumber" placeholder="Phone number">
           </div>
         </div>
       </section>
 
-      <!-- Save Button -->
+      <!-- Save -->
       <div class="save-section">
-        <button class="btn btn-save" (click)="saveChanges()">Save
-          Changes</button>
+        <div class="save-feedback success" *ngIf="profileSuccess"><i class="fas fa-check"></i> Changes saved successfully.</div>
+        <div class="save-feedback error" *ngIf="profileError"><i class="fas fa-times"></i> {{ profileError }}</div>
+        <button class="btn btn-save" (click)="saveProfile()" [disabled]="profileSaving">
+          {{ profileSaving ? 'Saving…' : 'Save Changes' }}
+        </button>
       </div>
     </div>
 
-    <!-- Other Tabs (Placeholders) -->
+    <!-- ══════════════════════════════════════════════════════════════════════
+         ACCOUNT TAB
+    ══════════════════════════════════════════════════════════════════════ -->
     <div class="tab-content" *ngIf="activeTab === 'account'">
+
+      <!-- Change Email -->
       <section class="settings-section">
-        <h2 class="section-title">Account Settings</h2>
-        <p class="placeholder-text">Account settings content coming soon...</p>
+        <h2 class="section-title">Change Email Address</h2>
+        <p class="section-desc">Your current email: <strong>{{ email }}</strong></p>
+        <div class="form-group">
+          <label class="form-label">New Email Address</label>
+          <input type="email" class="form-input" [(ngModel)]="newEmail" placeholder="new@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm with Password</label>
+          <input type="password" class="form-input" [(ngModel)]="emailPassword" placeholder="Your current password">
+        </div>
+        <div class="save-feedback success" *ngIf="emailSuccess"><i class="fas fa-check"></i> Email updated successfully.</div>
+        <div class="save-feedback error" *ngIf="emailError"><i class="fas fa-times"></i> {{ emailError }}</div>
+        <button class="btn btn-primary" (click)="changeEmail()" [disabled]="emailSaving || !newEmail || !emailPassword">
+          {{ emailSaving ? 'Updating…' : 'Update Email' }}
+        </button>
+      </section>
+
+      <!-- Connected Accounts -->
+      <section class="settings-section">
+        <h2 class="section-title">Connected Accounts</h2>
+        <div class="connected-list">
+          <div class="connected-item">
+            <div class="connected-icon google"><i class="fab fa-google"></i></div>
+            <div class="connected-info">
+              <div class="connected-name">Google</div>
+              <div class="connected-status" [class.connected]="isConnected('google')">
+                {{ isConnected('google') ? '✓ Connected' : 'Not connected' }}
+              </div>
+            </div>
+            <button *ngIf="!isConnected('google')" class="btn btn-outline-sm" disabled>Connect</button>
+            <button *ngIf="isConnected('google')"  class="btn btn-outline-sm" (click)="disconnectAccount('google')">Disconnect</button>
+          </div>
+          <div class="connected-item">
+            <div class="connected-icon apple"><i class="fab fa-apple"></i></div>
+            <div class="connected-info">
+              <div class="connected-name">Apple</div>
+              <div class="connected-status" [class.connected]="isConnected('apple')">
+                {{ isConnected('apple') ? '✓ Connected' : 'Not connected' }}
+              </div>
+            </div>
+            <button *ngIf="!isConnected('apple')" class="btn btn-outline-sm" disabled>Connect</button>
+            <button *ngIf="isConnected('apple')"  class="btn btn-outline-sm" (click)="disconnectAccount('apple')">Disconnect</button>
+          </div>
+        </div>
+        <p class="coming-soon-note">Social login coming soon.</p>
+      </section>
+
+      <!-- Danger Zone -->
+      <section class="settings-section danger-zone">
+        <h2 class="section-title danger">Danger Zone</h2>
+        <div class="danger-item">
+          <div>
+            <div class="danger-title">Deactivate Account</div>
+            <div class="danger-desc">Your profile and data will be hidden. You can reactivate by contacting support.</div>
+          </div>
+          <button class="btn-danger" (click)="showDeactivateConfirm = true" *ngIf="!showDeactivateConfirm">
+            Deactivate
+          </button>
+        </div>
+
+        <div class="deactivate-confirm" *ngIf="showDeactivateConfirm">
+          <p><strong>Are you sure?</strong> You'll be signed out immediately and your account will be deactivated.</p>
+          <div class="confirm-actions">
+            <button class="btn-danger" (click)="confirmDeactivate()" [disabled]="deactivating">
+              {{ deactivating ? 'Deactivating…' : 'Yes, deactivate my account' }}
+            </button>
+            <button class="btn-outline-sm" (click)="showDeactivateConfirm = false" [disabled]="deactivating">
+              Cancel
+            </button>
+          </div>
+        </div>
       </section>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════════════
+         NOTIFICATIONS TAB
+    ══════════════════════════════════════════════════════════════════════ -->
     <div class="tab-content" *ngIf="activeTab === 'notifications'">
+
       <section class="settings-section">
-        <h2 class="section-title">Notification Preferences</h2>
-        <p class="placeholder-text">Notification settings content coming
-          soon...</p>
+        <h2 class="section-title">Email Notifications</h2>
+        <p class="section-desc">Choose which emails you'd like to receive.</p>
+
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Booking Confirmations</div>
+              <div class="toggle-desc">Receive an email when a booking is confirmed or cancelled</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.email_booking_confirmation">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Booking Reminders</div>
+              <div class="toggle-desc">Get reminded 24 hours before your experience</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.email_booking_reminder">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">New Messages</div>
+              <div class="toggle-desc">When a guide sends you a message</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.email_new_message">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Review Requests</div>
+              <div class="toggle-desc">After your experience, we'll ask you to leave a review</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.email_review_request">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Platform Updates</div>
+              <div class="toggle-desc">News about Paris Escape features and improvements</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.email_platform_updates">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Promotions & Offers</div>
+              <div class="toggle-desc">Exclusive deals, discounts and seasonal promotions</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.email_promotions">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
       </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Push Notifications</h2>
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Enable Push Notifications</div>
+              <div class="toggle-desc">Allow browser notifications</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.push_enabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item" [class.disabled-row]="!notifPrefs.push_enabled">
+            <div class="toggle-info">
+              <div class="toggle-title">Messages</div>
+              <div class="toggle-desc">Push notification for new messages</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.push_messages" [disabled]="!notifPrefs.push_enabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item" [class.disabled-row]="!notifPrefs.push_enabled">
+            <div class="toggle-info">
+              <div class="toggle-title">Booking Updates</div>
+              <div class="toggle-desc">Booking status changes</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notifPrefs.push_booking_updates" [disabled]="!notifPrefs.push_enabled">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <div class="save-section">
+        <div class="save-feedback success" *ngIf="notifSuccess"><i class="fas fa-check"></i> Preferences saved.</div>
+        <div class="save-row">
+          <button class="btn btn-save" (click)="saveNotifPrefs()" [disabled]="notifSaving">
+            {{ notifSaving ? 'Saving…' : 'Save Preferences' }}
+          </button>
+          <button class="btn btn-outline-sm" (click)="resetNotifPrefs()" title="Reset to defaults">
+            <i class="fas fa-rotate-left"></i> Reset to defaults
+          </button>
+        </div>
+      </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════════════
+         PRIVACY TAB
+    ══════════════════════════════════════════════════════════════════════ -->
     <div class="tab-content" *ngIf="activeTab === 'privacy'">
+
       <section class="settings-section">
-        <h2 class="section-title">Privacy Settings</h2>
-        <p class="placeholder-text">Privacy settings content coming soon...</p>
+        <h2 class="section-title">Profile Visibility</h2>
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Visible to Guides</div>
+              <div class="toggle-desc">Guides can see your profile when you contact them or book</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="privacySettings.profile_visible_to_guides">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Public Reviews</div>
+              <div class="toggle-desc">Your reviews appear publicly with your name</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="privacySettings.show_reviews_publicly">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
       </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Data & Usage</h2>
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Share Activity Data</div>
+              <div class="toggle-desc">Help us improve by sharing anonymized usage data</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="privacySettings.share_data_for_analytics">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Allow Review Usage</div>
+              <div class="toggle-desc">Paris Escape may feature your reviews in marketing</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="privacySettings.allow_review_usage">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Cookie Preferences</h2>
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Essential Cookies</div>
+              <div class="toggle-desc">Required for the site to function — cannot be disabled</div>
+            </div>
+            <label class="toggle-switch disabled">
+              <input type="checkbox" checked disabled>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Analytics Cookies</div>
+              <div class="toggle-desc">Help us understand how you use our platform</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="privacySettings.analytics_cookies">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div class="toggle-info">
+              <div class="toggle-title">Marketing Cookies</div>
+              <div class="toggle-desc">Used to show you relevant ads</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="privacySettings.marketing_cookies">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Your Data</h2>
+        <div class="data-actions">
+          <div class="data-action-item">
+            <div>
+              <div class="data-action-title">Download My Data</div>
+              <div class="data-action-desc">Get a copy of all your data in JSON format</div>
+            </div>
+            <button class="btn-outline-sm" (click)="downloadMyData()" [disabled]="downloadingData">
+              <i class="fas fa-download"></i> {{ downloadingData ? 'Preparing…' : 'Download' }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div class="save-section">
+        <div class="save-feedback success" *ngIf="privacySuccess"><i class="fas fa-check"></i> Privacy settings saved.</div>
+        <div class="save-row">
+          <button class="btn btn-save" (click)="savePrivacy()" [disabled]="privacySaving">
+            {{ privacySaving ? 'Saving…' : 'Save Settings' }}
+          </button>
+          <button class="btn btn-outline-sm" (click)="resetPrivacy()">
+            <i class="fas fa-rotate-left"></i> Reset to defaults
+          </button>
+        </div>
+      </div>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════════════════
+         SECURITY TAB
+    ══════════════════════════════════════════════════════════════════════ -->
     <div class="tab-content" *ngIf="activeTab === 'security'">
+
       <section class="settings-section">
-        <h2 class="section-title">Security Settings</h2>
-        <p class="placeholder-text">Security settings content coming soon...</p>
+        <h2 class="section-title">Change Password</h2>
+        <div class="form-group">
+          <label class="form-label">Current Password</label>
+          <div class="password-input-wrap">
+            <input [type]="showOldPwd ? 'text' : 'password'" class="form-input" [(ngModel)]="oldPassword" placeholder="Current password">
+            <button class="pwd-toggle" type="button" (click)="showOldPwd = !showOldPwd">
+              <i class="fas" [class.fa-eye]="!showOldPwd" [class.fa-eye-slash]="showOldPwd"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <div class="password-input-wrap">
+            <input [type]="showNewPwd ? 'text' : 'password'" class="form-input" [(ngModel)]="newPassword" placeholder="Min. 8 characters">
+            <button class="pwd-toggle" type="button" (click)="showNewPwd = !showNewPwd">
+              <i class="fas" [class.fa-eye]="!showNewPwd" [class.fa-eye-slash]="showNewPwd"></i>
+            </button>
+          </div>
+          <div class="pwd-strength" *ngIf="newPassword">
+            <div class="bar" [ngClass]="passwordStrength.score >= 1 ? 'fill-' + passwordStrength.cls : ''"></div>
+            <div class="bar" [ngClass]="passwordStrength.score >= 2 ? 'fill-' + passwordStrength.cls : ''"></div>
+            <div class="bar" [ngClass]="passwordStrength.score >= 3 ? 'fill-' + passwordStrength.cls : ''"></div>
+            <div class="bar" [ngClass]="passwordStrength.score >= 4 ? 'fill-' + passwordStrength.cls : ''"></div>
+          </div>
+          <div class="pwd-strength-label" [ngClass]="passwordStrength.cls" *ngIf="newPassword">
+            Password strength: {{ passwordStrength.label }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" class="form-input" [(ngModel)]="newPassword2" placeholder="Repeat new password">
+          <div class="pwd-match-hint" [class.match]="passwordsMatch === true" [class.no-match]="passwordsMatch === false" *ngIf="passwordsMatch !== null">
+            {{ passwordsMatch ? '✓ Passwords match' : '✗ Passwords do not match' }}
+          </div>
+        </div>
+        <div class="save-feedback success" *ngIf="passwordSuccess"><i class="fas fa-check"></i> Password updated successfully.</div>
+        <div class="save-feedback error" *ngIf="passwordError"><i class="fas fa-times"></i> {{ passwordError }}</div>
+        <button class="btn btn-primary" (click)="changePassword()"
+          [disabled]="passwordSaving || !oldPassword || !newPassword || !newPassword2">
+          {{ passwordSaving ? 'Updating…' : 'Update Password' }}
+        </button>
       </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Two-Factor Authentication</h2>
+        <div class="tfa-card">
+          <div class="tfa-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="tfa-info">
+            <div class="tfa-title">Add an extra layer of security</div>
+            <div class="tfa-desc">Two-factor authentication via SMS or authenticator app coming soon.</div>
+          </div>
+          <button class="btn-outline-sm" disabled>Coming Soon</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Active Sessions</h2>
+        <p class="section-desc">These devices are currently signed in to your account.</p>
+
+        <div *ngIf="sessions.length === 0" class="empty-state" style="padding:16px 0;">
+          No session data yet — log out and back in to record your first session.
+        </div>
+
+        <div class="session-item" *ngFor="let s of sessions">
+          <div class="session-icon">
+            <i class="fas" [class.fa-laptop]="!s.device.includes('iPhone') && !s.device.includes('Android') && !s.device.includes('iPad')"
+                           [class.fa-mobile-alt]="s.device.includes('iPhone') || s.device.includes('Android')"
+                           [class.fa-tablet-alt]="s.device.includes('iPad')"></i>
+          </div>
+          <div class="session-info">
+            <div class="session-device">{{ s.device || 'Unknown device' }}</div>
+            <div class="session-meta">
+              {{ s.ip_address || 'Unknown IP' }}
+              · Last used {{ s.last_used | date:'mediumDate' }}
+            </div>
+          </div>
+          <span *ngIf="s.is_current" class="session-badge current">Current</span>
+          <button *ngIf="!s.is_current" class="btn btn-outline-sm" (click)="revokeSession(s.id)">
+            Revoke
+          </button>
+        </div>
+
+        <div class="save-section" *ngIf="sessions.length > 1" style="margin-top:16px;">
+          <button class="btn btn-outline-sm" (click)="revokeAllOtherSessions()" [disabled]="revokeAllLoading">
+            <i class="fas fa-right-from-bracket"></i>
+            {{ revokeAllLoading ? 'Revoking…' : 'Sign out all other sessions' }}
+          </button>
+        </div>
+      </section>
+
     </div>
   </div>
+
   <section class="support-card">
     <div class="support-text">
-      <h3>Need Help with Your Reservations?</h3>
+      <h3>Need Help?</h3>
       <p>Our support team is here to assist you with any questions</p>
     </div>
     <div class="support-actions">
-      <button class="btn primary">
-        <i class="fas fa-headset"></i>
-        Contact Support
-      </button>
-      <button class="btn outline">
-        <i class="fas fa-book"></i>
-        FAQs
-      </button>
+      <button class="btn-primary" (click)="goToSupport()"><i class="fas fa-headset"></i> Contact Support</button>
+      <button class="btn-outline-sm" (click)="goToSupport()"><i class="fas fa-book"></i> FAQs</button>
     </div>
   </section>
 </div>

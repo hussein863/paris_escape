@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { ExperienceService } from '../../core/services/experience.service';
 
 interface Original {
   id: number;
@@ -11,29 +13,29 @@ interface Original {
 @Component({
   selector: 'app-paris-escape-originals',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './paris-escape-originals.component.html',
   styleUrl: './paris-escape-originals.component.scss'
 })
-export class ParisEscapeOriginalsComponent {
-  originals: Original[] = [
-    {
-      id: 1,
-      title: 'Secret Underground Paris',
-      description: 'Explore hidden tunnels and forgotten history',
-      image: 'assets/images/card_image/underground-paris.png'
-    },
-    {
-      id: 2,
-      title: "Chef's Home Kitchen",
-      description: 'Cook with a Michelin-starred chef at home',
-      image: 'assets/images/card_image/home-kitchen.png'
-    },
-    {
-      id: 3,
-      title: 'Rooftop Paris',
-      description: 'Access to exclusive rooftops and terraces',
-      image: 'assets/images/card_image/rooftop-paris.png'
-    }
-  ];
+export class ParisEscapeOriginalsComponent implements OnInit {
+  originals: Original[] = [];
+  loading = true;
+
+  constructor(private experienceService: ExperienceService) {}
+
+  ngOnInit(): void {
+    // Load top 3 active experiences as "originals"
+    this.experienceService.list({ ordering: '-views', page: 1 }).subscribe({
+      next: (res) => {
+        this.originals = res.results.slice(0, 3).map(e => ({
+          id: e.id,
+          title: e.title,
+          description: e.short_description ?? '',
+          image: (e as any).image_url ?? (e as any).image ?? 'assets/images/card_image/montmartre.png',
+        }));
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
 }

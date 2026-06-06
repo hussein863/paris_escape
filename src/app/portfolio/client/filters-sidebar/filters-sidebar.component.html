@@ -11,7 +11,7 @@
     </button>
     <div class="filter-content" *ngIf="expandedSections.language">
       <label class="checkbox-label" *ngFor="let lang of languages">
-        <input type="checkbox" [(ngModel)]="lang.checked">
+        <input type="checkbox" [(ngModel)]="lang.checked" (ngModelChange)="onFilterChange()">
         <span>{{ lang.name }}</span>
       </label>
     </div>
@@ -24,7 +24,7 @@
     </button>
     <div class="filter-content" *ngIf="expandedSections.price">
       <label class="checkbox-label" *ngFor="let price of priceRanges">
-        <input type="checkbox" [(ngModel)]="price.checked">
+        <input type="checkbox" [(ngModel)]="price.checked" (ngModelChange)="onFilterChange()">
         <span>{{ price.label }}</span>
       </label>
     </div>
@@ -37,7 +37,7 @@
     </button>
     <div class="filter-content" *ngIf="expandedSections.duration">
       <label class="checkbox-label" *ngFor="let duration of durations">
-        <input type="checkbox" [(ngModel)]="duration.checked">
+        <input type="checkbox" [(ngModel)]="duration.checked" (ngModelChange)="onFilterChange()">
         <span>{{ duration.label }}</span>
       </label>
     </div>
@@ -50,7 +50,7 @@
     </button>
     <div class="filter-content" *ngIf="expandedSections.category">
       <label class="checkbox-label" *ngFor="let cat of categories">
-        <input type="checkbox" [(ngModel)]="cat.checked">
+        <input type="checkbox" [(ngModel)]="cat.checked" (ngModelChange)="onFilterChange()">
         <span>{{ cat.name }}</span>
       </label>
     </div>
@@ -63,7 +63,7 @@
     </button>
     <div class="filter-content" *ngIf="expandedSections.neighborhood">
       <label class="checkbox-label" *ngFor="let area of neighborhoods">
-        <input type="checkbox" [(ngModel)]="area.checked">
+        <input type="checkbox" [(ngModel)]="area.checked" (ngModelChange)="onFilterChange()">
         <span>{{ area.name }}</span>
       </label>
     </div>
@@ -71,7 +71,7 @@
 
   <div class="filter-section">
     <label class="checkbox-label">
-      <input type="checkbox" [(ngModel)]="availableToday">
+      <input type="checkbox" [(ngModel)]="availableToday" (ngModelChange)="onFilterChange()">
       <span>Available today</span>
     </label>
   </div>

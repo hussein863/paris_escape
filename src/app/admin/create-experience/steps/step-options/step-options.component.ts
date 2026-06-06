@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 interface AddOn {
   id: string;
@@ -29,6 +30,35 @@ interface CustomOption {
 })
 export class StepOptionsComponent {
   @Output() dataChange = new EventEmitter<any>();
+
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  saveToApi(): Promise<void> {
+    const id = this.wizardService.experienceId;
+    if (!id) return Promise.resolve();
+
+    const options = [
+      ...this.popularAddOns.filter(a => a.selected).map(a => ({
+        title: a.title,
+        description: a.description,
+        icon: a.icon,
+        price: a.price,
+        pricing_type: a.pricingType,
+      })),
+      ...this.customOptions.map(o => ({
+        title: o.name,
+        description: o.description,
+        price: o.price,
+        pricing_type: o.pricingType,
+        icon: 'fa-star',
+      }))
+    ];
+
+    return new Promise((resolve, reject) => {
+      this.wizardService.replaceOptions(id, options)
+        .subscribe({ next: () => resolve(), error: reject });
+    });
+  }
 
   popularAddOns: AddOn[] = [
     {

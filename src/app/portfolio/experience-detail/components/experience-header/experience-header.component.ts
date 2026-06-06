@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -15,19 +15,19 @@ export class ExperienceHeaderComponent {
   @Input() rating: number = 0;
   @Input() reviewsCount: number = 0;
   @Input() badges: string[] = [];
-
-  isFavorite = false;
+  @Input() isFavorite: boolean = false;
+  @Input() favoriteLoading: boolean = false;
+  @Output() favoriteToggled = new EventEmitter<void>();
 
   toggleFavorite(): void {
-    this.isFavorite = !this.isFavorite;
+    if (!this.favoriteLoading) this.favoriteToggled.emit();
   }
 
   share(): void {
     if (navigator.share) {
-      navigator.share({
-        title: this.title,
-        url: window.location.href
-      });
+      navigator.share({ title: this.title, url: window.location.href });
+    } else {
+      navigator.clipboard?.writeText(window.location.href);
     }
   }
 

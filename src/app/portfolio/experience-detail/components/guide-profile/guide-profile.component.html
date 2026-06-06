@@ -10,8 +10,10 @@
         <p class="guide-languages">{{ guide.languages.join(', ') }}</p>
         <p class="guide-bio">{{ guide.bio }}</p>
         <div class="guide-actions">
-          <button class="btn btn-outline">View Profile</button>
-          <button class="btn btn-primary">Message Guide</button>
+          <a class="btn btn-outline" [routerLink]="guideId ? ['/landing/profil', guideId] : null">View Profile</a>
+          <button class="btn btn-primary" (click)="messageGuide()" [disabled]="messageSending">
+            {{ messageSending ? 'Opening…' : 'Message Guide' }}
+          </button>
         </div>
       </div>
       

@@ -1,5 +1,65 @@
-:host {
-  display: block;
+:host { display: block; }
+
+// ── Loading skeleton ──────────────────────────────────────────────────────────
+.skeleton-wrap { display: flex; flex-direction: column; gap: 16px; padding: 24px; }
+.skel {
+  height: 160px;
+  background: linear-gradient(90deg,#f3f4f6 25%,#e9eaec 50%,#f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: sk 1.4s infinite;
+  border-radius: 12px;
+}
+@keyframes sk { from{background-position:200% 0} to{background-position:-200% 0} }
+
+// ── Empty state ────────────────────────────────────────────────────────────────
+.empty-state {
+  text-align: center; padding: 60px 24px; color: #9ca3af;
+  i { font-size: 36px; display: block; margin-bottom: 12px; }
+  p { font-size: 15px; margin: 0; }
+}
+
+// ── Avatar initials ───────────────────────────────────────────────────────────
+.avatar-initials {
+  width: 44px; height: 44px; border-radius: 50%; background: #e5e7eb;
+  color: #374151; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; flex-shrink: 0; border: 1px solid #d1d5db;
+}
+
+// ── Awaiting-reply badge ───────────────────────────────────────────────────────
+.review-not-replied-badge {
+  margin-left: auto;
+  font-size: 12px; font-weight: 600; color: #d97706;
+  background: #fffbeb; border: 1px solid #fde68a;
+  padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  i { margin-right: 4px; }
+}
+
+// ── Reply avatar icon ──────────────────────────────────────────────────────────
+.reply-avatar-icon { font-size: 28px; color: #9ca3af; margin-right: 10px; }
+.reply-edited { font-size: 11px; color: #9ca3af; }
+
+// ── Inline reply form ──────────────────────────────────────────────────────────
+.reply-form {
+  background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px;
+  padding: 14px; margin-top: 12px;
+}
+.reply-textarea {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box;
+  &:focus { outline: none; border-color: #0b0b0b; }
+}
+.reply-form-actions { display: flex; gap: 10px; margin-top: 10px; }
+.btn-reply-save {
+  padding: 8px 18px; background: #0b0b0b; color: #fff; border: none;
+  border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: #2d2d2d; }
+}
+.btn-reply-cancel {
+  padding: 8px 18px; background: transparent; color: #374151;
+  border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 13px;
+  font-weight: 500; cursor: pointer;
+  &:hover { border-color: #9ca3af; }
 }
 
 // APP SHELL LAYOUT

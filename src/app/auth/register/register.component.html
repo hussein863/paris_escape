@@ -1,0 +1,98 @@
+<div class="register-page">
+  <div class="register-card">
+    <div class="register-logo">
+      <span class="logo-text">Paris Escape</span>
+    </div>
+
+    <h1 class="register-title">Create an account</h1>
+    <p class="register-subtitle">Join us and explore Paris like never before</p>
+
+    <div *ngIf="error" class="error-banner">{{ error }}</div>
+
+    <!-- Role selector -->
+    <div class="role-selector">
+      <button
+        type="button"
+        class="role-btn"
+        [class.active]="role === 'Customer'"
+        (click)="role = 'Customer'"
+      >
+        <span class="role-icon">🧳</span>
+        <span>I'm a Traveler</span>
+      </button>
+      <button
+        type="button"
+        class="role-btn"
+        [class.active]="role === 'Guide'"
+        (click)="role = 'Guide'"
+      >
+        <span class="role-icon">🗺️</span>
+        <span>I'm a Guide</span>
+      </button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+      <div class="form-group">
+        <label for="name">Full name</label>
+        <input
+          id="name"
+          type="text"
+          [(ngModel)]="name"
+          name="name"
+          placeholder="Jane Doe"
+          required
+          autocomplete="name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            autocomplete="new-password"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password2">Confirm password</label>
+          <input
+            id="password2"
+            type="password"
+            [(ngModel)]="password2"
+            name="password2"
+            placeholder="••••••••"
+            required
+            autocomplete="new-password"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn-register" [disabled]="loading">
+        {{ loading ? 'Creating account…' : 'Create account' }}
+      </button>
+    </form>
+
+    <p class="register-footer">
+      Already have an account?
+      <a routerLink="/auth/login">Sign in</a>
+    </p>
+  </div>
+</div>

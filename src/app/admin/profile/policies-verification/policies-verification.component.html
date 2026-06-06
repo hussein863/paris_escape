@@ -1,15 +1,12 @@
 <div class="policies-verification-wrapper">
   <!-- Cancellation & Policies -->
   <div class="section-card">
-    <h2 class="section-title">Cancellation & Policies</h2>
+    <h2 class="section-title">Cancellation &amp; Policies</h2>
 
     <div class="form-group">
       <label for="freeCancellation">Free Cancellation Window</label>
-      <select id="freeCancellation" class="form-control form-select"
-        [(ngModel)]="freeCancellationWindow">
-        <option *ngFor="let window of cancellationWindows" [value]="window">
-          {{ window }}
-        </option>
+      <select id="freeCancellation" class="form-control form-select" [(ngModel)]="cancellationWindow">
+        <option *ngFor="let window of cancellationWindows" [value]="window">{{ window }}</option>
       </select>
     </div>
 
@@ -20,7 +17,8 @@
         class="form-control form-textarea"
         rows="3"
         [(ngModel)]="latePolicyNotes"
-        placeholder="e.g., 50% refund within 12 hours"></textarea>
+        placeholder="e.g., 50% refund within 12 hours"
+      ></textarea>
     </div>
 
     <div class="form-group">
@@ -30,7 +28,16 @@
         class="form-control form-textarea"
         rows="3"
         [(ngModel)]="safetyNotes"
-        placeholder="Safety requirements and insurance information"></textarea>
+        placeholder="Safety requirements and insurance information"
+      ></textarea>
+    </div>
+
+    <div class="save-row">
+      <span class="save-success" *ngIf="saveSuccess">Saved!</span>
+      <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
+      <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Saving…' : 'Save Changes' }}
+      </button>
     </div>
   </div>
 
@@ -47,8 +54,9 @@
         <i class="fas fa-check-circle"></i>
         <span>Verified identity</span>
       </div>
-      <div class="checklist-item pending">
-        <i class="fa-solid fa-circle"></i>
+      <div class="checklist-item" [class.completed]="!!uniqueDescription" [class.pending]="!uniqueDescription">
+        <i class="fas fa-check-circle" *ngIf="uniqueDescription"></i>
+        <i class="fa-solid fa-circle" *ngIf="!uniqueDescription"></i>
         <span>Unique experience description</span>
       </div>
     </div>
@@ -59,11 +67,12 @@
         id="uniqueDescription"
         class="form-control form-textarea"
         rows="6"
-        [(ngModel)]="uniqueExperienceDescription"
-        placeholder="Describe what sets you apart..."></textarea>
+        [(ngModel)]="uniqueDescription"
+        placeholder="Describe what sets you apart..."
+      ></textarea>
     </div>
 
-    <button class="btn-submit" type="button" (click)="submitForReview()">
+    <button class="btn-submit" type="button" (click)="save()" [disabled]="saving">
       Submit for Review
     </button>
   </div>
@@ -71,28 +80,15 @@
   <!-- Verification -->
   <div class="section-card section-full">
     <h2 class="section-title">Verification</h2>
-
     <div class="kyc-status">
       <div class="kyc-header">
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <span class="kyc-label">KYC Status</span>
-          <span class="kyc-badge approved">{{ kycStatus }}</span>
+          <span class="kyc-badge" [class.approved]="kycStatus === 'Active'" [class.pending]="kycStatus !== 'Active'">
+            {{ kycStatus }}
+          </span>
         </div>
-          <div class="kyc-separator"></div>
-      </div>
-
-      <div class="kyc-verifications">
-        <div class="verification-card"
-          *ngFor="let verification of kycVerifications">
-          <div class="verification-info">
-            <strong>{{ verification.type }}</strong>
-            <span class="verification-date">Verified on {{ verification.date
-              }}</span>
-          </div>
-          <div class="verification-icon">
-            <i class="fas fa-check-circle" *ngIf="verification.verified"></i>
-          </div>
-        </div>
+        <div class="kyc-separator"></div>
       </div>
     </div>
   </div>
@@ -100,29 +96,21 @@
   <!-- Profile Tools -->
   <div class="section-card section-full">
     <h2 class="section-title">Profile Tools</h2>
-
     <div class="profile-tools-grid">
       <div class="content-card">
         <label>Public Profile URL</label>
         <div class="url-display">
-          <input style="width: 46px;
-    height: 40px; background-color: rgba(249, 250, 251, 1);"
+          <input
+            style="width: 46px; height: 40px; background-color: rgba(249, 250, 251, 1);"
             type="text"
             class="form-control"
             [value]="profileUrl"
-            readonly />
+            readonly
+          />
           <button class="btn-copy" type="button" (click)="copyProfileUrl()">
             <i class="fa-solid fa-copy"></i>
           </button>
         </div>
-      </div>
-
-      <div class="content-card">
-        <label>Last Updated</label>
-        <p class="last-updated">{{ lastUpdated }}</p>
-        <button class="btn-link" type="button" (click)="viewAuditLog()">
-          View audit log
-        </button>
       </div>
     </div>
   </div>
@@ -131,14 +119,24 @@
   <div class="section-card section-full danger-zone">
     <h2 class="section-title danger-title">Danger Zone</h2>
 
-    <div class="danger-content">
+    <div class="danger-content" *ngIf="!showDeactivateConfirm">
       <div class="danger-info">
         <strong>Deactivate Profile</strong>
         <p>Your profile will be hidden from public view</p>
       </div>
-      <button class="btn-danger" type="button" (click)="deactivateProfile()">
-        Deactivate
-      </button>
+      <button class="btn-danger" type="button" (click)="confirmDeactivate()">Deactivate</button>
+    </div>
+
+    <div class="danger-confirm" *ngIf="showDeactivateConfirm">
+      <p><strong>Are you sure?</strong> This will deactivate your account and log you out.</p>
+      <div class="danger-confirm-actions">
+        <button class="btn btn-secondary" type="button" (click)="cancelDeactivate()" [disabled]="deactivating">
+          Cancel
+        </button>
+        <button class="btn-danger" type="button" (click)="doDeactivate()" [disabled]="deactivating">
+          {{ deactivating ? 'Deactivating…' : 'Yes, Deactivate' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

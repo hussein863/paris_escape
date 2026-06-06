@@ -6,17 +6,18 @@
     </div>
 
     <div class="originals-grid">
-      <div class="original-card" *ngFor="let original of originals">
+      <a class="original-card" *ngFor="let original of originals"
+         [routerLink]="['/landing/experience', original.id]"
+         style="text-decoration:none;color:inherit;display:block">
         <div class="card-image-wrapper">
           <img [src]="original.image" [alt]="original.title" class="card-image">
           <span class="originals-badge">Originals</span>
         </div>
-        
         <div class="card-content">
           <h3 class="card-title">{{ original.title }}</h3>
           <p class="card-description">{{ original.description }}</p>
         </div>
-      </div>
+      </a>
     </div>
   </div>
 </section>

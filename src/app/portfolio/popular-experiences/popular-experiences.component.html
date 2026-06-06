@@ -7,11 +7,17 @@
       </button>
     </div>
 
-    <div class="experiences-grid">
-      <app-card 
-        *ngFor="let experience of experiences" 
+    <div class="experiences-grid" *ngIf="!loading">
+      <app-card
+        *ngFor="let experience of experiences"
         [experience]="experience">
       </app-card>
+    </div>
+
+    <div class="experiences-grid" *ngIf="loading">
+      <div *ngFor="let i of [1,2,3,4,5,6]"
+           style="background:#f3f4f6;border-radius:12px;height:280px;animation:pulse 1.5s ease-in-out infinite">
+      </div>
     </div>
   </div>
 </section>

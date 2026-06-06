@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 interface MediaFile {
   id: string;
@@ -19,6 +20,35 @@ interface MediaFile {
 })
 export class StepMediaComponent {
   @Output() dataChange = new EventEmitter<any>();
+
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  saveToApi(): Promise<void> {
+    const id = this.wizardService.experienceId;
+    if (!id) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      const uploads: Promise<void>[] = [];
+
+      // Upload cover image if a file was selected
+      if (this.coverImage?.file) {
+        uploads.push(
+          this.wizardService.uploadCover(id, this.coverImage.file).toPromise().then(() => {})
+        );
+      }
+
+      // Upload gallery photos that have actual files (not pre-existing mock URLs)
+      this.galleryPhotos.forEach(photo => {
+        if (photo.file) {
+          uploads.push(
+            this.wizardService.uploadMedia(id, photo.file, photo.caption).toPromise().then(() => {})
+          );
+        }
+      });
+
+      Promise.all(uploads).then(() => resolve()).catch(reject);
+    });
+  }
 
   mediaPlan = {
     plan: 'Basic Plan',
@@ -93,7 +123,7 @@ export class StepMediaComponent {
       this.coverImage = {
         id: Date.now().toString(),
         file: file,
-        url: 'E:\\Free\\paris\\src\\assets\\images\\3318308e4a5ae77766100115d8d2d8e7f6518919.png',
+        url: URL.createObjectURL(file),
         caption: '',
         type: 'image'
       };
@@ -171,14 +201,15 @@ export class StepMediaComponent {
   }
 
   upgradePlan(): void {
-    console.log('Upgrade plan clicked');
+    /* not implemented */
   }
 
   upgradeToPremium(): void {
-    console.log('Upgrade to premium clicked');
+    /* not implemented */
   }
 
   contactSupport(): void {
-    console.log('Contact support clicked');
+    /* not implemented */
   }
 }
+

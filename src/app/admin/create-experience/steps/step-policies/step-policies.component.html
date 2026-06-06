@@ -66,8 +66,9 @@
 
       <label class="section-label">Safety notes for travelers</label>
       <textarea
+        [(ngModel)]="formData.safetyNotes"
         (ngModelChange)="onDataChange()"
-        [placeholder]="formData.safetyNotes"
+        placeholder="Include physical requirements, weather considerations, and any potential risks"
         rows="5"
         class="form-textarea"></textarea>
 

@@ -1,154 +1,111 @@
 <section class="experience-page">
   <div class="grid two-up">
+
+    <!-- My Experiences -->
     <article class="card">
       <header class="card-header">
         <div>
           <h2>My Experiences</h2>
+          <p class="sub" *ngIf="!expLoading">{{ activeCount }} active · {{ draftCount }} draft</p>
         </div>
-        <button class="pill primary">Create New</button>
+        <button class="pill primary" routerLink="/admin/experiences/create">Create New</button>
       </header>
 
-      <div class="experience-list">
-        <div class="experience-row">
+      <div class="skeleton-list" *ngIf="expLoading">
+        <div class="skeleton-row" *ngFor="let i of [1,2,3]"></div>
+      </div>
+
+      <div class="experience-list" *ngIf="!expLoading">
+        <div class="experience-row" *ngFor="let exp of experiences">
           <div>
             <div class="row-head">
-              <h3>Montmartre Walking Tour</h3>
-              <span class="badge success">Active</span>
+              <h3>{{ exp.title }}</h3>
+              <span class="badge" [ngClass]="{
+                'success': exp.status === 'Active',
+                'muted': exp.status === 'Draft',
+                'warning': exp.status === 'Pending' || exp.status === 'Under Review'
+              }">{{ exp.status }}</span>
             </div>
-            <p class="meta">127 views • 12 bookings this month</p>
+            <p class="meta">{{ exp.views }} views · {{ exp.bookings }} bookings</p>
           </div>
           <div class="row-actions">
-
-            <button aria-label="Open">
+            <a [routerLink]="['/admin/experiences/create']" [queryParams]="{ id: exp.id }" aria-label="Edit">
               <i class="fa-solid fa-edit"></i>
-            </button>
-
-            <button aria-label="Edit">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <button aria-label="Menu">
-              <i class="fa-solid fa-pause"></i>
+            </a>
+            <button aria-label="Status">
+              <i class="fa-solid" [class.fa-pause]="exp.status === 'Active'" [class.fa-play]="exp.status !== 'Active'"></i>
             </button>
           </div>
-
         </div>
 
-        <div class="experience-row">
-          <div>
-            <div class="row-head">
-              <h3>Seine Photography Walk</h3>
-              <span class="badge success">Active</span>
-            </div>
-            <p class="meta">89 views • 8 bookings this month</p>
-          </div>
-          <div class="row-actions">
-
-            <button aria-label="Open">
-              <i class="fa-solid fa-edit"></i>
-            </button>
-
-            <button aria-label="Edit">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <button aria-label="Menu">
-              <i class="fa-solid fa-pause"></i>
-            </button>
-          </div>
-
-        </div>
-
-        <div class="experience-row">
-          <div>
-            <div class="row-head">
-              <h3>Latin Quarter Food Tour</h3>
-              <span class="badge muted">Draft</span>
-            </div>
-            <p class="meta">0 views • 0 bookings</p>
-          </div>
-          <div class="row-actions">
-
-            <button aria-label="Open">
-              <i class="fa-solid fa-edit"></i>
-            </button>
-
-            <button aria-label="Edit">
-              <i class="fa-solid fa-copy"></i>
-            </button>
-            <button aria-label="Menu">
-              <i class="fa-solid fa-play"></i>
-            </button>
-          </div>
-
+        <div class="empty-list" *ngIf="experiences.length === 0">
+          <i class="fas fa-map-marked-alt"></i>
+          <p>No experiences yet</p>
+          <a routerLink="/admin/experiences/create" class="pill primary small">Create your first experience</a>
         </div>
       </div>
+
+      <a routerLink="/admin/experiences" class="view-all-link" *ngIf="experiences.length > 0">View all experiences →</a>
     </article>
 
+    <!-- Recent Reviews -->
     <article class="card">
       <header class="card-header">
         <h2>Recent Reviews</h2>
-        <a class="link" href="#" style="color: rgba(75, 85, 99, 1);">View all
-          reviews</a>
+        <a class="link" routerLink="/admin/reviews" style="color:rgba(75,85,99,1)">View all reviews</a>
       </header>
 
-      <div class="review">
-        <div class="review-header">
-          <div class="rating" aria-label="5 out of 5 stars">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-          </div>
-          <div class="reviewer">Sophie Martin</div>
-        </div>
-        <p
-          class="review-text">"Amazing tour! Marie knows all the best spots in Montmartre."</p>
-        <div class="review-actions">
-          <a href="#" class="link subtle">Reply</a>
-          <a href="#" class="link subtle">Report</a>
-        </div>
+      <div class="skeleton-list" *ngIf="reviewLoading">
+        <div class="skeleton-row" *ngFor="let i of [1,2]"></div>
       </div>
 
-      <div class="review">
-        <div class="review-header">
-          <div class="rating" aria-label="5 out of 5 stars">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
+      <div *ngIf="!reviewLoading">
+        <div class="review" *ngFor="let r of recentReviews">
+          <div class="review-header">
+            <div class="rating" [attr.aria-label]="r.rating + ' out of 5 stars'">
+              <i class="fas fa-star" *ngFor="let filled of ratingStars(r.rating); let i = index"
+                 [style.color]="filled ? '#facc15' : '#e5e7eb'"></i>
+            </div>
+            <div class="reviewer">{{ r.customer_name || 'Anonymous' }}</div>
           </div>
-          <div class="reviewer">James Wilson</div>
+          <p class="review-text">"{{ r.content }}"</p>
+          <div class="review-meta">{{ r.date | date:'mediumDate' }}</div>
+          <div class="review-actions">
+            <a routerLink="/admin/reviews" class="link subtle">Reply</a>
+            <a class="link subtle" style="cursor:pointer">Report</a>
+          </div>
         </div>
-        <p
-          class="review-text">"Perfect photography walk along the Seine. Highly recommend!"</p>
-        <div class="review-actions">
-          <a href="#" class="link subtle">Reply</a>
-          <a href="#" class="link subtle">Report</a>
+
+        <div class="empty-list" *ngIf="recentReviews.length === 0">
+          <i class="fas fa-star"></i>
+          <p>No reviews yet</p>
         </div>
       </div>
     </article>
   </div>
 
+  <!-- Lower cards row -->
   <div class="grid three-up">
+
+    <!-- Subscription -->
     <article class="card">
       <header class="card-header">
         <h3>Subscription</h3>
       </header>
       <div class="stack">
         <header class="card-header">
-          <div class="title">Pro Plan</div>
+          <div class="title">{{ subscriptionPlan }}</div>
           <span class="badge success">Active</span>
         </header>
-        <p class="muted">Renews Dec 15, 2024</p>
         <div class="stack-list">
-          <a class="link subtle" href="#">Update payment method</a>
-          <a class="link subtle" href="#">Billing history</a>
-          <a class="link subtle" href="#">Upgrade plan</a>
+          <a class="link subtle" routerLink="/admin/payments">Update payment method</a>
+          <a class="link subtle" routerLink="/admin/payments">Billing history</a>
+          <a class="link subtle" routerLink="/admin/payments">Upgrade plan</a>
         </div>
       </div>
     </article>
 
+    <!-- Contact Quota -->
     <article class="card">
       <header class="card-header">
         <h3>Contact Quota</h3>
@@ -156,51 +113,54 @@
       <div class="stack tight">
         <div class="quota-row">
           <span class="muted">Used this cycle</span>
-          <strong>23/50</strong>
+          <strong>{{ contactQuotaUsed }}/{{ contactQuotaTotal }}</strong>
         </div>
         <div class="progress">
-          <div class="progress-bar" style="width: 46%"></div>
+          <div class="progress-bar" [style.width.%]="(contactQuotaUsed / contactQuotaTotal) * 100"></div>
         </div>
-        <p class="muted">Resets in 12 days</p>
-        <button class="pill ghost">Upgrade Plan</button>
+        <button class="pill ghost" routerLink="/admin/payments">Upgrade Plan</button>
       </div>
     </article>
 
+    <!-- KYC Status -->
     <article class="card">
       <header class="card-header">
         <h3>KYC Status</h3>
-        <span class="badge warning">Pending</span>
+        <span class="badge" [ngClass]="{
+          'success': kycStatus === 'verified',
+          'warning': kycStatus === 'pending',
+          'danger': kycStatus === 'incomplete'
+        }">{{ kycStatus === 'verified' ? 'Verified' : kycStatus === 'pending' ? 'Pending' : 'Incomplete' }}</span>
       </header>
       <ul class="kyc-list">
-        <li class="complete"><i class="fas fa-check-circle"></i>ID Document</li>
-        <li class="pending"><i class="fas fa-exclamation-circle"></i>Address
-          Proof</li>
-        <li class="incomplete"><i class="far fa-circle"></i>SIRET/VAT</li>
+        <li [ngClass]="kycStatus !== 'incomplete' ? 'complete' : 'pending'">
+          <i class="fas" [class.fa-check-circle]="kycStatus !== 'incomplete'" [class.fa-exclamation-circle]="kycStatus === 'incomplete'"></i>
+          ID Document
+        </li>
+        <li [ngClass]="kycStatus === 'verified' ? 'complete' : 'pending'">
+          <i class="fas" [class.fa-check-circle]="kycStatus === 'verified'" [class.fa-exclamation-circle]="kycStatus !== 'verified'"></i>
+          Address Proof
+        </li>
+        <li class="incomplete">
+          <i class="far fa-circle"></i> SIRET/VAT
+        </li>
       </ul>
-      <button class="pill primary number2">Complete Verification</button>
+      <button class="pill primary number2" routerLink="/admin/kyc">Complete Verification</button>
     </article>
   </div>
 
+  <!-- Tips & Support -->
   <div class="grid two-up">
     <article class="card tips">
       <header class="card-header">
         <h3>Tips to Improve</h3>
-        <a class="link" href="#"
-          style="color: rgba(75, 85, 99, 1);font-family: Inter;
-font-weight: 400;
-font-style: Regular;
-font-size: 14px;
-line-height: 100%;
-letter-spacing: 0%;
-">Learn more</a>
       </header>
       <ul class="tips-list">
         <li class="tip blue">
           <i class="fas fa-lightbulb tip-icon"></i>
           <div class="intern">
             <div class="title">Add more photos</div>
-            <p class="muted">Experiences with 5+ photos get 40% more
-              bookings</p>
+            <p class="muted">Experiences with 5+ photos get 40% more bookings</p>
           </div>
         </li>
         <li class="tip green">
@@ -214,8 +174,7 @@ letter-spacing: 0%;
           <i class="fas fa-star tip-icon"></i>
           <div class="intern">
             <div class="title">Apply for Originals</div>
-            <p class="muted">Your rating qualifies you for the Originals
-              program</p>
+            <p class="muted">Your rating qualifies you for the Originals program</p>
           </div>
         </li>
       </ul>
@@ -224,23 +183,11 @@ letter-spacing: 0%;
     <article class="card support">
       <header class="card-header">
         <h3>Support</h3>
-        <span class="badge info">1 open ticket</span>
       </header>
       <div class="stack support-content">
-        <div class="support-issue">
-          <div class="title">Payment Issue #1234
-          <p class="muted" style="color: rgba(75, 85, 99, 1);font-family: Inter;
-font-weight: 400;
-font-style: Regular;
-font-size: 12px;
-line-height: 100%;
-letter-spacing: 0%;
-">Last updated 2 hours ago</p></div>
-          <span class="badge progress">In Progress</span>
-        </div>
-        <button class="pill ghost support-button">
-          <i class="fas fa-headset"></i>
-          Contact Support
+        <p class="muted">Need help with your account or bookings?</p>
+        <button class="pill ghost support-button" routerLink="/admin/support">
+          <i class="fas fa-headset"></i> Contact Support
         </button>
       </div>
     </article>

@@ -1,3 +1,5 @@
+<app-admin-header></app-admin-header>
+
 <div class="app-shell" [class.sidebar-open]="isSidebarOpen">
   <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
     <span></span>
@@ -135,7 +137,91 @@
   </div>
 
   <div class="list-view" *ngIf="selectedView === 'list'">
-    <p class="placeholder"></p>
+    <div class="list-controls">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search by customer or experience..."
+          [(ngModel)]="searchQuery">
+      </div>
+
+      <div class="filter-buttons">
+        <button
+          class="filter-btn"
+          [class.active]="selectedStatus === 'all'"
+          (click)="selectedStatus = 'all'">
+          All ({{ allBookings.length }})
+        </button>
+        <button
+          class="filter-btn"
+          [class.active]="selectedStatus === 'Pending'"
+          (click)="selectedStatus = 'Pending'">
+          Pending ({{ pendingCount }})
+        </button>
+        <button
+          class="filter-btn"
+          [class.active]="selectedStatus === 'Confirmed'"
+          (click)="selectedStatus = 'Confirmed'">
+          Confirmed ({{ confirmedCount }})
+        </button>
+      </div>
+    </div>
+
+    <div class="bookings-table">
+      <div class="table-header">
+        <div class="col-date">Date</div>
+        <div class="col-customer">Customer</div>
+        <div class="col-experience">Experience</div>
+        <div class="col-status">Status</div>
+        <div class="col-actions">Actions</div>
+      </div>
+
+      <div *ngIf="loading" class="loading">Loading bookings...</div>
+
+      <div *ngIf="!loading && filteredBookings.length === 0" class="empty">
+        No bookings found
+      </div>
+
+      <div *ngFor="let booking of filteredBookings" class="table-row">
+        <div class="col-date">{{ booking.date | date: 'MMM dd, yyyy' }}</div>
+        <div class="col-customer">{{ booking.customer_name || 'Customer #' + booking.customer }}</div>
+        <div class="col-experience">{{ booking.experience_title || 'Experience #' + booking.experience }}</div>
+        <div class="col-status">
+          <span class="badge" [ngClass]="booking.status.toLowerCase()">
+            {{ booking.status }}
+          </span>
+        </div>
+        <div class="col-actions">
+          <button
+            *ngIf="booking.status === 'Pending'"
+            class="btn-action confirm"
+            (click)="confirmBooking(booking)"
+            [disabled]="actionInProgress">
+            <i class="fas fa-check"></i> Confirm
+          </button>
+          <button
+            *ngIf="booking.status !== 'Cancelled' && booking.status !== 'Disputed'"
+            class="btn-action cancel"
+            (click)="cancelBooking(booking)"
+            [disabled]="actionInProgress">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button
+            *ngIf="booking.status === 'Confirmed'"
+            class="btn-action dispute"
+            (click)="disputeBooking(booking)"
+            [disabled]="actionInProgress">
+            <i class="fas fa-exclamation"></i> Dispute
+          </button>
+          <button
+            class="btn-action message"
+            title="Message customer">
+            <i class="fas fa-message"></i> Message
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="settings-view" *ngIf="selectedView === 'settings'">

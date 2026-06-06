@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 @Component({
   selector: 'app-step-policies',
@@ -11,6 +12,26 @@ import { FormsModule } from '@angular/forms';
 })
 export class StepPoliciesComponent {
   @Output() dataChange = new EventEmitter<any>();
+
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  saveToApi(): Promise<void> {
+    const id = this.wizardService.experienceId;
+    if (!id) return Promise.resolve();
+
+    return new Promise((resolve, reject) => {
+      this.wizardService.savePolicy(id, {
+        cancellation_window: this.formData.cancellationWindow,
+        late_arrival_policy: this.formData.lateArrivalPolicy,
+        no_show_policy: this.formData.noShowPolicy,
+        weather_policy: this.formData.weatherPolicy,
+        safety_notes: this.formData.safetyNotes,
+        insurance_coverage: this.formData.insuranceCoverage,
+        emergency_procedures: this.formData.emergencyProcedures,
+        photography_consent: this.formData.photographyConsent,
+      }).subscribe({ next: () => resolve(), error: reject });
+    });
+  }
 
   formData = {
     cancellationWindow: '48-hours',
@@ -127,7 +148,7 @@ export class StepPoliciesComponent {
   }
 
   previewExperience(): void {
-    console.log('Preview experience');
+    /* not implemented */
     // Placeholder for preview functionality
   }
 
@@ -135,3 +156,4 @@ export class StepPoliciesComponent {
     this.dataChange.emit(this.formData);
   }
 }
+

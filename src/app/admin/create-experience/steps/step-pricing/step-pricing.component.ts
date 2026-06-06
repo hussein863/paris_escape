@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
 
 @Component({
   selector: 'app-step-pricing',
@@ -12,9 +13,26 @@ import { FormsModule } from '@angular/forms';
 export class StepPricingComponent {
   @Output() dataChange = new EventEmitter<any>();
 
+  constructor(private wizardService: ExperienceWizardService) {}
+
+  saveToApi(): Promise<void> {
+    const id = this.wizardService.experienceId;
+    if (!id) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      this.wizardService.update(id, {
+        base_price: this.formData.basePrice,
+        currency: this.formData.currency,
+        pricing_model: this.formData.pricingModel as any,
+        child_pricing_enabled: this.formData.childPricingEnabled,
+        child_price: this.formData.childPrice,
+        child_age_range: this.formData.childAgeRange,
+      }).subscribe({ next: () => resolve(), error: reject });
+    });
+  }
+
   formData = {
     pricingModel: 'per-person',
-    currency: 'EUR (€)',
+    currency: 'EUR',
     basePrice: 45,
     childPricingEnabled: false,
     childPrice: 0,

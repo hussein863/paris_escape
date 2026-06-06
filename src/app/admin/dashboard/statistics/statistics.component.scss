@@ -429,6 +429,33 @@ width: 40px;
   margin-top: 4px;
 }
 
+.avatar-initials {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+}
+
+.empty-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px;
+  color: #9ca3af;
+  font-size: 13px;
+  i { font-size: 22px; }
+  p { margin: 0; }
+}
+
 @media (max-width: 960px) {
   .dashboard-header {
     flex-direction: column;

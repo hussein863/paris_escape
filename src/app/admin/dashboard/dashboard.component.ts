@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from "../sidebar/sidebar.component";
+import { AdminHeaderComponent } from "../header/admin-header.component";
 import { StatisticsComponent } from "./statistics/statistics.component";
 import { ExperienceComponent } from "./experience/experience.component";
 
@@ -9,7 +10,7 @@ import { ExperienceComponent } from "./experience/experience.component";
   standalone: true,
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
-  imports: [CommonModule, SidebarComponent, StatisticsComponent, ExperienceComponent],
+  imports: [CommonModule, SidebarComponent, AdminHeaderComponent, StatisticsComponent, ExperienceComponent],
 })
 export class DashboardComponent {
   isSidebarOpen = false;

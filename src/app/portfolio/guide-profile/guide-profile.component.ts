@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ProfileHeaderComponent } from './profile-header/profile-header.component';
 import { ProfileAboutComponent } from './profile-about/profile-about.component';
 import { ProfileLocationComponent } from './profile-location/profile-location.component';
@@ -7,8 +11,9 @@ import { ProfileExperiencesComponent } from './profile-experiences/profile-exper
 import { ProfileReviewsComponent } from './profile-reviews/profile-reviews.component';
 import { ProfileSidebarComponent } from './profile-sidebar/profile-sidebar.component';
 import { ProfileSimilarGuidesComponent } from './profile-similar-guides/profile-similar-guides.component';
-import { HeaderComponent } from "../header/header.component";
-import { FooterComponent } from "../footer/footer.component";
+import { HeaderComponent } from '../header/header.component';
+import { FooterComponent } from '../footer/footer.component';
+import { environment } from '../../../environments/environment';
 
 export interface Guide {
   id: number;
@@ -27,10 +32,7 @@ export interface Guide {
   responseTime: string;
   about: string;
   specialties: string[];
-  meetingPoint: {
-    name: string;
-    address: string;
-  };
+  meetingPoint: { name: string; address: string };
   pickupOptions: string;
   accessibility: string;
 }
@@ -44,7 +46,6 @@ export interface Experience {
   maxPeople: number;
   difficulty: string;
   included: string[];
-  options?: { name: string; price: number }[];
   price: number;
   isFavorite: boolean;
   badge?: string;
@@ -58,6 +59,7 @@ export interface Review {
   date: string;
   tourName: string;
   content: string;
+  reply?: { content: string; date: string } | null;
 }
 
 export interface SimilarGuide {
@@ -75,6 +77,7 @@ export interface SimilarGuide {
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     ProfileHeaderComponent,
     ProfileAboutComponent,
     ProfileLocationComponent,
@@ -83,167 +86,139 @@ export interface SimilarGuide {
     ProfileSidebarComponent,
     ProfileSimilarGuidesComponent,
     HeaderComponent,
-    FooterComponent
-],
+    FooterComponent,
+  ],
   templateUrl: './guide-profile.component.html',
   styleUrl: './guide-profile.component.scss'
 })
-export class GuideProfileComponent {
-  guide: Guide = {
-    id: 1,
-    name: 'Sophie Laurent',
-    avatar: 'assets/images/avatar/sophie.png',
-    coverImage: 'assets/images/profil/bg.png',
-    isVerified: true,
-    isOriginal: true,
-    languages: [
-      { name: 'French', level: 'Native' },
-      { name: 'English', level: 'Fluent' },
-      { name: 'Spanish', level: 'Intermediate' }
-    ],
-    location: 'Paris, France',
-    experience: '8 years',
-    rating: 4.9,
-    reviewCount: 487,
-    totalTours: 1234,
-    priceRange: '€65 - €150',
-    responseTime: 'Within 2 hours',
-    about: `Bonjour! I'm Sophie, a Parisian born and raised in the heart of Montmartre. For the past 8 years, I've been sharing my passion for Paris with travelers from around the world. My love for this city goes beyond the typical tourist spots – I want to show you the Paris that locals know and love.
+export class GuideProfileComponent implements OnInit {
+  loading = true;
+  error = '';
 
-I specialize in art history, gastronomy, and hidden gems that most guidebooks miss. Whether you're interested in exploring world-class museums, discovering secret gardens, or tasting the best croissants in the city, I'll create a personalized experience just for you.
+  guide!: Guide;
+  experiences: Experience[] = [];
+  reviews: Review[] = [];
+  reviewStats = { average: 0, total: 0, distribution: [] as { stars: number; count: number }[] };
+  similarGuides: SimilarGuide[] = [];
 
-My background in art history and years working in Parisian museums give me unique insights into the city's cultural treasures. I'm also a certified sommelier and love introducing visitors to French wine culture. Every tour I lead is designed to be engaging, informative, and most importantly, fun!`,
-    specialties: ['Art & Museums', 'Food & Wine', 'Hidden Gems', 'Photography', 'History', 'Local Culture'],
-    meetingPoint: {
-      name: 'Primary Meeting Point',
-      address: 'Place des Abbesses, 75018 Paris (Montmartre)'
-    },
-    pickupOptions: 'Hotel pickup available for private tours (+€20)',
-    accessibility: 'Some tours wheelchair accessible. Contact for details.'
-  };
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient,
+  ) {}
 
-  experiences: Experience[] = [
-    {
-      id: 1,
-      title: 'Private Louvre Masterpieces Tour',
-      description: 'Skip the crowds and discover the Louvre\'s greatest treasures with an art historian guide.',
-      image: 'assets/images/card_image/louvre.png',
-      duration: '3 hours',
-      maxPeople: 6,
-      difficulty: 'Easy',
-      included: ['Skip-the-line tickets', 'Expert guide', 'Headsets'],
-      options: [
-        { name: 'Private tour upgrade', price: 30 },
-        { name: 'Photography session', price: 50 }
-      ],
-      price: 85,
-      isFavorite: false
-    },
-    {
-      id: 2,
-      title: 'Secret Montmartre & Artist Studios',
-      description: 'Explore hidden courtyards, meet local artists, and discover the real Montmartre.',
-      image: 'assets/images/card_image/montmartre.png',
-      duration: '2.5 hours',
-      maxPeople: 8,
-      difficulty: 'Moderate',
-      included: ['Artist studio visits', 'Wine tasting', 'Local snacks'],
-      price: 95,
-      isFavorite: true,
-      badge: 'Originals'
-    },
-    {
-      id: 3,
-      title: 'Gourmet Food Market Tour',
-      description: 'Taste your way through Paris\'s best markets with a certified sommelier.',
-      image: 'assets/images/card_image/food-market.png',
-      duration: '3 hours',
-      maxPeople: 6,
-      difficulty: 'Easy',
-      included: ['Food tastings', 'Wine pairing', 'Recipe cards'],
-      price: 110,
-      isFavorite: false
-    }
-  ];
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) { this.router.navigate(['/landing']); return; }
+    this.loadGuide(+id);
+  }
 
-  reviews: Review[] = [
-    {
-      id: 1,
-      author: 'Michael Chen',
-      avatar: 'assets/images/avatar/james.png',
-      rating: 5,
-      date: '2 weeks ago',
-      tourName: 'Private Louvre Masterpieces Tour',
-      content: 'Sophie was absolutely fantastic! Her knowledge of art history brought the Louvre to life. She knew exactly which pieces to show us and shared fascinating stories. Highly recommend!'
-    },
-    {
-      id: 2,
-      author: 'Emma Williams',
-      avatar: 'assets/images/avatar/emma.png',
-      rating: 5,
-      date: '1 month ago',
-      tourName: 'Secret Montmartre & Artist Studios',
-      content: 'This was the highlight of our Paris trip! Sophie showed us places we never would have found on our own. Meeting the local artists was incredible. The wine tasting was a perfect touch!'
-    },
-    {
-      id: 3,
-      author: 'Carlos Rodriguez',
-      avatar: 'assets/images/avatar/michael.png',
-      rating: 5,
-      date: '2 months ago',
-      tourName: 'Gourmet Food Market Tour',
-      content: 'As a foodie, this tour exceeded all expectations. Sophie\'s wine expertise and connections with local vendors made this truly special. We tasted incredible cheeses, pastries, and wines!'
-    }
-  ];
+  loadGuide(id: number): void {
+    forkJoin({
+      guide: this.http.get<any>(`${environment.apiUrl}/users/guides/${id}/`),
+      experiences: this.http.get<any>(`${environment.apiUrl}/experiences/?guide=${id}`).pipe(catchError(() => of({ results: [] }))),
+      reviews: this.http.get<any>(`${environment.apiUrl}/reviews/?guide=${id}`).pipe(catchError(() => of({ results: [] }))),
+      allGuides: this.http.get<any>(`${environment.apiUrl}/users/guides/`).pipe(catchError(() => of({ results: [] }))),
+    }).subscribe({
+      next: ({ guide, experiences, reviews, allGuides }) => {
+        this.guide = this.mapGuide(guide);
+        this.experiences = experiences.results.map((e: any) => this.mapExperience(e));
+        this.reviews = reviews.results.map((r: any) => this.mapReview(r));
+        this.reviewStats = this.buildStats(reviews.results);
+        this.similarGuides = allGuides.results
+          .filter((g: any) => g.id !== id)
+          .slice(0, 4)
+          .map((g: any) => this.mapSimilarGuide(g));
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Guide not found.';
+        this.loading = false;
+      }
+    });
+  }
 
-  similarGuides: SimilarGuide[] = [
-    {
-      id: 1,
-      name: 'Jean-Pierre Dubois',
-      image: 'assets/images/card_image/person/jean-pierre.png',
-      languages: 'FR, EN, IT',
-      rating: 4.8,
-      reviewCount: 312,
-      specialty: 'History expert specializing in medieval Paris and royal palaces.'
-    },
-    {
-      id: 2,
-      name: 'Marie Dubois',
-      image: 'assets/images/card_image/person/marie.png',
-      languages: 'FR, EN, ES',
-      rating: 4.7,
-      reviewCount: 289,
-      specialty: 'Specializes in Parisian street art and hidden photography spots.'
-    },
-    {
-      id: 3,
-      name: 'Lucas Moreau',
-      image: 'assets/images/card_image/person/lucas.png',
-      languages: 'FR, EN, DE',
-      rating: 4.9,
-      reviewCount: 412,
-      specialty: 'Expert in Parisian architecture and historical landmarks.'
-    },
-    {
-      id: 4,
-      name: 'Sophie Moreau',
-      image: 'assets/images/card_image/person/sophie-m.png',
-      languages: 'FR, EN, IT',
-      rating: 4.8,
-      reviewCount: 356,
-      specialty: 'Specializes in Parisian food culture and wine tasting.'
-    }
-  ];
+  private mapGuide(g: any): Guide {
+    const user = g.user ?? {};
+    const minPrice = g.base_rate ?? g.private_rate ?? 0;
+    const maxPrice = g.private_rate ?? g.base_rate ?? 0;
+    return {
+      id: g.id,
+      name: user.name ?? 'Guide',
+      avatar: user.avatar_url ?? user.avatar ?? '',
+      coverImage: g.cover_image_url ?? g.cover_image ?? 'assets/images/profil/bg.png',
+      isVerified: g.is_verified ?? false,
+      isOriginal: g.is_original ?? false,
+      languages: (g.languages ?? []).map((l: any) => ({ name: l.name, level: l.level })),
+      location: [g.neighborhood, g.base_city, 'France'].filter(Boolean).join(', '),
+      experience: g.years_of_experience ? `${g.years_of_experience} years` : '',
+      rating: parseFloat(g.rating ?? 0),
+      reviewCount: g.review_count ?? 0,
+      totalTours: g.total_tours ?? 0,
+      priceRange: minPrice ? `€${minPrice} – €${Math.max(minPrice, maxPrice)}` : '',
+      responseTime: g.response_time ?? '',
+      about: g.bio ?? '',
+      specialties: (g.specialties ?? []).map((s: any) => s.name),
+      meetingPoint: {
+        name: (g.meeting_points ?? []).find((m: any) => m.is_default)?.name ?? g.meeting_point_name ?? '',
+        address: (g.meeting_points ?? []).find((m: any) => m.is_default)?.address ?? g.meeting_point_address ?? '',
+      },
+      pickupOptions: g.pickup_options ?? '',
+      accessibility: g.accessibility ?? '',
+    };
+  }
 
-  reviewStats = {
-    average: 4.9,
-    total: 487,
-    distribution: [
-      { stars: 5, count: 448 },
-      { stars: 4, count: 29 },
-      { stars: 3, count: 7 },
-      { stars: 2, count: 2 },
-      { stars: 1, count: 1 }
-    ]
-  };
+  private mapExperience(e: any): Experience {
+    const inclusions = (e.inclusions ?? [])
+      .filter((i: any) => i.type === 'included')
+      .map((i: any) => i.text);
+    return {
+      id: e.id,
+      title: e.title,
+      description: e.short_description ?? '',
+      image: e.image_url ?? e.image ?? '',
+      duration: e.duration_value ? `${e.duration_value} ${e.duration_unit}` : '',
+      maxPeople: e.max_people ?? 10,
+      difficulty: e.difficulty ?? 'Easy',
+      included: inclusions,
+      price: parseFloat(e.base_price ?? 0),
+      isFavorite: false,
+    };
+  }
+
+  private mapReview(r: any): Review {
+    return {
+      id: r.id,
+      author: r.customer_name ?? `Customer #${r.customer}`,
+      avatar: r.customer_avatar ?? '',
+      rating: r.rating,
+      date: new Date(r.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+      tourName: r.experience_title ?? '',
+      content: r.content,
+      reply: r.reply ? { content: r.reply.content, date: r.reply.date } : null,
+    };
+  }
+
+  private buildStats(reviews: any[]): typeof this.reviewStats {
+    const total = reviews.length;
+    const avg = total ? reviews.reduce((s: number, r: any) => s + r.rating, 0) / total : 0;
+    const dist = [5, 4, 3, 2, 1].map(stars => ({
+      stars,
+      count: reviews.filter((r: any) => r.rating === stars).length,
+    }));
+    return { average: Math.round(avg * 10) / 10, total, distribution: dist };
+  }
+
+  private mapSimilarGuide(g: any): SimilarGuide {
+    const user = g.user ?? {};
+    return {
+      id: g.id,
+      name: user.name ?? 'Guide',
+      image: user.avatar_url ?? 'assets/images/card_image/person/jean-pierre.png',
+      languages: (g.languages ?? []).map((l: any) => l.name.slice(0, 2).toUpperCase()).join(', '),
+      rating: parseFloat(g.rating ?? 0),
+      reviewCount: g.review_count ?? 0,
+      specialty: (g.specialties ?? []).map((s: any) => s.name).join(', '),
+    };
+  }
 }

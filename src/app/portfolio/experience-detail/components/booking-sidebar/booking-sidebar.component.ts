@@ -1,10 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ExperienceOption, ExperienceAvailability, TimeSlot } from '../../../../core/models';
 
 interface AddOn {
-  id: string;
+  id: number;
   name: string;
   price: number;
   selected: boolean;
@@ -17,57 +18,62 @@ interface AddOn {
   templateUrl: './booking-sidebar.component.html',
   styleUrl: './booking-sidebar.component.scss'
 })
-export class BookingSidebarComponent {
+export class BookingSidebarComponent implements OnChanges {
+  @Input() experienceId: number = 0;
   @Input() basePrice: number = 0;
   @Input() currency: string = '€';
+  @Input() options: ExperienceOption[] = [];
+  @Input() availability: ExperienceAvailability | null = null;
+  @Input() maxPeople: number = 10;
 
   constructor(private router: Router) {}
 
-  selectedDate: string = '';
-  selectedTime: string = '9:00 AM';
-  guests: number = 1;
-  
-  times = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
-  guestOptions = [1, 2, 3, 4, 5, 6];
+  selectedDate = '';
+  selectedTime = '';
+  guests = 1;
 
-  addOns: AddOn[] = [
-    { id: '1', name: 'Private tour upgrade', price: 30, selected: false },
-    { id: '2', name: 'Professional photographer', price: 45, selected: false }
-  ];
+  guestOptions: number[] = [];
+  addOns: AddOn[] = [];
 
-  get selectedAddOns(): AddOn[] {
-    return this.addOns.filter(a => a.selected);
+  get times(): string[] {
+    return this.availability?.time_slots?.map((s: TimeSlot) => s.time) ?? ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM'];
   }
 
-  get addOnsTotal(): number {
-    return this.selectedAddOns.reduce((sum, a) => sum + a.price, 0);
+  ngOnChanges(): void {
+    this.guestOptions = Array.from({ length: this.maxPeople }, (_, i) => i + 1);
+    this.addOns = this.options.map(o => ({
+      id: o.id,
+      name: o.title,
+      price: Number(o.price),
+      selected: false
+    }));
   }
 
-  get subtotal(): number {
-    return (this.basePrice * this.guests) + this.addOnsTotal;
-  }
+  get selectedAddOns(): AddOn[] { return this.addOns.filter(a => a.selected); }
+  get addOnsTotal(): number { return this.selectedAddOns.reduce((s, a) => s + a.price, 0); }
+  get subtotal(): number { return (this.basePrice * this.guests) + this.addOnsTotal; }
+  get serviceFee(): number { return Math.round(this.subtotal * 0.1); }
+  get total(): number { return this.subtotal + this.serviceFee; }
 
-  get total(): number {
-    return this.subtotal;
-  }
+  bookingError = '';
 
-  toggleAddOn(addOn: AddOn): void {
-    addOn.selected = !addOn.selected;
-  }
+  toggleAddOn(addOn: AddOn): void { addOn.selected = !addOn.selected; }
 
   bookNow(): void {
-    console.log('Booking:', {
-      date: this.selectedDate,
-      time: this.selectedTime,
-      guests: this.guests,
-      addOns: this.selectedAddOns,
-      total: this.total
+    this.bookingError = '';
+    if (!this.selectedDate) { this.bookingError = 'Please select a date.'; return; }
+    if (!this.selectedTime) { this.bookingError = 'Please select a time.'; return; }
+    this.router.navigate(['/landing/experience', this.experienceId, 'book'], {
+      queryParams: {
+        date: this.selectedDate,
+        time: this.selectedTime,
+        guests: this.guests,
+        addons: this.selectedAddOns.map(a => a.id).join(',')
+      }
     });
-    
-    this.router.navigate(['/landing/experience/1/book']);
   }
 
   contactGuide(): void {
-    console.log('Contact guide');
+    this.router.navigate(['/client/messages']);
   }
 }

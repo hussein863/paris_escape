@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+
 interface Mood {
   label: string;
   active: boolean;
@@ -13,7 +15,7 @@ interface Mood {
   styleUrl: './explore-by-mood.component.scss'
 })
 export class ExploreByMoodComponent {
-   moods: Mood[] = [
+  moods: Mood[] = [
     { label: 'Romantic', active: false },
     { label: 'Unusual', active: true },
     { label: 'Photo', active: false },
@@ -22,9 +24,11 @@ export class ExploreByMoodComponent {
     { label: 'Culture', active: false }
   ];
 
-  selectMood(selected: Mood): void {
-    this.moods.forEach(mood => mood.active = false);
-    selected.active = true;
-  }
+  constructor(private router: Router) {}
 
+  selectMood(selected: Mood): void {
+    this.moods.forEach(m => m.active = false);
+    selected.active = true;
+    this.router.navigate(['/landing/experience'], { queryParams: { search: selected.label } });
+  }
 }

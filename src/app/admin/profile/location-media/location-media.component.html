@@ -1,28 +1,16 @@
 <div class="location-media-wrapper">
   <!-- Location & Service Area -->
   <div class="section-card">
-    <h2 class="section-title">Location & Service Area</h2>
+    <h2 class="section-title">Location &amp; Service Area</h2>
 
     <div class="form-group">
       <label for="baseCity">Base City</label>
-      <input
-        type="text"
-        id="baseCity"
-        class="form-control"
-        placeholder="Paris"
-        [(ngModel)]="baseCity"
-      />
+      <input type="text" id="baseCity" class="form-control" placeholder="Paris" [(ngModel)]="baseCity" />
     </div>
 
     <div class="form-group">
       <label for="neighborhood">Neighborhood</label>
-      <input
-        type="text"
-        id="neighborhood"
-        class="form-control"
-        placeholder="Montmartre"
-        [(ngModel)]="neighborhood"
-      />
+      <input type="text" id="neighborhood" class="form-control" placeholder="Montmartre" [(ngModel)]="neighborhood" />
     </div>
 
     <div class="form-group">
@@ -30,10 +18,6 @@
       <div class="map-placeholder">
         <i class="fas fa-map-marker-alt"></i>
       </div>
-      <button class="btn-link" type="button" (click)="updateLocation()">
-        <i class="fas fa-edit"></i>
-        Update Location
-      </button>
     </div>
 
     <div class="form-group">
@@ -43,26 +27,38 @@
           <div class="meeting-point-content">
             <div class="meeting-point-header">
               <strong>{{ point.name || 'New Meeting Point' }}</strong>
-              <span class="badge-default" *ngIf="point.isDefault">Default</span>
+              <span class="badge-default" *ngIf="point.is_default">Default</span>
             </div>
             <p class="meeting-point-address">{{ point.address }}</p>
             <div class="meeting-point-actions">
-              <button class="btn-text" type="button">
-                Edit
-              </button>
-              <button class="btn-text" type="button" (click)="setDefaultMeetingPoint(i)" *ngIf="!point.isDefault">
+              <button class="btn-text" type="button" (click)="setDefaultMeetingPoint(point)" *ngIf="!point.is_default">
                 Set Default
               </button>
-              <button class="btn-text" type="button" (click)="removeMeetingPoint(i)">
+              <button class="btn-text" type="button" (click)="removeMeetingPoint(point, i)">
                 Remove
               </button>
             </div>
           </div>
         </div>
       </div>
-      <button class="btn-add-large" type="button" (click)="addMeetingPoint()">
+
+      <div class="add-meeting-point-form" *ngIf="showAddMeetingPoint">
+        <input type="text" class="form-control" placeholder="Name (e.g. Eiffel Tower)" [(ngModel)]="newMpName" />
+        <input type="text" class="form-control" placeholder="Address" [(ngModel)]="newMpAddress" />
+        <button class="btn btn-primary" type="button" (click)="confirmAddMeetingPoint()">Add</button>
+      </div>
+
+      <button class="btn-add-large" type="button" (click)="startAddMeetingPoint()" *ngIf="!showAddMeetingPoint">
         <i class="fas fa-plus"></i>
         Add Meeting Point
+      </button>
+    </div>
+
+    <div class="save-row">
+      <span class="save-success" *ngIf="locationSuccess">Saved!</span>
+      <span class="save-error" *ngIf="locationError">{{ locationError }}</span>
+      <button class="btn btn-primary" type="button" (click)="saveLocation()" [disabled]="locationSaving">
+        {{ locationSaving ? 'Saving…' : 'Save Location' }}
       </button>
     </div>
   </div>
@@ -73,43 +69,38 @@
 
     <div class="form-group">
       <label>Cover Image</label>
-      <div class="cover-image">
-        <img [src]="coverImage" alt="Cover" />
+      <div class="cover-image" *ngIf="coverImageUrl">
+        <img [src]="coverImageUrl" alt="Cover" />
       </div>
-      <button class="btn-upload" type="button" (click)="uploadCover()">
+      <div class="cover-image cover-placeholder" *ngIf="!coverImageUrl">
+        <i class="fas fa-image"></i>
+        <span>No cover image</span>
+      </div>
+      <input type="file" id="coverUpload" accept="image/*" style="display:none;" (change)="onCoverSelected($event)" />
+      <button class="btn-upload" type="button" (click)="triggerCoverUpload()" [disabled]="coverUploading">
         <i class="fas fa-upload"></i>
-        Upload New Cover
+        {{ coverUploading ? 'Uploading…' : 'Upload New Cover' }}
       </button>
     </div>
 
     <div class="form-group">
       <label>Photo Gallery</label>
       <div class="photo-gallery">
-        <div class="gallery-item" *ngFor="let photo of photoGallery; let i = index">
-          <img [src]="photo" alt="Gallery photo" />
-          <button class="gallery-remove" type="button" (click)="removePhoto(i)">
+        <div class="gallery-item" *ngFor="let photo of galleryPhotos; let i = index">
+          <img [src]="photo.image_url" alt="Gallery photo" />
+          <button class="gallery-remove" type="button" (click)="removePhoto(photo, i)">
             <i class="fas fa-times"></i>
           </button>
         </div>
       </div>
-      <button class="btn-upload" type="button" (click)="addPhotos()">
+      <input type="file" id="galleryUpload" accept="image/*" style="display:none;" (change)="onGallerySelected($event)" />
+      <button class="btn-upload" type="button" (click)="triggerGalleryUpload()" [disabled]="galleryUploading">
         <i class="fas fa-plus"></i>
-        Add Photos
+        {{ galleryUploading ? 'Uploading…' : 'Add Photos' }}
       </button>
     </div>
 
-    <div class="form-group">
-      <label>Video Teaser (30-60s)</label>
-      <div class="video-placeholder">
-        <i class="fas fa-video"></i>
-      </div>
-      <button class="btn-upload" type="button" (click)="uploadVideo()">
-        <i class="fas fa-upload"></i>
-        Upload Video
-      </button>
-    </div>
-        <hr class="separator" style="color: f3f4f6; opacity: 0.2;margin-top: -9px;
-    margin-bottom: 16px;">
+    <hr class="separator" style="color: f3f4f6; opacity: 0.2; margin-top: -9px; margin-bottom: 16px;">
     <button class="btn-qr" type="button" (click)="downloadQRCode()">
       <i class="fas fa-qrcode"></i>
       Download QR Code

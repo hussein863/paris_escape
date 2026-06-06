@@ -1,0 +1,41 @@
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+
+export const authGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isLoggedIn()) return true;
+
+  router.navigate(['/landing']);
+  return false;
+};
+
+export const guideGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isGuide() || auth.isAdmin()) return true;
+
+  router.navigate(['/client/home']);
+  return false;
+};
+
+// Prevents guides/admins from accessing client routes — redirects them to their dashboard
+export const clientGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (!auth.isLoggedIn()) {
+    router.navigate(['/landing']);
+    return false;
+  }
+
+  if (auth.isGuide() || auth.isAdmin()) {
+    router.navigate(['/admin/dashboard']);
+    return false;
+  }
+
+  return true;
+};

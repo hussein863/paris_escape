@@ -198,3 +198,36 @@
     border-color: #d1d5db;
   }
 }
+
+.guide-reply {
+  margin-top: 1rem;
+  background: #f0f9ff;
+  border-left: 3px solid #0ea5e9;
+  border-radius: 0 8px 8px 0;
+  padding: 0.875rem 1rem;
+
+  .reply-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0369a1;
+    margin-bottom: 0.5rem;
+
+    i { font-size: 12px; }
+
+    .reply-date {
+      margin-left: auto;
+      font-weight: 400;
+      color: #6b7280;
+    }
+  }
+
+  .reply-content {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0;
+  }
+}

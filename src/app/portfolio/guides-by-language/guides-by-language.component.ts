@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { CardPersonComponent, Guide } from '../component/card-person/card-person.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-guides-by-language',
@@ -9,49 +12,34 @@ import { CardPersonComponent, Guide } from '../component/card-person/card-person
   templateUrl: './guides-by-language.component.html',
   styleUrl: './guides-by-language.component.scss'
 })
-export class GuidesByLanguageComponent {
+export class GuidesByLanguageComponent implements OnInit {
   languages = ['English', 'French', 'Spanish', 'Arabic'];
   selectedLanguage = 'English';
+  allGuides: Guide[] = [];
+  loading = true;
 
-  guides: Guide[] = [
-    {
-      id: 1,
-      name: 'Sophie Martin',
-      specialty: 'Art History Expert',
-      rating: 4.9,
-      photo: '/assets/images/avatar/sophie.png',
-      languages: ['English', 'French']
-    },
-    {
-      id: 2,
-      name: 'James Wilson',
-      specialty: 'Food & Culture',
-      rating: 4.8,
-      photo: '/assets/images/avatar/james.png',
-      languages: ['English']
-    },
-    {
-      id: 3,
-      name: 'Emma Thompson',
-      specialty: 'Photography Tours',
-      rating: 5.0,
-      photo: '/assets/images/avatar/emma.png',
-      languages: ['English', 'Spanish']
-    },
-    {
-      id: 4,
-      name: 'Michael Chen',
-      specialty: 'Hidden Gems',
-      rating: 4.9,
-      photo: '/assets/images/avatar/michael.png',
-      languages: ['English', 'French']
-    }
-  ];
+  constructor(private http: HttpClient, private router: Router) {}
+
+  ngOnInit(): void {
+    this.http.get<{ results: any[] }>(`${environment.apiUrl}/users/guides/`).subscribe({
+      next: (res) => {
+        this.allGuides = res.results.map(g => ({
+          id: g.id,
+          name: g.user?.name ?? `Guide #${g.id}`,
+          specialty: (g.specialties ?? []).map((s: any) => s.name).join(', ') || 'Paris Expert',
+          rating: parseFloat(g.rating ?? 0),
+          photo: g.user?.avatar_url ?? g.user?.avatar ?? 'assets/images/avatar/sophie.png',
+          languages: (g.languages ?? []).map((l: any) => l.name),
+        }));
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+  }
 
   get filteredGuides(): Guide[] {
-    return this.guides.filter(guide => 
-      guide.languages.includes(this.selectedLanguage)
-    );
+    if (!this.allGuides.length) return [];
+    return this.allGuides.filter(g => g.languages.includes(this.selectedLanguage));
   }
 
   selectLanguage(language: string): void {
@@ -59,6 +47,6 @@ export class GuidesByLanguageComponent {
   }
 
   onViewAllGuides(): void {
-    console.log('View all guides clicked');
+    this.router.navigate(['/landing/experience']);
   }
 }

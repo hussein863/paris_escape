@@ -2,68 +2,65 @@
   <header class="dashboard-header">
     <div>
       <h1>Dashboard</h1>
-      <p class="eyebrow">Welcome back, Marie! Here's how your experiences are performing.</p>
+      <p class="eyebrow">Welcome back, {{ guideName }}! Here's how your experiences are performing.</p>
     </div>
     <div class="actions">
-      <button class="action primary pill">
-        <i class="fas fa-plus" ></i>
+      <button class="action primary pill" routerLink="/admin/experiences/create">
+        <i class="fas fa-plus"></i>
         <span>Create Experience</span>
       </button>
-      <button class="action ghost pill">
-        <i class="fas fa-reply" style="color:rgba(55, 65, 81, 1);"></i>
+      <button class="action ghost pill" routerLink="/admin/messages">
+        <i class="fas fa-reply" style="color:rgba(55,65,81,1)"></i>
         <span>Respond to Messages</span>
       </button>
-      <button class="action ghost pill">
-        <i class="fas fa-user-edit"  style="color:rgba(55, 65, 81, 1);"></i>
+      <button class="action ghost pill" routerLink="/admin/profile">
+        <i class="fas fa-user-edit" style="color:rgba(55,65,81,1)"></i>
         <span>Edit Profile</span>
       </button>
     </div>
   </header>
 
+  <!-- ── Stat cards ── -->
   <div class="stats-row">
     <article class="stat-card">
       <div class="stat-head">
-      <div class="stat-icon">
-        <i class="fas fa-eye"></i>
-      </div>
-        <span class="stat-change positive">+12%</span>
+        <div class="stat-icon"><i class="fas fa-eye"></i></div>
+        <span class="stat-change positive" *ngIf="profileViews > 0">
+          {{ profileViews }} total
+        </span>
       </div>
       <div class="stat-body">
         <div class="stat-top">
-          <span class="stat-value">847</span>
+          <span class="stat-value">{{ profileViews }}</span>
         </div>
-        <p class="stat-label">Profile views this week</p>
+        <p class="stat-label">Experience views (all time)</p>
       </div>
     </article>
 
     <article class="stat-card">
       <div class="stat-head">
-        <div class="stat-icon">
-          <i class="fas fa-envelope"></i>
-        </div>
-        <span class="stat-progress">23/50</span>
+        <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+        <span class="stat-progress">{{ contactsUsed }}/{{ contactsTotal }}</span>
       </div>
       <div class="stat-body">
         <div class="stat-top">
-          <span class="stat-value">23</span>
+          <span class="stat-value">{{ contactsUsed }}</span>
         </div>
-        <p class="stat-label">Contacts received this week</p>
+        <p class="stat-label">Contacts received this cycle</p>
       </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 46%"></div>
-        </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="contactProgress"></div>
+      </div>
     </article>
 
     <article class="stat-card">
       <div class="stat-head">
-        <div class="stat-icon">
-          <i class="fas fa-calendar-check"></i>
-        </div>
-        <span class="stat-change positive">+8%</span>
+        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+        <span class="stat-change positive" *ngIf="reservationsThisMonth > 0">this month</span>
       </div>
       <div class="stat-body">
         <div class="stat-top">
-          <span class="stat-value">34</span>
+          <span class="stat-value">{{ reservationsThisMonth }}</span>
         </div>
         <p class="stat-label">Reservations this month</p>
       </div>
@@ -71,119 +68,118 @@
 
     <article class="stat-card">
       <div class="stat-head">
-        <div class="stat-icon">
-          <i class="fas fa-star"></i>
-        </div>
-        <span class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+        <div class="stat-icon"><i class="fas fa-star"></i></div>
+        <span class="stars">
+          <i class="fas fa-star" *ngFor="let s of ratingStars"
+             [style.color]="isStarFilled(s) ? '#facc15' : '#e5e7eb'"></i>
+        </span>
       </div>
       <div class="stat-body">
         <div class="stat-top">
-          <span class="stat-value rating">4.9</span>
+          <span class="stat-value rating">{{ avgRating > 0 ? avgRating.toFixed(1) : '—' }}</span>
         </div>
-        <p class="stat-label">Average rating (127 reviews)</p>
+        <p class="stat-label">Average rating ({{ reviewCount }} reviews)</p>
       </div>
     </article>
   </div>
 
+  <!-- ── Panels row ── -->
   <div class="panels">
+
+    <!-- Business Funnel -->
     <article class="panel">
       <header class="panel-header">
         <p class="panel-title">Business Funnel</p>
-        <a href="#" class="panel-link" style="color: rgba(75, 85, 99, 1); font-weight: 400; font-size: 14px;">View detailed analytics</a>
+        <a routerLink="/admin/reservations" class="panel-link" style="color:rgba(75,85,99,1);font-size:14px;">View reservations</a>
       </header>
       <dl class="funnel-list">
         <div class="funnel-row">
           <dt>Profile Views</dt>
           <dd>
-            <span class="funnel-value">847</span>
+            <span class="funnel-value">{{ funnelViews }}</span>
             <span class="funnel-change positive">100%</span>
           </dd>
         </div>
         <div class="funnel-row">
           <dt>Contacts</dt>
           <dd>
-            <span class="funnel-value">23</span>
-            <span class="funnel-change positive">2.7% <i class="fas fa-arrow-up"></i></span>
+            <span class="funnel-value">{{ funnelContacts }}</span>
+            <span class="funnel-change positive">{{ funnelContactRate }} <i class="fas fa-arrow-up"></i></span>
           </dd>
         </div>
         <div class="funnel-row">
           <dt>Bookings</dt>
           <dd>
-            <span class="funnel-value">18</span>
-            <span class="funnel-change positive">78% <i class="fas fa-arrow-up"></i></span>
+            <span class="funnel-value">{{ funnelBookings }}</span>
+            <span class="funnel-change positive">{{ funnelBookingRate }} <i class="fas fa-arrow-up"></i></span>
           </dd>
         </div>
         <div class="funnel-row">
           <dt>Completed</dt>
           <dd>
-            <span class="funnel-value">16</span>
-            <span class="funnel-change positive">89%</span>
+            <span class="funnel-value">{{ funnelCompleted }}</span>
+            <span class="funnel-change positive">{{ funnelCompletionRate }}</span>
           </dd>
         </div>
       </dl>
     </article>
 
+    <!-- Messages -->
     <article class="panel">
       <header class="panel-header">
         <p class="panel-title">Messages</p>
         <div class="message-header-actions">
-          <span class="badge">3 unread</span>
-          <a href="#" class="panel-link">Unread</a>
+          <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }} unread</span>
+          <a routerLink="/admin/messages" class="panel-link">View all</a>
         </div>
       </header>
-      <div class="messages">
-        <div class="message" style=" background-color: #f9fafb;">
-          <img class="avatar" src="/assets/images/f578f9c2a181ef669150341163e63e6e9da01878.jpg" alt="Sophie Martin">
+
+      <div class="messages" *ngIf="recentConversations.length > 0">
+        <div class="message" *ngFor="let c of recentConversations"
+             [style.background-color]="c.unread_count > 0 ? '#f9fafb' : 'transparent'">
+          <div class="avatar-initials">{{ (c.customer_name || c.guide_name || '?').charAt(0).toUpperCase() }}</div>
           <div>
-            <p class="message-name">Sophie Martin</p>
-            <p class="message-text">Bonjour, je souhaiterais réserver...</p>
+            <p class="message-name">{{ c.customer_name || c.guide_name || 'User #' + c.customer }}</p>
+            <p class="message-text">{{ c.last_message || 'No messages yet' }}</p>
           </div>
-          <span class="message-time">2m</span>
-        </div>
-        <div class="message">
-          <img class="avatar" src="/assets/images/1d5ad8aaf12fd61a75197f707f6ef40c7edd6e1f.jpg" alt="James Wilson">
-          <div>
-            <p class="message-name">James Wilson</p>
-            <p class="message-text">Thank you for the wonderful tour!</p>
-          </div>
-          <span class="message-time">1h</span>
+          <span class="message-time">{{ c.last_message_at | date:'shortTime' }}</span>
         </div>
       </div>
-      <button class="action soft full">Open Inbox</button>
+
+      <div class="empty-panel" *ngIf="recentConversations.length === 0">
+        <i class="fas fa-envelope-open-text"></i>
+        <p>No messages yet</p>
+      </div>
+
+      <button class="action soft full" routerLink="/admin/messages">Open Inbox</button>
     </article>
 
+    <!-- Upcoming schedule -->
     <article class="panel">
       <header class="panel-header">
         <p class="panel-title">Calendar</p>
-        <span class="panel-link synced">Synced with Google</span>
+        <a routerLink="/admin/reservations" class="panel-link synced">View all</a>
       </header>
-      <ul class="schedule">
-        <li class="schedule-item">
-          <span class="schedule-bullet" style="background-color: black;"></span>
+
+      <ul class="schedule" *ngIf="upcomingBookings.length > 0">
+        <li class="schedule-item" *ngFor="let b of upcomingBookings; let i = index">
+          <span class="schedule-bullet" [style.background-color]="i === 0 ? '#0b0b0b' : '#d1d5db'"></span>
           <div>
-            <p class="schedule-title">Montmartre Walking Tour</p>
-            <p class="schedule-time">Today, 14:00</p>
-          </div>
-        </li>
-        <li class="schedule-item">
-          <span class="schedule-bullet"></span>
-          <div>
-            <p class="schedule-title">Seine River Photography</p>
-            <p class="schedule-time">Tomorrow, 10:00</p>
-          </div>
-        </li>
-        <li class="schedule-item">
-          <span class="schedule-bullet"></span>
-          <div>
-            <p class="schedule-title">Latin Quarter Food Tour</p>
-            <p class="schedule-time">Dec 15, 18:00</p>
+            <p class="schedule-title">Booking #{{ b.booking_ref }}</p>
+            <p class="schedule-time">{{ formatBookingDate(b.date, b.time) }}</p>
           </div>
         </li>
       </ul>
+
+      <div class="empty-panel" *ngIf="upcomingBookings.length === 0">
+        <i class="fas fa-calendar"></i>
+        <p>No upcoming bookings</p>
+      </div>
+
       <div class="calendar-actions">
-        <button class="action ghost">Manage Calendar</button>
-        <button class="action ghost">Block Days</button>
+        <button class="action ghost" routerLink="/admin/reservations">Manage Calendar</button>
       </div>
     </article>
+
   </div>
 </section>

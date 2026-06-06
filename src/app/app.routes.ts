@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import { authGuard, guideGuard, clientGuard } from './core/guards/auth.guard';
+import { LoginComponent } from './auth/login/login.component';
+import { RegisterComponent } from './auth/register/register.component';
 
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
 import { ReservationsComponent } from './admin/reservations/reservations.component';
@@ -33,8 +36,16 @@ import { SystemComponent } from './super-admin/system/system.component';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/admin/dashboard',
+    redirectTo: '/landing',
     pathMatch: 'full'
+  },
+  {
+    path: 'auth/login',
+    component: LoginComponent
+  },
+  {
+    path: 'auth/register',
+    component: RegisterComponent
   },
 
   /* ================= CLIENT ================= */
@@ -58,7 +69,7 @@ export const routes: Routes = [
         component: CheckoutComponent
       },
       {
-        path: 'profil',
+        path: 'profil/:id',
         component: GuideProfileComponent
       }
     ]
@@ -68,6 +79,7 @@ export const routes: Routes = [
   {
     path: 'client',
     component: ClientLayoutComponent,
+    canActivate: [clientGuard],
     children: [
       {
         path: '',
@@ -104,6 +116,7 @@ export const routes: Routes = [
   /* ================= ADMIN ================= */
   {
     path: 'admin',
+    canActivate: [authGuard, guideGuard],
     children: [
       {
         path: '',
@@ -161,6 +174,7 @@ export const routes: Routes = [
   {
     path: 'super-admin',
     component: SuperAdminComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: '',

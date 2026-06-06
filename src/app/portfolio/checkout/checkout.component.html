@@ -42,30 +42,33 @@
         </div>
 
         <!-- Your Experience -->
-        <section class="checkout-card">
+        <section class="checkout-card" *ngIf="experience">
           <h2 class="card-title">Your Experience</h2>
           <div class="experience-info">
-            <img [src]="experienceImage" [alt]="experienceTitle" class="experience-image">
+            <img [src]="experience.image || 'assets/images/card_image/louvre.png'" [alt]="experience.title" class="experience-image">
             <div class="experience-details">
-              <h3>{{ experienceTitle }}</h3>
-              <div class="detail-row">
+              <h3>{{ experience.title }}</h3>
+              <div class="detail-row" *ngIf="selectedDate">
                 <i class="far fa-calendar"></i>
-                <span>{{ experienceDate }}</span>
+                <span>{{ selectedDate | date:'fullDate' }}</span>
               </div>
-              <div class="detail-row">
+              <div class="detail-row" *ngIf="selectedTime">
                 <i class="far fa-clock"></i>
-                <span>{{ experienceTime }}</span>
+                <span>{{ selectedTime }} — {{ experience.duration_value }} {{ experience.duration_unit }}</span>
               </div>
               <div class="detail-row">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>{{ experienceLocation }}</span>
+                <i class="fas fa-users"></i>
+                <span>{{ adultsCount }} adult(s)</span>
               </div>
               <div class="detail-row">
                 <i class="fas fa-language"></i>
-                <span>{{ experienceLanguages }}</span>
+                <span>{{ experience.languages?.join(', ') }}</span>
               </div>
             </div>
           </div>
+        </section>
+        <section class="checkout-card" *ngIf="loading">
+          <p>Loading experience…</p>
         </section>
 
         <!-- Guests -->
@@ -81,24 +84,6 @@
           </div>
         </section>
 
-        <!-- Selected Add-ons -->
-        <section class="checkout-card" *ngIf="selectedAddons.length > 0">
-          <h2 class="card-title">Selected Add-ons</h2>
-          <div class="addons-list">
-            <div class="addon-item" *ngFor="let addon of selectedAddons">
-              <div class="addon-info">
-                <h4>{{ addon.name }}</h4>
-                <p>{{ addon.description }}</p>
-              </div>
-              <div class="addon-price">
-                <span>€{{ addon.price }} × {{ addon.quantity }}</span>
-                <button class="btn-remove-addon" (click)="removeAddon(addon.id)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <!-- Traveler Details -->
         <section class="checkout-card">
@@ -192,10 +177,34 @@
           </div>
         </section>
 
+        <!-- Validation / booking errors -->
+        <div *ngIf="bookingError" style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;color:#dc2626;font-size:13px;margin-bottom:12px;">
+          <i class="fas fa-exclamation-circle"></i> {{ bookingError }}
+        </div>
+        <div *ngIf="validationErrors['terms']" style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;color:#dc2626;font-size:13px;margin-bottom:12px;">
+          <i class="fas fa-exclamation-circle"></i> {{ validationErrors['terms'] }}
+        </div>
+        <div *ngIf="(validationErrors | keyvalue).length > 0 && !validationErrors['terms']" style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;color:#dc2626;font-size:13px;margin-bottom:12px;">
+          <i class="fas fa-exclamation-circle"></i> Please fill in all required fields before continuing.
+        </div>
+
         <!-- Continue Button -->
-        <button class="btn-continue" (click)="continueToPayment()">
-          Continue to Payment
+        <button class="btn-continue" (click)="continueToPayment()" [disabled]="submitting || loading">
+          {{ submitting ? 'Confirming booking…' : 'Confirm & Pay' }}
         </button>
+
+        <!-- Step 3 Confirmation -->
+        <section class="checkout-card" *ngIf="currentStep === 3" style="margin-top:24px;text-align:center;padding:40px 32px;">
+          <div style="font-size:48px;margin-bottom:16px;">🎉</div>
+          <h2 style="color:#16a34a;font-size:24px;margin:0 0 8px;">Booking Confirmed!</h2>
+          <p style="color:#6b7280;font-size:15px;margin:0 0 20px;">Your experience has been booked. Check your email for details.</p>
+          <div *ngIf="bookingRef" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 20px;margin-bottom:24px;display:inline-block;">
+            <span style="font-size:13px;color:#6b7280;">Booking reference</span><br>
+            <span style="font-size:20px;font-weight:700;color:#0b0b0b;letter-spacing:1px;">{{ bookingRef }}</span>
+          </div>
+          <br>
+          <button class="btn-continue" (click)="goToReservations()" style="display:inline-block">View My Reservations</button>
+        </section>
       </div>
 
       <!-- Right Column - Order Summary -->
@@ -205,19 +214,11 @@
 
           <div class="summary-items">
             <div class="summary-item">
-              <span>Base tour ({{ adultsCount }} adults)</span>
-              <span>€{{ baseTourTotal }}</span>
-            </div>
-            <div class="summary-item" *ngIf="privateUpgradeTotal > 0">
-              <span>Private upgrade</span>
-              <span>€{{ privateUpgradeTotal }}</span>
-            </div>
-            <div class="summary-item" *ngIf="photographyTotal > 0">
-              <span>Photography session</span>
-              <span>€{{ photographyTotal }}</span>
+              <span>{{ experience?.title || 'Experience' }} × {{ adultsCount }}</span>
+              <span>€{{ baseTotal.toFixed(2) }}</span>
             </div>
             <div class="summary-item">
-              <span>Service fee</span>
+              <span>Service fee (10%)</span>
               <span>€{{ serviceFee }}</span>
             </div>
             <div class="summary-item">

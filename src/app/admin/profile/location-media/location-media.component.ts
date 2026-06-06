@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GuideProfileService } from '../../../core/services/guide-profile.service';
 
-interface MeetingPoint {
+interface MeetingPointRow {
+  id: number | null;
   name: string;
   address: string;
-  isDefault: boolean;
+  is_default: boolean;
 }
 
 @Component({
@@ -15,58 +17,143 @@ interface MeetingPoint {
   templateUrl: './location-media.component.html',
   styleUrl: './location-media.component.scss',
 })
-export class LocationMediaComponent {
+export class LocationMediaComponent implements OnInit {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   baseCity = 'Paris';
-  neighborhood = 'Montmartre';
+  neighborhood = '';
 
-  meetingPoints: MeetingPoint[] = [
-    { name: 'Place du Tertre', address: '18 Rue Norvins, 75018 Paris', isDefault: true },
-    { name: 'Sacré-Cœur Entrance', address: '35 Rue du Chevalier de la Barre, 75018 Paris', isDefault: false }
-  ];
+  meetingPoints: MeetingPointRow[] = [];
+  showAddMeetingPoint = false;
+  newMpName = '';
+  newMpAddress = '';
 
-  coverImage = 'assets/images/acc846deee9f5e03d93d334df1ff7680d3724f17.png';
-  photoGallery = [
-    'assets/images/a2b88efd245e430fc327bf8e5601ffb8ad58b27a.png',
-    'assets/images/f8b015aeb0f947d995c74cf52ecdc285c341ef38.png',
-    'assets/images/1acd1ea07c30012f7c10b9241ad1b66feb662a06.png'
-  ];
+  coverImageUrl: string | null = null;
+  galleryPhotos: { id: number; image_url: string; ordering: number }[] = [];
 
-  addMeetingPoint() {
-    this.meetingPoints.push({ name: '', address: '', isDefault: false });
-  }
+  locationSaving = false;
+  locationSuccess = false;
+  locationError = '';
 
-  removeMeetingPoint(index: number) {
-    this.meetingPoints.splice(index, 1);
-  }
+  coverUploading = false;
+  galleryUploading = false;
 
-  setDefaultMeetingPoint(index: number) {
-    this.meetingPoints.forEach((point, i) => {
-      point.isDefault = i === index;
+  constructor(private guideService: GuideProfileService) {}
+
+  ngOnInit(): void {
+    this.guideService.profile$.subscribe(p => {
+      if (!p) return;
+      this.baseCity = p.base_city;
+      this.neighborhood = p.neighborhood;
+      this.coverImageUrl = p.cover_image_url;
+      this.meetingPoints = p.meeting_points.map(mp => ({ ...mp }));
+      this.galleryPhotos = [...p.gallery_photos];
     });
   }
 
-  updateLocation() {
-    // Open map modal
-    alert('Map modal would open here');
+  saveLocation(): void {
+    this.locationSaving = true;
+    this.locationSuccess = false;
+    this.locationError = '';
+    this.guideService.patch({ base_city: this.baseCity, neighborhood: this.neighborhood }).subscribe({
+      next: () => {
+        this.locationSaving = false;
+        this.locationSuccess = true;
+        setTimeout(() => (this.locationSuccess = false), 3000);
+      },
+      error: (err) => {
+        this.locationSaving = false;
+        this.locationError = err?.error?.detail ?? 'Save failed.';
+      },
+    });
   }
 
-  uploadCover() {
-    alert('File upload would trigger here');
+  // Cover image
+  triggerCoverUpload(): void {
+    if (!this.isBrowser) return;
+    (document.getElementById('coverUpload') as HTMLInputElement)?.click();
   }
 
-  addPhotos() {
-    alert('File upload would trigger here');
+  onCoverSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.coverUploading = true;
+    this.guideService.uploadCover(file).subscribe({
+      next: (p) => {
+        this.coverImageUrl = p.cover_image_url;
+        this.coverUploading = false;
+      },
+      error: () => { this.coverUploading = false; },
+    });
   }
 
-  removePhoto(index: number) {
-    this.photoGallery.splice(index, 1);
+  // Gallery
+  triggerGalleryUpload(): void {
+    if (!this.isBrowser) return;
+    (document.getElementById('galleryUpload') as HTMLInputElement)?.click();
   }
 
-  uploadVideo() {
-    alert('File upload would trigger here');
+  onGallerySelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.galleryUploading = true;
+    this.guideService.uploadGalleryPhoto(file).subscribe({
+      next: (photo) => {
+        this.galleryPhotos.push(photo);
+        this.galleryUploading = false;
+        this.guideService.load().subscribe();
+      },
+      error: () => { this.galleryUploading = false; },
+    });
   }
 
-  downloadQRCode() {
-    alert('QR code download would trigger here');
+  removePhoto(photo: { id: number; image_url: string; ordering: number }, index: number): void {
+    this.guideService.deleteGalleryPhoto(photo.id).subscribe(() => {
+      this.galleryPhotos.splice(index, 1);
+      this.guideService.load().subscribe();
+    });
+  }
+
+  // Meeting points
+  startAddMeetingPoint(): void {
+    this.showAddMeetingPoint = true;
+    this.newMpName = '';
+    this.newMpAddress = '';
+  }
+
+  confirmAddMeetingPoint(): void {
+    if (!this.newMpName.trim()) {
+      this.showAddMeetingPoint = false;
+      return;
+    }
+    this.guideService.addMeetingPoint({
+      name: this.newMpName.trim(),
+      address: this.newMpAddress.trim(),
+      is_default: this.meetingPoints.length === 0,
+    }).subscribe(mp => {
+      this.meetingPoints.push(mp);
+      this.showAddMeetingPoint = false;
+      this.guideService.load().subscribe();
+    });
+  }
+
+  setDefaultMeetingPoint(mp: MeetingPointRow): void {
+    if (!mp.id) return;
+    this.guideService.setDefaultMeetingPoint(mp.id).subscribe(() => {
+      this.meetingPoints.forEach(p => (p.is_default = p.id === mp.id));
+      this.guideService.load().subscribe();
+    });
+  }
+
+  removeMeetingPoint(mp: MeetingPointRow, index: number): void {
+    if (!mp.id) { this.meetingPoints.splice(index, 1); return; }
+    this.guideService.deleteMeetingPoint(mp.id).subscribe(() => {
+      this.meetingPoints.splice(index, 1);
+      this.guideService.load().subscribe();
+    });
+  }
+
+  downloadQRCode(): void {
+    // QR code download — placeholder for future implementation
   }
 }

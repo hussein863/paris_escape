@@ -2,7 +2,6 @@
     display: flex;
     min-height: 600px;
     background: #ffffff;
-    // max-width: 1440px;
     margin: 0 auto;
     padding: 20px 64px;
     gap: 50px;
@@ -12,5 +11,73 @@
     @media (max-width: 1024px) {
         flex-direction: column;
         padding: 20px;
+        gap: 0;
+    }
+
+    @media (max-width: 768px) {
+        padding: 16px;
+    }
+}
+
+// Mobile filter drawer
+.mobile-filter-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+
+    @media (max-width: 1024px) {
+        display: block;
+    }
+}
+
+.mobile-filter-drawer {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    z-index: 201;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+
+    &.open {
+        transform: translateY(0);
+    }
+
+    .drawer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #e5e7eb;
+        font-weight: 600;
+        font-size: 16px;
+        position: sticky;
+        top: 0;
+        background: white;
+
+        button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #6b7280;
+            padding: 4px;
+        }
+    }
+
+    app-filters-sidebar {
+        display: block;
+        padding: 0;
+    }
+
+    @media (max-width: 1024px) {
+        display: block;
     }
 }

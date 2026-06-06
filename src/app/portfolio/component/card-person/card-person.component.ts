@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 export interface Guide {
   id: number;
@@ -13,7 +14,7 @@ export interface Guide {
 @Component({
   selector: 'app-card-person',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './card-person.component.html',
   styleUrl: './card-person.component.scss'
 })

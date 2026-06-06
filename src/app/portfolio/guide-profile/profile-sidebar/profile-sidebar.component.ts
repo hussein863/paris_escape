@@ -1,7 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Guide } from '../guide-profile.component';
+import { MessagingService } from '../../../core/services/messaging.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface CalendarDay {
   day: number | null;
@@ -18,6 +21,8 @@ interface CalendarDay {
 })
 export class ProfileSidebarComponent implements OnInit {
   @Input() guide!: Guide;
+  @Input() guideId: number | null = null;
+  messageSending = false;
   
   currentMonth = 'January 2026';
   weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -29,6 +34,12 @@ export class ProfileSidebarComponent implements OnInit {
     message: '',
     preferredDate: ''
   };
+
+  constructor(
+    private router: Router,
+    private messagingService: MessagingService,
+    private auth: AuthService,
+  ) {}
 
   ngOnInit(): void {
     this.generateCalendar();
@@ -63,6 +74,19 @@ export class ProfileSidebarComponent implements OnInit {
   }
 
   submitContact(): void {
-    console.log('Contact form submitted:', this.contactForm);
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    const id = this.guideId;
+    if (!id) return;
+    this.messageSending = true;
+    this.messagingService.startConversation(id).subscribe({
+      next: (conv) => {
+        this.messageSending = false;
+        this.router.navigate(['/client/messages'], { queryParams: { conversationId: conv.id } });
+      },
+      error: () => { this.messageSending = false; }
+    });
   }
 }

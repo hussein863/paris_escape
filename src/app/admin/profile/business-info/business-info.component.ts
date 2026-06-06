@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GuideProfileService } from '../../../core/services/guide-profile.service';
 
 @Component({
   selector: 'app-business-info',
@@ -9,12 +10,56 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './business-info.component.html',
   styleUrl: './business-info.component.scss',
 })
-export class BusinessInfoComponent {
+export class BusinessInfoComponent implements OnInit {
   companyName = '';
   siret = '';
-  vatNumber = 'FR12345678901';
-  publicEmail = 'marie@example.com';
-  showEmailOnProfile = true;
-  publicPhone = '+33 6 12 34 56 78';
+  vatNumber = '';
+  publicEmail = '';
+  showEmailOnProfile = false;
+  publicPhone = '';
   showPhoneOnProfile = false;
+
+  saving = false;
+  saveSuccess = false;
+  saveError = '';
+
+  constructor(private guideService: GuideProfileService) {}
+
+  ngOnInit(): void {
+    this.guideService.profile$.subscribe(p => {
+      if (!p) return;
+      this.companyName = p.company_name;
+      this.siret = p.siret;
+      this.vatNumber = p.vat_number;
+      this.publicEmail = p.public_email;
+      this.showEmailOnProfile = p.show_email_on_profile;
+      this.publicPhone = p.public_phone;
+      this.showPhoneOnProfile = p.show_phone_on_profile;
+    });
+  }
+
+  save(): void {
+    this.saving = true;
+    this.saveSuccess = false;
+    this.saveError = '';
+    this.guideService.patch({
+      company_name: this.companyName,
+      siret: this.siret,
+      vat_number: this.vatNumber,
+      public_email: this.publicEmail,
+      show_email_on_profile: this.showEmailOnProfile,
+      public_phone: this.publicPhone,
+      show_phone_on_profile: this.showPhoneOnProfile,
+    }).subscribe({
+      next: () => {
+        this.saving = false;
+        this.saveSuccess = true;
+        setTimeout(() => (this.saveSuccess = false), 3000);
+      },
+      error: (err) => {
+        this.saving = false;
+        this.saveError = err?.error?.detail ?? 'Save failed.';
+      },
+    });
+  }
 }

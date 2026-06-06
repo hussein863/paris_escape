@@ -1,3 +1,5 @@
+<app-admin-header></app-admin-header>
+
 <div class="app-shell" [class.sidebar-open]="isSidebarOpen">
   <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
     <span></span>
@@ -21,20 +23,28 @@
             <i class="fa-solid fa-arrow-left"></i>
             Back
           </button>
-          <button class="btn-secondary" (click)="saveDraft()">
+          <button class="btn-secondary" (click)="saveDraft()" [disabled]="saving">
             <i class="fa-regular fa-floppy-disk"></i>
-            Save Draft
+            {{ saving ? 'Saving...' : 'Save Draft' }}
           </button>
-          <button class="btn-primary" *ngIf="currentStep < totalSteps" (click)="nextStep()">
-            Continue
-            <i class="fa-solid fa-arrow-right"></i>
+          <button class="btn-primary" *ngIf="currentStep < totalSteps" (click)="nextStep()" [disabled]="saving">
+            {{ saving ? 'Saving...' : 'Continue' }}
+            <i class="fa-solid fa-arrow-right" *ngIf="!saving"></i>
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="saving"></i>
           </button>
-          <button class="btn-primary" *ngIf="currentStep === totalSteps" (click)="publish()">
-            <i class="fa-solid fa-rocket"></i>
-            Publish
+          <button class="btn-primary" *ngIf="currentStep === totalSteps" (click)="publish()" [disabled]="saving">
+            <i class="fa-solid fa-rocket" *ngIf="!saving"></i>
+            <i class="fa-solid fa-spinner fa-spin" *ngIf="saving"></i>
+            {{ saving ? 'Publishing...' : 'Publish' }}
           </button>
         </div>
       </header>
+
+      <!-- Save Error -->
+      <div class="save-error-banner" *ngIf="saveError">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ saveError }}
+      </div>
 
       <!-- Stepper -->
       <div class="stepper">
@@ -54,12 +64,12 @@
 
       <!-- Step Content -->
       <div class="step-content">
-        <!-- Step 1: Media -->
+        <!-- Step 1: Basics -->
         <div class="step-panel" *ngIf="currentStep === 1">
           <app-step-basics></app-step-basics>
         </div>
 
-        <!-- Step 2: Basics -->
+        <!-- Step 2: Media -->
         <div class="step-panel" *ngIf="currentStep === 2">
           <app-step-media></app-step-media>
         </div>
@@ -67,7 +77,6 @@
         <!-- Step 3: Pricing -->
         <div class="step-panel" *ngIf="currentStep === 3">
           <app-step-pricing></app-step-pricing>
-          <!-- Add pricing form here -->
         </div>
 
         <!-- Step 4: Options and Add-ons -->
@@ -83,18 +92,16 @@
         <!-- Step 6: Inclusions -->
         <div class="step-panel" *ngIf="currentStep === 6">
           <app-step-inclusions></app-step-inclusions>
-          <!-- Add inclusions form here -->
         </div>
 
         <!-- Step 7: Policies -->
         <div class="step-panel" *ngIf="currentStep === 7">
           <app-step-policies></app-step-policies>
-          <!-- Add policies form here -->
         </div>
 
         <!-- Step 8: Preview -->
         <div class="step-panel" *ngIf="currentStep === 8">
-          <app-step-preview></app-step-preview>
+          <app-step-preview [experienceId]="experienceId"></app-step-preview>
         </div>
       </div>
     </section>

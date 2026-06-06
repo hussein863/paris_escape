@@ -400,3 +400,97 @@
     height: 160px;
   }
 }
+
+// Review Modal
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h3 { font-size: 20px; font-weight: 700; color: #111; margin: 0; }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 18px;
+      &:hover { color: #111; }
+    }
+  }
+
+  .modal-exp-title {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 1.25rem;
+  }
+
+  .star-picker {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+
+    .star-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 28px;
+      color: #d1d5db;
+      transition: color 0.15s;
+      padding: 0;
+
+      &.filled { color: #f59e0b; }
+      &:hover { color: #f59e0b; }
+    }
+  }
+
+  .review-textarea {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.875rem;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus { border-color: #3b82f6; }
+  }
+
+  .modal-error {
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 0.5rem;
+  }
+
+  .modal-submit {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 15px;
+    font-weight: 600;
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+}

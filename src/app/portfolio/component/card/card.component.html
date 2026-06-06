@@ -1,4 +1,4 @@
-<div class="card" *ngIf="experience">
+<a class="card" *ngIf="experience" [routerLink]="['/landing/experience', experience.id]" style="text-decoration:none;color:inherit;display:block">
   <div class="card-image-wrapper">
     <img [src]="experience.image" [alt]="experience.title" class="card-image">
   </div>
@@ -12,4 +12,4 @@
       <span class="rating-value">{{ experience.rating.toFixed(1) }}</span>
     </div>
   </div>
-</div>
+</a>

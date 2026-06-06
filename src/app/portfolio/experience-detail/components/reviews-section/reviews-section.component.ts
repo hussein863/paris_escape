@@ -7,6 +7,7 @@ interface Review {
   rating: number;
   date: string;
   comment: string;
+  reply?: { content: string; date: string } | null;
 }
 
 @Component({

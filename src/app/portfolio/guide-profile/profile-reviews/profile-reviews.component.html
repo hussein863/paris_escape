@@ -53,6 +53,16 @@
           </div>
           <span class="tour-name">{{ review.tourName }}</span>
           <p class="review-content">{{ review.content }}</p>
+
+          <!-- Guide reply -->
+          <div class="guide-reply" *ngIf="review.reply">
+            <div class="reply-header">
+              <i class="fas fa-reply"></i>
+              <span>Guide's response</span>
+              <span class="reply-date">{{ review.reply.date | date:'MMM yyyy' }}</span>
+            </div>
+            <p class="reply-content">{{ review.reply.content }}</p>
+          </div>
         </div>
       </div>
     </div>

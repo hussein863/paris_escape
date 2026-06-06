@@ -30,27 +30,26 @@
   <div class="experiences-grid" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
     <div class="experience-card" *ngFor="let experience of experiences" (click)="goToExperience(experience.id)">
       <div class="card-image-wrapper">
-        <img [src]="experience.image" [alt]="experience.title" class="card-image">
-        <span *ngIf="experience.badge" class="badge">{{ experience.badge }}</span>
+        <img [src]="experience.image || 'assets/images/card_image/louvre.png'" [alt]="experience.title" class="card-image">
+        <span *ngIf="experience.status === 'Active'" class="badge">{{ experience.category }}</span>
       </div>
 
       <div class="card-content">
         <div class="card-header">
           <h3 class="card-title">{{ experience.title }}</h3>
-          <button class="favorite-btn" [class.is-favorite]="experience.isFavorite" (click)="toggleFavorite(experience)">
+          <button class="favorite-btn" [class.is-favorite]="isFavorite(experience.id)" (click)="toggleFavorite(experience); $event.stopPropagation()">
             <i class="far fa-heart"></i>
             <i class="fas fa-heart"></i>
           </button>
         </div>
-        <p class="card-meta">{{ experience.duration }} • {{ experience.category }} • {{ experience.location }}</p>
+        <p class="card-meta">{{ getDuration(experience) }} • {{ experience.category }}</p>
 
         <div class="card-footer">
           <div class="rating">
             <i class="fas fa-star"></i>
             <span class="rating-value">{{ experience.rating }}</span>
-            <span class="rating-count">({{ experience.reviewCount }})</span>
           </div>
-          <div class="price">€{{ experience.price }}</div>
+          <div class="price">€{{ experience.base_price }}</div>
         </div>
       </div>
     </div>

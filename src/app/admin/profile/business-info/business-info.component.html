@@ -3,69 +3,42 @@
 
   <div class="form-group">
     <label for="companyName">Company Name (Optional)</label>
-    <input
-      type="text"
-      id="companyName"
-      class="form-control"
-      placeholder="Your company"
-      [(ngModel)]="companyName"
-    />
+    <input type="text" id="companyName" class="form-control" placeholder="Your company" [(ngModel)]="companyName" />
   </div>
 
   <div class="form-group">
     <label for="siret">SIRET</label>
-    <input
-      type="text"
-      id="siret"
-      class="form-control"
-      placeholder="123 456 789 00012"
-      [(ngModel)]="siret"
-    />
+    <input type="text" id="siret" class="form-control" placeholder="123 456 789 00012" [(ngModel)]="siret" />
   </div>
 
   <div class="form-group">
     <label for="vatNumber">VAT Number</label>
-    <input
-      type="text"
-      id="vatNumber"
-      class="form-control"
-      [(ngModel)]="vatNumber"
-    />
+    <input type="text" id="vatNumber" class="form-control" [(ngModel)]="vatNumber" />
   </div>
 
   <div class="form-group">
     <label for="publicEmail">Public Contact Email</label>
-    <input
-      type="email"
-      id="publicEmail"
-      class="form-control"
-      [(ngModel)]="publicEmail"
-    />
+    <input type="email" id="publicEmail" class="form-control" [(ngModel)]="publicEmail" />
     <div class="form-checkbox">
-      <input
-        type="checkbox"
-        id="showEmail"
-        [(ngModel)]="showEmailOnProfile"
-      />
-      <label for="showEmail"  style="color: rgba(75, 85, 99, 1);">Show on public profile</label>
+      <input type="checkbox" id="showEmail" [(ngModel)]="showEmailOnProfile" />
+      <label for="showEmail" style="color: rgba(75, 85, 99, 1);">Show on public profile</label>
     </div>
   </div>
 
   <div class="form-group">
     <label for="publicPhone">Public Phone</label>
-    <input
-      type="tel"
-      id="publicPhone"
-      class="form-control"
-      [(ngModel)]="publicPhone"
-    />
+    <input type="tel" id="publicPhone" class="form-control" [(ngModel)]="publicPhone" />
     <div class="form-checkbox">
-      <input
-        type="checkbox"
-        id="showPhone"
-        [(ngModel)]="showPhoneOnProfile"
-      />
+      <input type="checkbox" id="showPhone" [(ngModel)]="showPhoneOnProfile" />
       <label for="showPhone" style="color: rgba(75, 85, 99, 1);">Show on public profile</label>
     </div>
+  </div>
+
+  <div class="save-row">
+    <span class="save-success" *ngIf="saveSuccess">Saved!</span>
+    <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
+    <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
+      {{ saving ? 'Saving…' : 'Save Changes' }}
+    </button>
   </div>
 </div>

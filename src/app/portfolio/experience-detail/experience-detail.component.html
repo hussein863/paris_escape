@@ -1,62 +1,83 @@
 <app-header></app-header>
 
-<div class="experience-detail-page">
+<!-- Loading skeleton -->
+<div class="page-loading" *ngIf="loading">
+  <div class="skeleton-header"></div>
+  <div class="skeleton-body"></div>
+</div>
+
+<!-- Error state -->
+<div class="page-error" *ngIf="error && !loading">
+  <i class="fas fa-exclamation-circle"></i>
+  <h2>{{ error }}</h2>
+  <p>The experience you're looking for may have been removed or is unavailable.</p>
+</div>
+
+<div class="experience-detail-page" *ngIf="!loading && !error">
   <div class="container">
     <!-- Header Section -->
-    <app-experience-header [title]="experienceData.title" [category]="experienceData.category"
-      [location]="experienceData.location" [rating]="experienceData.rating" [reviewsCount]="experienceData.reviewsCount"
-      [badges]="experienceData.badges"></app-experience-header>
+    <app-experience-header
+      [title]="experienceData.title"
+      [category]="experienceData.category"
+      [location]="experienceData.location"
+      [rating]="experienceData.rating"
+      [reviewsCount]="experienceData.reviewsCount"
+      [badges]="experienceData.badges"
+      [isFavorite]="isFavorited"
+      [favoriteLoading]="favoriteLoading"
+      (favoriteToggled)="toggleFavorite()">
+    </app-experience-header>
 
     <!-- Gallery + Sidebar Grid -->
     <div class="container-2">
-      <!-- Main Content Grid -->
       <div class="content-grid">
         <!-- Left Column -->
         <div class="main-content">
-          <!-- Gallery -->
           <app-experience-gallery [images]="galleryData.images" [duration]="galleryData.duration"
             [maxGuests]="galleryData.maxGuests"></app-experience-gallery>
-
-          <!-- Overview -->
           <app-experience-overview [description]="overviewData.description" [highlights]="overviewData.highlights"
             [whatYouWillDo]="overviewData.whatYouWillDo" [audienceTags]="overviewData.audienceTags"
             [itinerary]="overviewData.itinerary" [includedItems]="overviewData.includedItems"
             [whatToBring]="overviewData.whatToBring"></app-experience-overview>
-
-          <!-- Meeting Point -->
           <app-meeting-point [meetingPoint]="meetingPointData"></app-meeting-point>
-
-          <!-- Guide Profile -->
-          <app-guide-profile [guide]="guideData"></app-guide-profile>
-
-          <!-- Reviews -->
+          <app-guide-profile [guide]="guideData" [guideId]="guideId"></app-guide-profile>
           <app-reviews-section [reviews]="reviewsData.reviews" [averageRating]="reviewsData.averageRating"
             [totalReviews]="reviewsData.totalReviews"></app-reviews-section>
         </div>
 
-        <!-- Right Column - Booking Sidebar -->
+        <!-- Right Column - Booking Sidebar (hidden on mobile via CSS) -->
         <aside class="sidebar">
-          <app-booking-sidebar [basePrice]="85" [currency]="'€'"></app-booking-sidebar>
+          <app-booking-sidebar
+            [experienceId]="experience?.id ?? 0"
+            [basePrice]="experience?.base_price ?? 0"
+            [currency]="experience?.currency ?? 'EUR'"
+            [options]="experience?.options ?? []"
+            [availability]="experience?.availability ?? null"
+            [maxPeople]="experience?.max_people ?? 10">
+          </app-booking-sidebar>
         </aside>
       </div>
-
-      <!-- Full Width Section -->
-
     </div>
   </div>
+
+  <!-- Mobile sticky Book Now bar -->
+  <div class="mobile-book-cta">
+    <div class="mobile-price">
+      <span class="price-amount">€{{ experience?.base_price }}</span>
+      <span class="price-unit"> / person</span>
+    </div>
+    <a class="mobile-book-btn" [routerLink]="['/landing/experience', experience?.id, 'book']">
+      Book Now
+    </a>
+  </div>
+
   <div class="container-3">
     <div class="full-width-section">
-      <!-- FAQ -->
-      
       <app-faq-section [faqs]="faqData"></app-faq-section>
       <app-policies-section [policies]="policiesData"></app-policies-section>
       <app-similar-experiences [experiences]="similarExperiencesData"></app-similar-experiences>
-
     </div>
 
-    <!-- Similar Experiences -->
-
-    <!-- Footer CTA -->
     <section class="footer-cta">
       <div class="container-footer">
         <div class="cta-content">
@@ -64,8 +85,8 @@
           <p>Our support team is here to assist you</p>
         </div>
         <div class="cta-actions">
-          <button class="btn btn-secondary">Contact Support</button>
-          <button class="btn btn-primary">Become a Guide</button>
+          <a class="btn btn-secondary" routerLink="/client/settings">Contact Support</a>
+          <a class="btn btn-primary" routerLink="/auth/register">Become a Guide</a>
         </div>
       </div>
     </section>

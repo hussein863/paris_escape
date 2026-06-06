@@ -30,14 +30,15 @@
         <div class="price-input-group">
           <select [(ngModel)]="formData.currency" (change)="onDataChange()"
             class="currency-select">
-            <option>EUR (€)</option>
-            <option>USD ($)</option>
-            <option>GBP (£)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="USD">USD ($)</option>
+            <option value="GBP">GBP (£)</option>
           </select>
           <div class="price-input-wrapper">
             <span class="currency-symbol">€</span>
             <input
               type="number"
+              [(ngModel)]="formData.basePrice"
               (ngModelChange)="onDataChange()"
               placeholder="45"
               min="0"
@@ -58,6 +59,30 @@
               (change)="onDataChange()">
             <span class="slider"></span>
           </label>
+        </div>
+
+        <div *ngIf="formData.childPricingEnabled" style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:120px">
+            <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Child price (€)</label>
+            <input
+              type="number"
+              [(ngModel)]="formData.childPrice"
+              (ngModelChange)="onDataChange()"
+              min="0"
+              placeholder="20"
+              class="price-input"
+              style="width:100%">
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Age range</label>
+            <input
+              type="text"
+              [(ngModel)]="formData.childAgeRange"
+              (ngModelChange)="onDataChange()"
+              placeholder="3-12"
+              class="form-input"
+              style="width:100%">
+          </div>
         </div>
       </div>
 

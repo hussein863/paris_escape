@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 export interface TodayExperience {
   id: number;
@@ -12,7 +13,7 @@ export interface TodayExperience {
 @Component({
   selector: 'app-mini-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './mini-card.component.html',
   styleUrl: './mini-card.component.scss'
 })
