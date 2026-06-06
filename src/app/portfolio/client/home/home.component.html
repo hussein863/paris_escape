@@ -210,7 +210,7 @@
 
       <div class="experiences-grid" *ngIf="favoriteExperiences.length > 0; else noFavorites">
         <div class="experience-card" *ngFor="let exp of favoriteExperiences"
-          [routerLink]="['/landing/experience', exp.id]" style="cursor:pointer;">
+          [routerLink]="getExperienceLink(exp.id)" style="cursor:pointer;">
           <div class="experience-image">
             <img [src]="exp.image || 'assets/images/card_image/louvre.png'" [alt]="exp.title">
             <button class="favorite-btn active" (click)="$event.stopPropagation()">

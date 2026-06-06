@@ -16,22 +16,22 @@
     <h1 class="page-title" style="width: 255px;">Reservations and Calendar</h1>
 
     <div class="header-actions">
-      <button class="btn-secondary">
+      <button class="btn-secondary" (click)="openBlockDaysModal()" type="button">
        <p style="    margin-top: 2px;"> <i class="fas fa-ban"></i>
         Block Days</p>
         Off
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" (click)="openAddBookingModal()" type="button">
         <p style="    margin-top: 2px;"><i class="fas fa-plus"></i>
         Add Manual </p>
         Booking
       </button>
-      <button class="btn-secondary">
+      <button class="btn-secondary" (click)="connectCalendar()" type="button">
         <p style="    margin-top: 2px;"><i class="fa-brands fa-google"></i>
         Connect </p>
         Calendar
       </button>
-      <button class="btn-primary">
+      <button class="btn-primary" (click)="exportCSV()" type="button">
         <p style="    margin-top: 2px;"><i class="fas fa-download"></i>
         Export </p>
         CSV
@@ -226,6 +226,76 @@
 
   <div class="settings-view" *ngIf="selectedView === 'settings'">
     <p class="placeholder"></p>
+  </div>
+
+  <!-- Block Days Modal -->
+  <div class="modal-overlay" *ngIf="showBlockDaysModal" (click)="closeBlockDaysModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-ban"></i> Block Days</h2>
+        <button class="modal-close" (click)="closeBlockDaysModal()" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" [(ngModel)]="blockDaysForm.startDate" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <input type="date" [(ngModel)]="blockDaysForm.endDate" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Reason (Optional)</label>
+          <input type="text" [(ngModel)]="blockDaysForm.reason" placeholder="e.g., Personal time off" class="form-input">
+        </div>
+        <div class="feedback" *ngIf="feedbackMessage" [class.success]="feedbackType === 'success'" [class.error]="feedbackType === 'error'">
+          {{ feedbackMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeBlockDaysModal()" type="button">Cancel</button>
+        <button class="btn btn-primary" (click)="submitBlockDays()" [disabled]="actionInProgress" type="button">
+          {{ actionInProgress ? 'Blocking...' : 'Block Days' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Manual Booking Modal -->
+  <div class="modal-overlay" *ngIf="showAddBookingModal" (click)="closeAddBookingModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus"></i> Add Manual Booking</h2>
+        <button class="modal-close" (click)="closeAddBookingModal()" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Guest Name *</label>
+          <input type="text" [(ngModel)]="addBookingForm.guestName" placeholder="Enter guest name" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" [(ngModel)]="addBookingForm.date" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Time *</label>
+          <input type="time" [(ngModel)]="addBookingForm.time" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Number of Guests</label>
+          <input type="number" [(ngModel)]="addBookingForm.guests" min="1" max="20" class="form-input">
+        </div>
+        <div class="feedback" *ngIf="feedbackMessage" [class.success]="feedbackType === 'success'" [class.error]="feedbackType === 'error'">
+          {{ feedbackMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeAddBookingModal()" type="button">Cancel</button>
+        <button class="btn btn-primary" (click)="submitAddBooking()" [disabled]="actionInProgress" type="button">
+          {{ actionInProgress ? 'Adding...' : 'Add Booking' }}
+        </button>
+      </div>
+    </div>
   </div>
 </section>
   </main>

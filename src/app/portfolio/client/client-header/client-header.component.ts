@@ -1,8 +1,9 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-client-header',
@@ -11,16 +12,24 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './client-header.component.html',
   styleUrl: './client-header.component.scss'
 })
-export class ClientHeaderComponent {
+export class ClientHeaderComponent implements OnInit {
   searchQuery = '';
   dropdownOpen = false;
 
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(
+    public auth: AuthService,
+    public notifications: NotificationService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.notifications.loadNotifications();
+  }
 
   get userName(): string { return this.auth.user()?.name ?? 'Traveler'; }
   get userRole(): string { return this.auth.user()?.role ?? 'Customer'; }
   get userAvatar(): string | null { return this.auth.user()?.avatar_url ?? null; }
-  get hasNotifications(): boolean { return false; }
+  get hasNotifications(): boolean { return this.notifications.unreadCount() > 0; }
 
   get initials(): string {
     return (this.auth.user()?.name ?? 'U')

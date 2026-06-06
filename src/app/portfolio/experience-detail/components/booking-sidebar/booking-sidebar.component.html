@@ -16,6 +16,7 @@
           type="date"
           class="form-input"
           [(ngModel)]="selectedDate"
+          (ngModelChange)="onDateChange()"
           placeholder="mm/dd/yyyy" />
       </div>
     </div>

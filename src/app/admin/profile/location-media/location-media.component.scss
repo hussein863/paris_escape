@@ -399,3 +399,57 @@
     font-size: 16px;
   }
 }
+
+.save-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.save-feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+
+  .save-success,
+  .save-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .save-success {
+    color: #10b981;
+  }
+
+  .save-error {
+    color: #ef4444;
+  }
+}
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1rem;
+  }
+}

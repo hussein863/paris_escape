@@ -37,4 +37,8 @@ export class ExperienceService {
   duplicate(id: number): Observable<Experience> {
     return this.http.post<Experience>(`${this.api}/${id}/duplicate/`, {});
   }
+
+  recordView(id: number): Observable<void> {
+    return this.http.post<void>(`${this.api}/${id}/record_view/`, {});
+  }
 }

@@ -1,4 +1,4 @@
-<a class="card" *ngIf="experience" [routerLink]="['/landing/experience', experience.id]" style="text-decoration:none;color:inherit;display:block">
+<a class="card" *ngIf="experience" [routerLink]="getExperienceLink()" style="text-decoration:none;color:inherit;display:block">
   <div class="card-image-wrapper">
     <img [src]="experience.image" [alt]="experience.title" class="card-image">
   </div>

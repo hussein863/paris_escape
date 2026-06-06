@@ -23,6 +23,7 @@ import { ClientReservationsComponent } from './portfolio/client/reservations/res
 import { ClientMessagesComponent } from './portfolio/client/messages/messages.component';
 import { FavoritesComponent } from './portfolio/client/favorites/favorites.component';
 import { SettingsComponent as ClientSettingsComponent } from './portfolio/client/settings/settings.component';
+import { ClientReviewsComponent } from './portfolio/client/reviews/reviews.component';
 import { CheckoutComponent } from './portfolio/checkout/checkout.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 import { ExperienceDetailComponent } from './portfolio/experience-detail/experience-detail.component';
@@ -61,15 +62,15 @@ export const routes: Routes = [
         component: ClientComponent,
       },
       {
-        path: 'experience/:id',
+        path: 'experience/:encryptedId',
         component: ExperienceDetailComponent,
       },
       {
-        path: 'experience/:id/book',
+        path: 'experience/:encryptedId/book',
         component: CheckoutComponent
       },
       {
-        path: 'profil/:id',
+        path: 'profil/:encryptedId',
         component: GuideProfileComponent
       }
     ]
@@ -104,7 +105,7 @@ export const routes: Routes = [
       },
       {
         path: 'reviews',
-        component: HomeComponent // TODO
+        component: ClientReviewsComponent
       },
       {
         path: 'settings',

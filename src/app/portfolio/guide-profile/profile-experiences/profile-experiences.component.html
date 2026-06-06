@@ -30,14 +30,7 @@
             <span class="included-tag" *ngFor="let item of exp.included">{{ item }}</span>
           </div>
         </div>
-        
-        <div class="options" *ngIf="exp.options && exp.options.length > 0">
-          <span class="options-label">OPTIONS</span>
-          <div class="options-tags">
-            <span class="option-tag" *ngFor="let option of exp.options">{{ option.name }} +€{{ option.price }}</span>
-          </div>
-        </div>
-        
+
         <div class="card-footer">
           <div class="price">
             <p class="price-label">From</p>
@@ -48,7 +41,7 @@
             </p>
             
           </div>
-          <a class="view-tour-btn" [routerLink]="['/landing/experience', exp.id]">View Tour</a>
+          <a class="view-tour-btn" [routerLink]="getExperienceLink(exp.id)">View Tour</a>
         </div>
       </div>
     </div>

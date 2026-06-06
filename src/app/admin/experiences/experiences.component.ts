@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { ExperienceService } from '../../core/services/experience.service';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { Experience } from '../../core/models';
 
 @Component({
@@ -25,8 +26,13 @@ export class ExperiencesComponent implements OnInit {
   searchQuery = '';
   selectedStatus = 'All Status';
   selectedCategory = 'All Categories';
+  openMenuId: number | null = null;
 
-  constructor(private router: Router, private experienceService: ExperienceService) {}
+  constructor(
+    private router: Router,
+    private experienceService: ExperienceService,
+    private idEncrypt: IdEncryptService
+  ) {}
 
   ngOnInit(): void {
     this.loadExperiences();
@@ -102,6 +108,20 @@ export class ExperiencesComponent implements OnInit {
     });
   }
 
+  resumeExperience(exp: Experience): void {
+    this.actionInProgress = true;
+    this.experienceService.update(exp.id, { status: 'Active' }).subscribe({
+      next: (updated) => {
+        exp.status = updated.status;
+        this.actionInProgress = false;
+      },
+      error: () => {
+        alert('Failed to resume experience.');
+        this.actionInProgress = false;
+      }
+    });
+  }
+
   duplicateExperience(exp: Experience): void {
     this.actionInProgress = true;
     this.experienceService.duplicate(exp.id).subscribe({
@@ -117,12 +137,26 @@ export class ExperiencesComponent implements OnInit {
   }
 
   previewExperience(exp: Experience): void {
-    window.open(`/landing/experience/${exp.id}`, '_blank');
+    const encryptedId = this.idEncrypt.encryptId(exp.id);
+    window.open(`/landing/experience/${encryptedId}`, '_blank');
   }
 
   get activeCount() { return this.experiences.filter(e => e.status === 'Active').length; }
   get draftCount() { return this.experiences.filter(e => e.status === 'Draft').length; }
   get originalsCount() { return this.experiences.filter(e => e.status === 'Active').length; }
+
+  toggleMoreMenu(expId: number, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = this.openMenuId === expId ? null : expId;
+  }
+
+  closeMenu(): void {
+    this.openMenuId = null;
+  }
+
+  goToSupport(): void {
+    this.router.navigate(['/admin/support']);
+  }
 
   get filteredExperiences(): Experience[] {
     return this.experiences.filter(e => {

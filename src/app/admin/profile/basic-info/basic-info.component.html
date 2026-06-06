@@ -12,11 +12,6 @@
   </div>
 
   <div class="form-group">
-    <label for="pronouns">Pronouns (Optional)</label>
-    <input type="text" id="pronouns" class="form-control" placeholder="She/Her" [(ngModel)]="pronouns" />
-  </div>
-
-  <div class="form-group">
     <label for="yearsOfExperience">Years of Experience</label>
     <input type="number" id="yearsOfExperience" class="form-control" [(ngModel)]="yearsOfExperience" min="0" />
   </div>
@@ -84,9 +79,16 @@
   </div>
 
   <div class="save-row">
-    <span class="save-success" *ngIf="saveSuccess">Saved!</span>
-    <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
-    <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
+    <div class="save-feedback">
+      <span class="save-success" *ngIf="saveSuccess">
+        <i class="fas fa-check-circle"></i> Saved!
+      </span>
+      <span class="save-error" *ngIf="saveError">
+        <i class="fas fa-exclamation-circle"></i> {{ saveError }}
+      </span>
+    </div>
+    <button class="btn btn-primary btn-save" type="button" (click)="save()" [disabled]="saving">
+      <i class="fas fa-save"></i>
       {{ saving ? 'Saving…' : 'Save Changes' }}
     </button>
   </div>

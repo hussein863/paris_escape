@@ -1,0 +1,155 @@
+<div class="reviews-page">
+  <app-client-header></app-client-header>
+
+  <div class="reviews-container">
+    <div class="reviews-header">
+      <h1>Your Reviews</h1>
+      <p class="subtitle">Manage and view all your experience reviews</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading your reviews...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- Stats Section -->
+    <ng-container *ngIf="!loading && reviews.length > 0">
+      <div class="stats-section">
+        <div class="average-rating">
+          <div class="rating-circle">
+            <span class="rating-value">{{ ratingStats.average }}</span>
+            <span class="rating-label">average</span>
+          </div>
+          <div class="rating-stars">
+            <i *ngFor="let star of getStarArray(roundRating(ratingStats.average))" class="fas fa-star"></i>
+            <i *ngFor="let star of getStarArray(5 - roundRating(ratingStats.average))" class="fas fa-star empty"></i>
+          </div>
+          <p class="rating-count">Based on {{ ratingStats.total }} review{{ ratingStats.total !== 1 ? 's' : '' }}</p>
+        </div>
+
+        <div class="distribution">
+          <div *ngFor="let dist of ratingStats.distribution" class="distribution-row">
+            <span class="stars-label">{{ dist.stars }} <i class="fas fa-star"></i></span>
+            <div class="bar">
+              <div class="fill" [style.width.%]="ratingStats.total ? (dist.count / ratingStats.total) * 100 : 0"></div>
+            </div>
+            <span class="count">{{ dist.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="filters-section">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            placeholder="Search reviews..."
+            [(ngModel)]="searchQuery"
+            class="search-input" />
+        </div>
+
+        <div class="rating-filter">
+          <button
+            *ngFor="let dist of ratingStats.distribution"
+            class="filter-btn"
+            [class.active]="selectedRating === dist.stars"
+            (click)="filterByRating(dist.stars)">
+            {{ dist.stars }} <i class="fas fa-star"></i>
+          </button>
+          <button
+            class="filter-btn reset"
+            *ngIf="selectedRating"
+            (click)="selectedRating = null">
+            Clear filter
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Reviews List -->
+    <div class="reviews-list">
+      <ng-container *ngIf="!loading && filteredReviews.length > 0">
+        <div *ngFor="let review of filteredReviews" class="review-card">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <div class="avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="info">
+                <h3>{{ review.customer_name }}</h3>
+                <p class="date">{{ formatDate(review.date) }}</p>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn-delete" (click)="deleteReview(review.id)" title="Delete review">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="review-rating">
+            <div class="stars">
+              <i *ngFor="let star of getStarArray(review.rating)" class="fas fa-star"></i>
+              <i *ngFor="let star of getStarArray(5 - review.rating)" class="fas fa-star empty"></i>
+            </div>
+            <span class="rating-text">{{ review.rating }}/5</span>
+          </div>
+
+          <div class="review-experience">
+            <a (click)="viewExperience(review.experience)" class="experience-link">
+              <i class="fas fa-map-marker-alt"></i>
+              Experience #{{ review.experience }}
+            </a>
+          </div>
+
+          <p class="review-content">{{ review.content }}</p>
+
+          <!-- Reply Section -->
+          <div *ngIf="review.reply" class="guide-reply">
+            <div class="reply-header">
+              <i class="fas fa-reply"></i>
+              <span>Guide's Reply</span>
+            </div>
+            <p class="reply-content">{{ review.reply.content }}</p>
+            <p class="reply-date">{{ formatDate(review.reply.date) }}</p>
+          </div>
+
+          <!-- Metadata -->
+          <div class="review-meta">
+            <span *ngIf="review.verified" class="badge verified">
+              <i class="fas fa-check"></i> Verified Purchase
+            </span>
+            <span *ngIf="review.helpful > 0" class="helpful-count">
+              <i class="fas fa-thumbs-up"></i> {{ review.helpful }}
+            </span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && reviews.length === 0" class="empty-state">
+        <i class="fas fa-star"></i>
+        <h2>No reviews yet</h2>
+        <p>You haven't submitted any reviews yet. Share your experience with other travelers!</p>
+        <button class="btn-primary" (click)="router.navigate(['/client/reservations'])">
+          View your bookings
+        </button>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="!loading && reviews.length > 0 && filteredReviews.length === 0" class="no-results">
+        <i class="fas fa-filter"></i>
+        <p>No reviews match your search or filter</p>
+      </div>
+    </div>
+  </div>
+</div>

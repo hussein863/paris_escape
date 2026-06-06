@@ -33,9 +33,16 @@
     </div>
 
     <div class="save-row">
-      <span class="save-success" *ngIf="saveSuccess">Saved!</span>
-      <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
-      <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
+      <div class="save-feedback">
+        <span class="save-success" *ngIf="saveSuccess">
+          <i class="fas fa-check-circle"></i> Saved!
+        </span>
+        <span class="save-error" *ngIf="saveError">
+          <i class="fas fa-exclamation-circle"></i> {{ saveError }}
+        </span>
+      </div>
+      <button class="btn btn-primary btn-save" type="button" (click)="save()" [disabled]="saving">
+        <i class="fas fa-save"></i>
         {{ saving ? 'Saving…' : 'Save Changes' }}
       </button>
     </div>
@@ -72,9 +79,20 @@
       ></textarea>
     </div>
 
-    <button class="btn-submit" type="button" (click)="save()" [disabled]="saving">
-      Submit for Review
-    </button>
+    <div class="submit-section">
+      <div class="save-feedback">
+        <span class="save-success" *ngIf="submitSuccess">
+          <i class="fas fa-check-circle"></i> Submitted for review!
+        </span>
+        <span class="save-error" *ngIf="submitError">
+          <i class="fas fa-exclamation-circle"></i> {{ submitError }}
+        </span>
+      </div>
+      <button class="btn btn-submit" type="button" (click)="submitForReview()" [disabled]="saving">
+        <i class="fas fa-paper-plane"></i>
+        {{ saving ? 'Submitting…' : 'Submit for Review' }}
+      </button>
+    </div>
   </div>
 
   <!-- Verification -->

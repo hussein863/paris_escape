@@ -7,6 +7,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { ExperienceService } from '../../core/services/experience.service';
 import { BookingService } from '../../core/services/booking.service';
 import { AuthService } from '../../core/services/auth.service';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { Experience } from '../../core/models';
 
 interface CountryCode { code: string; dial: string; }
@@ -31,6 +32,7 @@ export class CheckoutComponent implements OnInit {
   selectedTime = '';
   adultsCount = 1;
   childrenCount = 0;
+  _pendingAddonIds: number[] = [];
 
   firstName = '';
   lastName = '';
@@ -57,15 +59,22 @@ export class CheckoutComponent implements OnInit {
     private router: Router,
     private experienceService: ExperienceService,
     private bookingService: BookingService,
-    private auth: AuthService
+    private auth: AuthService,
+    private idEncrypt: IdEncryptService
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const encryptedId = this.route.snapshot.paramMap.get('encryptedId');
+    const id = encryptedId ? this.idEncrypt.decryptId(encryptedId) : 0;
     const q = this.route.snapshot.queryParams;
     this.selectedDate = q['date'] ?? '';
     this.selectedTime = q['time'] ?? '';
     this.adultsCount = Number(q['guests'] ?? 1);
+    // Re-select addons passed from booking sidebar
+    if (q['addons']) {
+      const selectedIds = q['addons'].split(',').map(Number).filter(Boolean);
+      this._pendingAddonIds = selectedIds;
+    }
 
     if (id) {
       this.loading = true;

@@ -71,7 +71,7 @@
 
         <!-- Step 2: Media -->
         <div class="step-panel" *ngIf="currentStep === 2">
-          <app-step-media></app-step-media>
+          <app-step-media [prefillData]="pendingPrefill"></app-step-media>
         </div>
 
         <!-- Step 3: Pricing -->

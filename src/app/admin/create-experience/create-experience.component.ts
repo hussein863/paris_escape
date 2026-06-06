@@ -36,7 +36,7 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
   saving = false;
   saveError = '';
   isEditing = false;
-  private pendingPrefill: any = null;
+  pendingPrefill: any = null;
 
   steps = [
     { number: 1, title: 'Create a new experience', subtitle: 'Basics', description: 'Basics', completed: false },
@@ -106,6 +106,37 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
         childPricingEnabled: exp.child_pricing_enabled ?? false,
         childPrice: Number(exp.child_price ?? 0),
         childAgeRange: exp.child_age_range ?? '3-12',
+      };
+    }
+
+    // Step 5 — availability
+    if (this.stepAvailability && exp.availability) {
+      const avail = exp.availability as any;
+      this.stepAvailability.formData = {
+        ...this.stepAvailability.formData,
+        recurringPattern: avail.recurring_pattern ?? 'daily',
+        minimumNotice: avail.minimum_notice ?? '1-day',
+        googleCalendarConnected: avail.google_calendar_connected ?? false,
+        iCalConnected: avail.ical_connected ?? false,
+        timeSlots: (avail.time_slots ?? []).map((s: any) => ({
+          id: String(s.id), time: s.time, label: s.label
+        })),
+      };
+    }
+
+    // Step 7 — policies
+    if (this.stepPolicies && exp.policy) {
+      const pol = exp.policy as any;
+      this.stepPolicies.formData = {
+        ...this.stepPolicies.formData,
+        cancellationWindow: pol.cancellation_window ?? '48-hours',
+        lateArrivalPolicy: pol.late_arrival_policy ?? 'wait-15',
+        noShowPolicy: pol.no_show_policy ?? 'no-refund',
+        weatherPolicy: pol.weather_policy ?? 'light-rain',
+        safetyNotes: pol.safety_notes ?? '',
+        insuranceCoverage: pol.insurance_coverage ?? false,
+        emergencyProcedures: pol.emergency_procedures ?? false,
+        photographyConsent: pol.photography_consent ?? false,
       };
     }
   }

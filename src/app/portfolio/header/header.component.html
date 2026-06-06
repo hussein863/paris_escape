@@ -1,6 +1,6 @@
 <header class="header">
   <div class="header-container">
-    <a routerLink="/" class="logo">
+    <a routerLink="/landing" class="logo">
       <span class="logo-text">Paris</span>
       <span class="logo-text-light">Escape</span>
     </a>
@@ -8,35 +8,56 @@
     <nav class="nav" [class.nav-open]="isMenuOpen">
       <ul class="nav-list">
         <li *ngFor="let item of navItems" class="nav-item">
-          <a 
-            [routerLink]="item.route" 
-            class="nav-link"
-            (click)="closeMenu()">
+          <a [routerLink]="item.route" class="nav-link" (click)="closeMenu()">
             {{ item.label }}
           </a>
+        </li>
+        <!-- Mobile-only auth links -->
+        <li class="nav-item" *ngIf="!auth.isLoggedIn()">
+          <a routerLink="/auth/login" class="nav-link" (click)="closeMenu()">Sign in</a>
+        </li>
+        <li class="nav-item" *ngIf="!auth.isLoggedIn()">
+          <a routerLink="/auth/register" class="nav-link nav-link--cta" (click)="closeMenu()">Sign up</a>
+        </li>
+        <li class="nav-item" *ngIf="auth.isLoggedIn()">
+          <a (click)="goToDashboard(); closeMenu()" class="nav-link" style="cursor:pointer">My Account</a>
         </li>
       </ul>
     </nav>
 
     <div class="header-actions">
-      <button class="btn-icon" aria-label="Search">
-        <i class="fas fa-search"></i>
-      </button>
+      <!-- Not logged in -->
+      <ng-container *ngIf="!auth.isLoggedIn()">
+        <a routerLink="/auth/login" class="btn-text">Sign in</a>
+        <a routerLink="/auth/register" class="btn-primary">Sign up</a>
+      </ng-container>
 
-      <button class="btn-language">FR</button>
-      <button class="btn-language">EN</button>
-      <button class="btn-language">ES</button>
-      <button class="btn-language">AR</button>
+      <!-- Logged in -->
+      <div class="user-menu" *ngIf="auth.isLoggedIn()" (click)="toggleDropdown()">
+        <div class="user-avatar-wrap">
+          <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="user-avatar-img">
+          <div *ngIf="!userAvatar" class="user-initials">{{ initials }}</div>
+        </div>
+        <span class="user-name-label">{{ userName }}</span>
+        <i class="fas fa-chevron-down" style="font-size:11px;color:#6b7280" [class.fa-chevron-up]="dropdownOpen"></i>
 
-      <button class="btn-text">Sign in</button>
-
-      <button class="btn-primary">Sign up</button>
+        <div class="user-dropdown" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+          <button class="dropdown-item" (click)="goToDashboard()">
+            <i class="fas fa-gauge-high"></i> Dashboard
+          </button>
+          <button class="dropdown-item" [routerLink]="isGuide ? '/admin/profile' : '/client/settings'">
+            <i class="fas fa-user"></i> Profile
+          </button>
+          <hr class="dropdown-divider">
+          <button class="dropdown-item logout" (click)="logout()">
+            <i class="fas fa-right-from-bracket"></i> Log out
+          </button>
+        </div>
+      </div>
 
       <button class="btn-mobile-menu" (click)="toggleMenu()" aria-label="Toggle menu">
         <span class="menu-icon" [class.menu-icon-open]="isMenuOpen">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </span>
       </button>
     </div>

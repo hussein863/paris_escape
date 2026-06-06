@@ -227,10 +227,22 @@
     }
   }
 
+  .profile-tagline-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    &:hover .bio-edit-btn {
+      opacity: 1;
+    }
+  }
+
   .profile-tagline {
     font-size: 16px;
     color: #666;
-    margin: 0 0 1rem;
+    margin: 0;
+    flex: 1;
 
     @media (max-width: 768px) {
       font-size: 14px;
@@ -246,7 +258,66 @@
 
     @media (max-width: 320px) {
       font-size: 11px;
-      margin-bottom: 0.5rem;
+    }
+  }
+
+  .bio-edit-btn {
+    padding: 0.5rem;
+    background: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #6b7280;
+    opacity: 0;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+
+  .bio-edit-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .bio-edit-input {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      resize: vertical;
+      min-height: 100px;
+      max-height: 300px;
+
+      &:focus {
+        outline: none;
+        border-color: #000;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .bio-edit-actions {
+      display: flex;
+      gap: 0.75rem;
+
+      button {
+        flex: 1;
+
+        @media (max-width: 480px) {
+          flex: 1;
+        }
+      }
     }
   }
 }

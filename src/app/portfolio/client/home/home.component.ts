@@ -8,6 +8,7 @@ import { MessagingService } from '../../../core/services/messaging.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { ExperienceService } from '../../../core/services/experience.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { WeatherService, WeatherData } from '../../../core/services/weather.service';
 import { Booking, Conversation, Experience } from '../../../core/models';
 
@@ -63,8 +64,13 @@ export class HomeComponent implements OnInit {
     private experienceService: ExperienceService,
     private paymentService: PaymentService,
     private weatherService: WeatherService,
-    private router: Router
+    private router: Router,
+    private idEncrypt: IdEncryptService
   ) {}
+
+  getExperienceLink(id: number): (string | number)[] {
+    return ['/landing/experience', this.idEncrypt.encryptId(id)];
+  }
 
   ngOnInit(): void {
     const user = this.auth.user();

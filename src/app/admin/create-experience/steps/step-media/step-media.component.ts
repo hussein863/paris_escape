@@ -1,4 +1,4 @@
-﻿import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
@@ -18,10 +18,32 @@ interface MediaFile {
   templateUrl: './step-media.component.html',
   styleUrl: './step-media.component.scss',
 })
-export class StepMediaComponent {
+export class StepMediaComponent implements OnInit {
+  @Input() prefillData: any;
   @Output() dataChange = new EventEmitter<any>();
 
   constructor(private wizardService: ExperienceWizardService) {}
+
+  ngOnInit(): void {
+    if (this.prefillData) {
+      if (this.prefillData.cover_image_url) {
+        this.coverImage = {
+          id: 'cover',
+          url: this.prefillData.cover_image_url,
+          caption: '',
+          type: 'image'
+        };
+      }
+      if (this.prefillData.gallery_images && Array.isArray(this.prefillData.gallery_images)) {
+        this.galleryPhotos = this.prefillData.gallery_images.map((img: any, i: number) => ({
+          id: String(img.id ?? i),
+          url: img.image_url ?? img.url ?? '',
+          caption: img.caption ?? '',
+          type: 'image'
+        }));
+      }
+    }
+  }
 
   saveToApi(): Promise<void> {
     const id = this.wizardService.experienceId;

@@ -65,6 +65,7 @@ export class ExperiencesGridComponent implements OnInit, OnChanges {
     const ordering = this.selectedSort === 'price_asc' ? 'base_price'
       : this.selectedSort === 'price_desc' ? '-base_price'
       : this.selectedSort === 'rating' ? '-rating'
+      : this.selectedSort === 'duration' ? 'duration_value'
       : undefined;
 
     const params: any = { ordering, page: this.currentPage };

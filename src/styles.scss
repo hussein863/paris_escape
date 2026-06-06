@@ -91,3 +91,56 @@ select:disabled,
     width: 100%;
   }
 }
+
+// ── Global Mobile Utilities ─────────────────────────────────────────────────
+
+// Responsive images
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Touch-friendly tap targets
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+// Prevent horizontal overflow
+.container, .container-2, .container-3,
+.content-grid, .main-layout {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+// Mobile text adjustments
+@media (max-width: 480px) {
+  html { font-size: 15px; }
+
+  h1 { font-size: 1.75rem !important; }
+  h2 { font-size: 1.4rem !important; }
+
+  .page-title { font-size: 22px !important; }
+
+  select, .filter-select, .form-select {
+    min-width: 100px;
+    font-size: 13px;
+    padding: 8px 28px 8px 12px;
+  }
+}
+
+// Hide on mobile
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+}
+
+// Show only on mobile
+.show-mobile {
+  display: none;
+  @media (max-width: 768px) { display: block; }
+}
+
+// Safe bottom padding for phones with home bar
+@media (max-width: 768px) {
+  body { padding-bottom: env(safe-area-inset-bottom); }
+}

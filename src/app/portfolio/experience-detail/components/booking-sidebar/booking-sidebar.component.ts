@@ -2,7 +2,10 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { ExperienceOption, ExperienceAvailability, TimeSlot } from '../../../../core/models';
+import { IdEncryptService } from '../../../../core/services/id-encrypt.service';
+import { environment } from '../../../../../environments/environment';
 
 interface AddOn {
   id: number;
@@ -26,7 +29,7 @@ export class BookingSidebarComponent implements OnChanges {
   @Input() availability: ExperienceAvailability | null = null;
   @Input() maxPeople: number = 10;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient, private idEncrypt: IdEncryptService) {}
 
   selectedDate = '';
   selectedTime = '';
@@ -34,9 +37,27 @@ export class BookingSidebarComponent implements OnChanges {
 
   guestOptions: number[] = [];
   addOns: AddOn[] = [];
+  availableTimes: string[] = [];
 
   get times(): string[] {
-    return this.availability?.time_slots?.map((s: TimeSlot) => s.time) ?? ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM'];
+    return this.availableTimes.length > 0 ? this.availableTimes
+      : this.availability?.time_slots?.map((s: TimeSlot) => s.time) ?? ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM'];
+  }
+
+  onDateChange(): void {
+    this.selectedTime = '';
+    if (!this.selectedDate || !this.experienceId) {
+      this.availableTimes = [];
+      return;
+    }
+    this.http.get<any>(`${environment.apiUrl}/experiences/${this.experienceId}/availability/?date=${this.selectedDate}`).subscribe({
+      next: (res) => {
+        this.availableTimes = (res.time_slots ?? []).map((s: TimeSlot) => s.time);
+      },
+      error: () => {
+        this.availableTimes = [];
+      }
+    });
   }
 
   ngOnChanges(): void {
@@ -63,7 +84,8 @@ export class BookingSidebarComponent implements OnChanges {
     this.bookingError = '';
     if (!this.selectedDate) { this.bookingError = 'Please select a date.'; return; }
     if (!this.selectedTime) { this.bookingError = 'Please select a time.'; return; }
-    this.router.navigate(['/landing/experience', this.experienceId, 'book'], {
+    const encryptedId = this.idEncrypt.encryptId(this.experienceId);
+    this.router.navigate(['/landing/experience', encryptedId, 'book'], {
       queryParams: {
         date: this.selectedDate,
         time: this.selectedTime,

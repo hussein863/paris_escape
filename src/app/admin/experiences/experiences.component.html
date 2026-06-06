@@ -24,6 +24,10 @@
         <i class="fa-solid fa-download"></i>
         Import from Template
       </button>
+      <button class="btn-secondary" (click)="goToSupport()">
+        <i class="fa-solid fa-headset"></i>
+        Get Support
+      </button>
       <button class="btn-primary" (click)="createExperience()">
         <i class="fa-solid fa-plus"></i>
         Create Experience
@@ -160,6 +164,10 @@
               <i class="fa-solid fa-pause"></i>
               Pause
             </button>
+            <button class="btn-action" *ngIf="exp.status === 'Paused'" (click)="resumeExperience(exp)" [disabled]="actionInProgress">
+              <i class="fa-solid fa-play"></i>
+              Resume
+            </button>
             <button class="btn-action" *ngIf="exp.status === 'Draft' || exp.status === 'Under Review'" [class.disabled]="exp.status === 'Under Review' || actionInProgress" (click)="publishExperience(exp)">
               <i class="fa-solid fa-rocket"></i>
               Publish
@@ -168,9 +176,38 @@
               <i class="fa-solid fa-trash"></i>
               Delete
             </button>
-            <button class="btn-action more" style="border: none; color: rgba(156, 163, 175, 1);">
-              <i class="fa-solid fa-ellipsis"></i>
-            </button>
+            <div class="more-menu" (click)="closeMenu()">
+              <button class="btn-action more" style="border: none; color: rgba(156, 163, 175, 1);" (click)="toggleMoreMenu(exp.id, $event)">
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+              <div class="dropdown-menu" *ngIf="openMenuId === exp.id" (click)="$event.stopPropagation()">
+                <button class="dropdown-item" (click)="editExperience(exp); closeMenu()">
+                  <i class="fa-solid fa-edit"></i>
+                  Edit Details
+                </button>
+                <button class="dropdown-item" (click)="previewExperience(exp); closeMenu()">
+                  <i class="fa-solid fa-eye"></i>
+                  View Live
+                </button>
+                <button class="dropdown-item" (click)="duplicateExperience(exp); closeMenu()">
+                  <i class="fa-solid fa-copy"></i>
+                  Duplicate
+                </button>
+                <button class="dropdown-item" *ngIf="exp.status === 'Active'" (click)="pauseExperience(exp); closeMenu()">
+                  <i class="fa-solid fa-pause"></i>
+                  Pause
+                </button>
+                <button class="dropdown-item" *ngIf="exp.status === 'Paused'" (click)="resumeExperience(exp); closeMenu()">
+                  <i class="fa-solid fa-play"></i>
+                  Resume
+                </button>
+                <hr>
+                <button class="dropdown-item danger" (click)="deleteExperience(exp); closeMenu()">
+                  <i class="fa-solid fa-trash"></i>
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

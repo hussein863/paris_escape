@@ -55,9 +55,16 @@
     </div>
 
     <div class="save-row">
-      <span class="save-success" *ngIf="locationSuccess">Saved!</span>
-      <span class="save-error" *ngIf="locationError">{{ locationError }}</span>
-      <button class="btn btn-primary" type="button" (click)="saveLocation()" [disabled]="locationSaving">
+      <div class="save-feedback">
+        <span class="save-success" *ngIf="locationSuccess">
+          <i class="fas fa-check-circle"></i> Saved!
+        </span>
+        <span class="save-error" *ngIf="locationError">
+          <i class="fas fa-exclamation-circle"></i> {{ locationError }}
+        </span>
+      </div>
+      <button class="btn btn-primary btn-save" type="button" (click)="saveLocation()" [disabled]="locationSaving">
+        <i class="fas fa-save"></i>
         {{ locationSaving ? 'Saving…' : 'Save Location' }}
       </button>
     </div>

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { ProfileHeaderComponent } from './profile-header/profile-header.component';
 import { ProfileAboutComponent } from './profile-about/profile-about.component';
 import { ProfileLocationComponent } from './profile-location/profile-location.component';
@@ -105,12 +106,15 @@ export class GuideProfileComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
+    private idEncrypt: IdEncryptService,
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const encryptedId = this.route.snapshot.paramMap.get('encryptedId');
+    if (!encryptedId) { this.router.navigate(['/landing']); return; }
+    const id = this.idEncrypt.decryptId(encryptedId);
     if (!id) { this.router.navigate(['/landing']); return; }
-    this.loadGuide(+id);
+    this.loadGuide(id);
   }
 
   loadGuide(id: number): void {

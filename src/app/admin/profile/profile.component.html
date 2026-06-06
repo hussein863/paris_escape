@@ -30,7 +30,25 @@
           </div>
           <div class="profile-header-info">
             <h1 class="profile-name">{{ userName || 'Guide' }}</h1>
-            <p class="profile-tagline">{{ profile?.bio ? (profile!.bio | slice:0:80) : 'Complete your profile to add a tagline' }}</p>
+            <div class="profile-tagline-wrapper" *ngIf="!editingBio">
+              <p class="profile-tagline">{{ profile?.bio ? (profile!.bio | slice:0:80) : 'Complete your profile to add a tagline' }}</p>
+              <button class="bio-edit-btn" title="Edit bio" type="button" (click)="startEditBio()">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+            </div>
+
+            <div class="bio-edit-wrapper" *ngIf="editingBio">
+              <textarea class="bio-edit-input" [(ngModel)]="bioEditText" placeholder="Enter your bio..."></textarea>
+              <div class="bio-edit-actions">
+                <button class="btn btn-primary" type="button" (click)="saveBio()" [disabled]="bioSaving">
+                  <i class="fas fa-save"></i>
+                  {{ bioSaving ? 'Saving...' : 'Save' }}
+                </button>
+                <button class="btn btn-secondary" type="button" (click)="cancelEditBio()">
+                  Cancel
+                </button>
+              </div>
+            </div>
             <div class="profile-badges">
               <span class="badge badge-verified" *ngIf="profile?.is_verified">Verified</span>
               <span class="badge badge-originals" *ngIf="profile?.is_original">Originals</span>
@@ -43,12 +61,15 @@
             <i class="fas fa-save"></i>
             {{ avatarSaving ? 'Saving…' : 'Save Photo' }}
           </button>
-          <button class="btn btn-secondary" type="button">
+          <button class="btn btn-secondary" type="button" (click)="previewProfile()">
             <i class="fa-solid fa-eye" style="color: rgba(55, 65, 81, 1);"></i>
             Preview Profile
           </button>
-          <button class="btn btn-secondary" type="button">Save Draft</button>
-          <button class="btn btn-primary" type="button">
+          <button class="btn btn-secondary" type="button" (click)="saveDraft()">
+            <i class="fas fa-file-alt"></i>
+            Save Draft
+          </button>
+          <button class="btn btn-primary" type="button" (click)="publishChanges()">
             <i class="fa-solid fa-check"></i>
             Publish Changes
           </button>
@@ -89,7 +110,7 @@
         </div>
         <h3>Need Help with Your Experiences?</h3>
         <p>Our team is here to help you create amazing experiences that travelers love.</p>
-        <button class="btn btn-primary" type="button">
+        <button class="btn btn-primary" type="button" (click)="goToSupport()">
           <i class="fas fa-headset"></i>
           Get Support
         </button>

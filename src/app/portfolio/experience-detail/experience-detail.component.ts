@@ -17,9 +17,11 @@ import { ExperienceService } from '../../core/services/experience.service';
 import { ReviewService } from '../../core/services/review.service';
 import { FavoriteService } from '../../core/services/favorite.service';
 import { AuthService } from '../../core/services/auth.service';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Experience } from '../../core/models';
+import { RecentlyViewedComponent } from '../client/recently-viewed/recently-viewed.component';
 
 @Component({
   selector: 'app-experience-detail',
@@ -246,11 +248,14 @@ export class ExperienceDetailComponent implements OnInit {
     private reviewService: ReviewService,
     private favoriteService: FavoriteService,
     private auth: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private idEncrypt: IdEncryptService
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const encryptedId = this.route.snapshot.paramMap.get('encryptedId');
+    if (!encryptedId) return;
+    const id = this.idEncrypt.decryptId(encryptedId);
     if (id) {
       this.loadExperience(id);
       if (this.auth.isLoggedIn()) this.checkFavoriteStatus(id);
@@ -259,11 +264,16 @@ export class ExperienceDetailComponent implements OnInit {
 
   loadExperience(id: number): void {
     this.loading = true;
+    // Record view
+    this.experienceService.recordView(id).subscribe({
+      error: () => {} // View recording failure shouldn't block loading
+    });
     this.experienceService.get(id).subscribe({
       next: (exp) => {
         this.experience = exp;
         this.mapToDisplayData(exp);
         this.loading = false;
+        RecentlyViewedComponent.track(id);
         this.loadReviews(id, exp);
       },
       error: () => { this.error = 'Experience not found.'; this.loading = false; }

@@ -24,6 +24,14 @@ export class ReservationsComponent implements OnInit {
   loading = false;
   actionInProgress = false;
 
+  // Modal states
+  showBlockDaysModal = false;
+  showAddBookingModal = false;
+  blockDaysForm = { startDate: '', endDate: '', reason: '' };
+  addBookingForm = { guestName: '', date: '', time: '', guests: 1 };
+  feedbackMessage = '';
+  feedbackType: 'success' | 'error' = 'success';
+
   constructor(private bookingService: BookingService) {}
 
   ngOnInit(): void {
@@ -119,7 +127,10 @@ export class ReservationsComponent implements OnInit {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const dayBookings = this.bookings.filter(b => b.date === day);
+      const dayBookings = this.bookings.filter(b => {
+        const bookingDate = new Date(b.date);
+        return bookingDate.getDate() === day && bookingDate.getMonth() === month && bookingDate.getFullYear() === year;
+      });
       days.push({
         day,
         isCurrentMonth: true,
@@ -159,7 +170,131 @@ export class ReservationsComponent implements OnInit {
   get pendingCount(): number { return this.allBookings.filter(b => b.status === 'Pending').length; }
   get confirmedCount(): number { return this.allBookings.filter(b => b.status === 'Confirmed').length; }
 
-  setView(view: string): void { this.selectedView = view; }
   toggleSidebar(): void { this.isSidebarOpen = !this.isSidebarOpen; }
   closeSidebar(): void { this.isSidebarOpen = false; }
+
+  setView(view: string): void {
+    this.selectedView = view;
+  }
+
+  openBlockDaysModal(): void {
+    this.blockDaysForm = { startDate: '', endDate: '', reason: '' };
+    this.showBlockDaysModal = true;
+  }
+
+  closeBlockDaysModal(): void {
+    this.showBlockDaysModal = false;
+    this.feedbackMessage = '';
+  }
+
+  submitBlockDays(): void {
+    if (!this.blockDaysForm.startDate || !this.blockDaysForm.endDate) {
+      this.feedbackMessage = 'Please enter both start and end dates';
+      this.feedbackType = 'error';
+      return;
+    }
+
+    const experienceId = this.allBookings[0]?.experience || 1;
+    this.actionInProgress = true;
+
+    this.bookingService.blockDays(experienceId, this.blockDaysForm.startDate, this.blockDaysForm.endDate, this.blockDaysForm.reason).subscribe({
+      next: () => {
+        this.feedbackMessage = `✓ Days blocked from ${this.blockDaysForm.startDate} to ${this.blockDaysForm.endDate}`;
+        this.feedbackType = 'success';
+        setTimeout(() => {
+          this.closeBlockDaysModal();
+          this.loadBookings();
+        }, 1500);
+        this.actionInProgress = false;
+      },
+      error: (err) => {
+        this.feedbackMessage = 'Failed to block days: ' + (err.error?.detail || 'Unknown error');
+        this.feedbackType = 'error';
+        this.actionInProgress = false;
+      }
+    });
+  }
+
+  openAddBookingModal(): void {
+    this.addBookingForm = { guestName: '', date: '', time: '', guests: 1 };
+    this.showAddBookingModal = true;
+  }
+
+  closeAddBookingModal(): void {
+    this.showAddBookingModal = false;
+    this.feedbackMessage = '';
+  }
+
+  submitAddBooking(): void {
+    if (!this.addBookingForm.guestName || !this.addBookingForm.date || !this.addBookingForm.time) {
+      this.feedbackMessage = 'Please fill in all required fields';
+      this.feedbackType = 'error';
+      return;
+    }
+
+    const experienceId = this.allBookings[0]?.experience || 1;
+    this.actionInProgress = true;
+
+    const bookingData = {
+      experience: experienceId,
+      date: this.addBookingForm.date,
+      time: this.addBookingForm.time,
+      adults: this.addBookingForm.guests || 1,
+      children: 0,
+      status: 'Confirmed',
+      customer_name: this.addBookingForm.guestName
+    };
+
+    this.bookingService.create(bookingData).subscribe({
+      next: () => {
+        this.feedbackMessage = `✓ Booking added for ${this.addBookingForm.guestName}`;
+        this.feedbackType = 'success';
+        setTimeout(() => {
+          this.closeAddBookingModal();
+          this.loadBookings();
+        }, 1500);
+        this.actionInProgress = false;
+      },
+      error: (err) => {
+        this.feedbackMessage = 'Failed to add booking: ' + (err.error?.detail || 'Unknown error');
+        this.feedbackType = 'error';
+        this.actionInProgress = false;
+      }
+    });
+  }
+
+  connectCalendar(): void {
+    alert('Google Calendar integration coming soon! Click to authorize your Google account.');
+  }
+
+  exportCSV(): void {
+    if (this.allBookings.length === 0) {
+      alert('No bookings to export');
+      return;
+    }
+    const csv = this.generateCSV(this.allBookings);
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `reservations-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private generateCSV(bookings: Booking[]): string {
+    const headers = ['ID', 'Guest', 'Experience', 'Date', 'Time', 'Guests', 'Status', 'Amount'];
+    const rows = bookings.map(b => [
+      b.id,
+      b.customer_name || 'Unknown',
+      b.experience_title || 'Unknown',
+      b.date,
+      b.time || 'N/A',
+      (b.adults || 0) + (b.children || 0),
+      b.status,
+      b.total_amount
+    ]);
+    const allRows = [headers, ...rows];
+    return allRows.map(row => row.join(',')).join('\n');
+  }
 }

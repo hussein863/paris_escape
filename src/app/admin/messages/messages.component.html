@@ -17,7 +17,7 @@
     <!-- Header -->
     <div class="sidebar-header">
       <h1>Messages</h1>
-      <button class="btn-add" type="button">
+      <button class="btn-add" type="button" (click)="openAddContact()">
         <i class="fas fa-plus"></i>
       </button>
     </div>
@@ -40,6 +40,7 @@
         type="text"
         placeholder="Search by name, booking number..."
         [(ngModel)]="searchQuery"
+        (change)="onSearchChange()"
       />
     </div>
 
@@ -58,7 +59,7 @@
     <!-- Conversations List -->
     <div class="conversations-list">
       <div
-        *ngFor="let conversation of conversations"
+        *ngFor="let conversation of filteredConversations"
         class="conversation-item"
         [class.active]="selectedConversation?.id === conversation.id"
         [class.unread]="conversation.unread"
@@ -100,17 +101,38 @@
         </div>
       </div>
       <div class="chat-header-actions">
-        <button class="btn-icon" type="button">
+        <button class="btn-icon" type="button" (click)="openConversationInfo()">
           <i class="fas fa-info"></i>
         </button>
-        <button class="btn-icon" type="button">
-          <i class="fas fa-ellipsis-h"></i>
-        </button>
+        <div class="more-menu-wrapper">
+          <button class="btn-icon" type="button" (click)="toggleMoreMenu(selectedConversation!.id, $event)">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+          <div class="dropdown-menu" *ngIf="openMenuId === selectedConversation?.id" (click)="$event.stopPropagation()">
+            <button class="dropdown-item" (click)="toggleUnread(selectedConversation!, $event)">
+              <i class="fas fa-envelope"></i>
+              {{ selectedConversation?.unread ? 'Mark as Read' : 'Mark as Unread' }}
+            </button>
+            <button class="dropdown-item" (click)="toggleFlag(selectedConversation!, $event)">
+              <i class="fas fa-flag"></i>
+              {{ isFlagged(selectedConversation!) ? 'Unflag' : 'Flag' }}
+            </button>
+            <button class="dropdown-item" (click)="toggleArchive(selectedConversation!, $event)">
+              <i class="fas fa-archive"></i>
+              {{ isArchived(selectedConversation!) ? 'Unarchive' : 'Archive' }}
+            </button>
+            <hr>
+            <button class="dropdown-item danger" (click)="deleteConversation(selectedConversation!, $event)">
+              <i class="fas fa-trash"></i>
+              Delete
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Booking Info Card -->
-    <div class="booking-info-card">
+    <div class="booking-info-card" *ngIf="bookingInfo">
       <div class="booking-info-content">
         <img [src]="bookingInfo.image" alt="Tour" class="booking-image" />
         <div class="booking-details">
@@ -171,24 +193,24 @@
           <i class="fas fa-info-circle"></i>
         <span>Replying to this message will count as 1 contact toward your quota.</span>
         </div>
-        <a href="#" style="margin-left: 32px;">Learn more about contact quotas</a>
+        <a href="javascript:void(0)" (click)="openContactQuotaInfo()" style="margin-left: 32px;">Learn more about contact quotas</a>
       </div>
 
       <!-- Quick Actions -->
       <div class="quick-actions">
-        <button class="quick-action-btn" type="button">
+        <button class="quick-action-btn" type="button" (click)="insertQuickAction('Greeting')">
           <i class="fas fa-clock"></i>
           Greeting
         </button>
-        <button class="quick-action-btn" type="button">
+        <button class="quick-action-btn" type="button" (click)="insertQuickAction('Meeting Point')">
           <i class="fas fa-map-marker-alt"></i>
           Meeting Point
         </button>
-        <button class="quick-action-btn" type="button">
+        <button class="quick-action-btn" type="button" (click)="insertQuickAction('Schedule Change')">
           <i class="fas fa-calendar"></i>
           Schedule Change
         </button>
-        <button class="quick-action-btn" type="button">
+        <button class="quick-action-btn" type="button" (click)="insertQuickAction('Refund')">
           <i class="fas fa-undo"></i>
           Refund
         </button>
@@ -196,7 +218,14 @@
 
       <!-- Message Input -->
       <div class="message-input-wrapper">
-        <button class="btn-attach" type="button">
+        <input
+          type="file"
+          #fileInput
+          style="display: none"
+          (change)="onFileSelected($event)"
+          accept="image/*,application/pdf,.doc,.docx"
+        />
+        <button class="btn-attach" type="button" (click)="fileInput.click()" title="Attach file">
           <i class="fas fa-paperclip"></i>
         </button>
         <textarea
@@ -214,11 +243,7 @@
         <div class="footer-left">
           <i class="fas fa-shield-alt"></i>
           <span>Messages are monitored for safety.</span>
-          <a href="#">Learn more</a>
-        </div>
-        <div class="footer-right">
-          <input type="checkbox" id="autoReply" />
-          <label for="autoReply">Auto-reply when offline</label>
+          <a href="javascript:void(0)" (click)="openSafetyInfo()">Learn more</a>
         </div>
       </div>
     </div>

@@ -30,6 +30,10 @@ export class ReviewService {
     return this.http.patch<ReviewReply>(`${this.api}/replies/${replyId}/`, { content });
   }
 
+  delete(reviewId: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/${reviewId}/`);
+  }
+
   deleteReply(replyId: number): Observable<void> {
     return this.http.delete<void>(`${this.api}/replies/${replyId}/`);
   }

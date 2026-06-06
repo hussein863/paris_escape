@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 
 export interface ExperienceCard {
   id: number;
@@ -20,7 +21,13 @@ export interface ExperienceCard {
 })
 export class CardComponent {
   @Input() experience!: ExperienceCard;
-  
+
+  constructor(private idEncrypt: IdEncryptService) {}
+
+  getExperienceLink(): (string | number)[] {
+    return ['/landing/experience', this.idEncrypt.encryptId(this.experience.id)];
+  }
+
   toggleFavorite(event: Event): void {
     event.preventDefault();
     event.stopPropagation();

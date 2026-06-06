@@ -37,4 +37,17 @@ export class BookingService {
   }): Observable<any> {
     return this.http.post<any>(`${this.api}/details/`, data);
   }
+
+  blockDays(experienceId: number, startDate: string, endDate: string, reason?: string): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/experiences/blocked-days/`, {
+      experience: experienceId,
+      start_date: startDate,
+      end_date: endDate,
+      reason: reason || ''
+    });
+  }
+
+  getBlockedDays(experienceId: number): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/experiences/blocked-days/?experience=${experienceId}`);
+  }
 }

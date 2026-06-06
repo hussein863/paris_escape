@@ -30,6 +30,9 @@ export class PoliciesVerificationComponent implements OnInit {
   saveSuccess = false;
   saveError = '';
 
+  submitSuccess = false;
+  submitError = '';
+
   showDeactivateConfirm = false;
   deactivating = false;
 
@@ -101,6 +104,27 @@ export class PoliciesVerificationComponent implements OnInit {
       error: () => {
         this.deactivating = false;
         this.showDeactivateConfirm = false;
+      },
+    });
+  }
+
+  submitForReview(): void {
+    if (!this.uniqueDescription?.trim()) {
+      this.submitError = 'Please describe what makes your experience unique';
+      return;
+    }
+    this.saving = true;
+    this.submitSuccess = false;
+    this.submitError = '';
+    this.guideService.patch({ unique_description: this.uniqueDescription }).subscribe({
+      next: () => {
+        this.saving = false;
+        this.submitSuccess = true;
+        setTimeout(() => (this.submitSuccess = false), 3000);
+      },
+      error: (err) => {
+        this.saving = false;
+        this.submitError = err?.error?.detail ?? 'Submission failed.';
       },
     });
   }

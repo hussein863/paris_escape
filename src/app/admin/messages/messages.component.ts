@@ -42,6 +42,7 @@ export class MessagesComponent implements OnInit {
   messages: Message[] = [];
   bookingInfo: any = null;
   loading = false;
+  openMenuId: number | null = null;
 
   constructor(private messagingService: MessagingService) {}
 
@@ -103,6 +104,11 @@ export class MessagesComponent implements OnInit {
         if (this.selectedConversation) {
           this.selectedConversation.lastMessage = text;
         }
+      },
+      error: (err) => {
+        console.error('Failed to send message:', err);
+        this.newMessage = text; // Restore message on error
+        alert('Failed to send message. Please try again.');
       }
     });
   }
@@ -111,15 +117,134 @@ export class MessagesComponent implements OnInit {
   closeSidebar(): void { this.isSidebarOpen = false; }
   setFilter(filter: string): void { this.activeFilter = filter; }
 
+  onSearchChange(): void {
+    if (!this.searchQuery.trim()) {
+      this.loadConversations();
+    }
+  }
+
+  toggleMoreMenu(conversationId: number, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = this.openMenuId === conversationId ? null : conversationId;
+  }
+
+  openConversationInfo(): void {
+    alert(`Conversation with ${this.selectedConversation?.name}\nStatus: ${this.selectedConversation?.status}`);
+  }
+
+  insertQuickAction(action: string): void {
+    const templates: { [key: string]: string } = {
+      'Greeting': 'Hello! Thank you for booking with us. Looking forward to seeing you soon!',
+      'Meeting Point': 'Please meet us at the meeting point at the scheduled time.',
+      'Schedule Change': 'There has been a change to the schedule. Please check your email for details.',
+      'Refund': 'Your refund has been processed. It should appear in your account within 3-5 business days.'
+    };
+    this.newMessage = templates[action] || '';
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) {
+      const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+      this.newMessage += `\n📎 File: ${file.name} (${fileSize}MB)`;
+      // Reset input
+      input.value = '';
+    }
+  }
+
+  openAddContact(): void {
+    const guideName = prompt('Enter guide name to contact:');
+    if (!guideName) return;
+
+    // Create a new conversation
+    const newConversation: Conversation = {
+      id: Date.now(),
+      name: guideName,
+      avatar: 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
+      lastMessage: 'Conversation started',
+      timestamp: new Date().toLocaleDateString(),
+      status: 'Open',
+      tourName: '',
+      unread: false
+    };
+
+    this.conversations.unshift(newConversation);
+    this.selectConversation(newConversation);
+    alert(`New conversation started with ${guideName}!`);
+  }
+
+  openSafetyInfo(): void {
+    alert('Paris Escape monitors all messages to ensure safety and security of our community.');
+  }
+
+  openContactQuotaInfo(): void {
+    alert('Contact Quota: You have a limited number of contacts you can reach out to each month. Learn more about how to increase your quota.');
+  }
+
+  toggleArchive(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    (conversation as any).is_archived = !(conversation as any).is_archived;
+    this.openMenuId = null;
+  }
+
+  toggleFlag(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    (conversation as any).is_flagged = !(conversation as any).is_flagged;
+    this.openMenuId = null;
+  }
+
+  isFlagged(conversation: Conversation): boolean {
+    return (conversation as any).is_flagged || false;
+  }
+
+  isArchived(conversation: Conversation): boolean {
+    return (conversation as any).is_archived || false;
+  }
+
+  toggleUnread(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    conversation.unread = !conversation.unread;
+    this.openMenuId = null;
+  }
+
+  deleteConversation(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    if (confirm(`Delete conversation with ${conversation.name}?`)) {
+      this.conversations = this.conversations.filter(c => c.id !== conversation.id);
+      if (this.selectedConversation?.id === conversation.id) {
+        this.selectedConversation = null;
+      }
+      this.openMenuId = null;
+    }
+  }
+
   get quotaPercentage(): number {
     return (this.contactQuota.used / this.contactQuota.total) * 100;
   }
 
   get filteredConversations(): Conversation[] {
     return this.conversations.filter(c => {
-      const matchesFilter = this.activeFilter === 'All' || c.status === this.activeFilter;
-      const matchesSearch = !this.searchQuery ||
-        c.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+      // Apply filter
+      let matchesFilter = false;
+      if (this.activeFilter === 'All') {
+        matchesFilter = true;
+      } else if (this.activeFilter === 'Unread') {
+        matchesFilter = c.unread === true;
+      } else if (this.activeFilter === 'Archived') {
+        matchesFilter = (c as any).is_archived === true;
+      } else if (this.activeFilter === 'Flagged') {
+        matchesFilter = (c as any).is_flagged === true;
+      } else {
+        matchesFilter = c.status === this.activeFilter;
+      }
+
+      // Apply search
+      const matchesSearch = !this.searchQuery || (
+        c.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        c.lastMessage.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+
       return matchesFilter && matchesSearch;
     });
   }

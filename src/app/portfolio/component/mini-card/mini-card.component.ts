@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 
 export interface TodayExperience {
   id: number;
@@ -19,4 +20,10 @@ export interface TodayExperience {
 })
 export class MiniCardComponent {
   @Input() experience!: TodayExperience;
+
+  constructor(private idEncrypt: IdEncryptService) {}
+
+  getExperienceLink(): (string | number)[] {
+    return ['/landing/experience', this.idEncrypt.encryptId(this.experience.id)];
+  }
 }
