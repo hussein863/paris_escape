@@ -16,13 +16,9 @@
   <header class="page-header">
     <h1>My Experiences</h1>
     <div class="header-actions">
-      <button class="btn-secondary">
+      <button class="btn-secondary" (click)="previewPublicProfile()">
         <i class="fa-solid fa-eye"></i>
         Preview Public Profile
-      </button>
-      <button class="btn-secondary">
-        <i class="fa-solid fa-download"></i>
-        Import from Template
       </button>
       <button class="btn-secondary" (click)="goToSupport()">
         <i class="fa-solid fa-headset"></i>
@@ -43,35 +39,18 @@
         type="text"
         placeholder="Search by title or category..."
         [(ngModel)]="searchQuery"
-        (change)="onSearchChange()"
+        (input)="onSearchChange()"
       >
     </div>
 
     <div class="filters">
       <div class="filter-dropdown">
-        <select [(ngModel)]="selectedStatus">
-          <option>All Status</option>
-          <option>Active</option>
-          <option>Draft</option>
-          <option>Under Review</option>
+        <select [(ngModel)]="selectedCategory" (change)="onSearchChange()">
+          <option value="">All Categories</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
         </select>
       </div>
-
-      <div class="filter-dropdown">
-        <select [(ngModel)]="selectedCategory">
-          <option>All Categories</option>
-          <option>Art & Culture</option>
-          <option>Food & Wine</option>
-          <option>Photography</option>
-          <option>Culture</option>
-        </select>
-      </div>
-
-      <button class="filter-btn">
-        <i class="fa-solid fa-filter"></i>
-      </button>
     </div>
-    <div></div>
   </div>
 
   <!-- Tabs -->

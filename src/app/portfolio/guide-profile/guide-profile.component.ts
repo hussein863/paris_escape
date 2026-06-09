@@ -90,6 +90,7 @@ export interface Review {
 
 export interface SimilarGuide {
   id: number;
+  encryptedId: string;
   name: string;
   image: string;
   languages: string;
@@ -159,10 +160,13 @@ export class GuideProfileComponent implements OnInit {
         this.experiences = experiences.results.map((e: any) => this.mapExperience(e));
         this.reviews = reviews.results.map((r: any) => this.mapReview(r));
         this.reviewStats = this.buildStats(reviews.results);
-        this.similarGuides = allGuides.results
-          .filter((g: any) => g.id !== id)
-          .slice(0, 4)
-          .map((g: any) => this.mapSimilarGuide(g));
+        const others = allGuides.results.filter((g: any) => g.id !== id);
+        // Shuffle randomly
+        for (let i = others.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [others[i], others[j]] = [others[j], others[i]];
+        }
+        this.similarGuides = others.slice(0, 4).map((g: any) => this.mapSimilarGuide(g));
         this.loading = false;
       },
       error: () => {
@@ -270,9 +274,10 @@ export class GuideProfileComponent implements OnInit {
     const user = g.user ?? {};
     return {
       id: g.id,
+      encryptedId: this.idEncrypt.encryptId(g.id),
       name: user.name ?? 'Guide',
-      image: user.avatar_url ?? 'assets/images/card_image/person/jean-pierre.png',
-      languages: (g.languages ?? []).map((l: any) => l.name.slice(0, 2).toUpperCase()).join(', '),
+      image: user.avatar_url ?? user.avatar ?? 'assets/images/card_image/person/jean-pierre.png',
+      languages: (g.languages ?? []).map((l: any) => l.name).join(', '),
       rating: parseFloat(g.rating ?? 0),
       reviewCount: g.review_count ?? 0,
       specialty: (g.specialties ?? []).map((s: any) => s.name).join(', '),

@@ -56,9 +56,17 @@ export class BasicInfoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.auth.loadMe().subscribe(user => {
+      if (user?.name) {
+        const parts = user.name.trim().split(/\s+/);
+        this.firstName = parts[0] ?? '';
+        this.lastName = parts.slice(1).join(' ');
+      }
+    });
+
     const user = this.auth.user();
     if (user?.name) {
-      const parts = user.name.split(' ');
+      const parts = user.name.trim().split(/\s+/);
       this.firstName = parts[0] ?? '';
       this.lastName = parts.slice(1).join(' ');
     }

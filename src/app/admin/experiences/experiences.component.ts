@@ -6,6 +6,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { ExperienceService } from '../../core/services/experience.service';
 import { IdEncryptService } from '../../core/services/id-encrypt.service';
+import { GuideProfileService } from '../../core/services/guide-profile.service';
 import { Experience } from '../../core/models';
 
 @Component({
@@ -24,25 +25,38 @@ export class ExperiencesComponent implements OnInit {
 
   activeTab = 'all';
   searchQuery = '';
-  selectedStatus = 'All Status';
-  selectedCategory = 'All Categories';
+  selectedCategory = '';
   openMenuId: number | null = null;
+  guideEncryptedId = '';
+
+  categories: string[] = [];
 
   constructor(
     private router: Router,
     private experienceService: ExperienceService,
-    private idEncrypt: IdEncryptService
+    private idEncrypt: IdEncryptService,
+    private guideService: GuideProfileService,
   ) {}
 
   ngOnInit(): void {
     this.loadExperiences();
+    // Load guide profile to get encrypted ID for preview
+    this.guideService.load().subscribe({
+      next: (profile) => {
+        this.guideEncryptedId = this.idEncrypt.encryptId(profile.id);
+        // Build category list from experiences
+        this.guideService.profile$.subscribe(() => {});
+      }
+    });
   }
 
   loadExperiences(): void {
     this.loading = true;
-    this.experienceService.list({ search: this.searchQuery }).subscribe({
+    this.experienceService.list({}).subscribe({
       next: (res) => {
         this.experiences = res.results;
+        // Build unique category list from actual experiences
+        this.categories = [...new Set(res.results.map((e: Experience) => e.category).filter(Boolean))];
         this.loading = false;
       },
       error: () => {
@@ -56,9 +70,12 @@ export class ExperiencesComponent implements OnInit {
   closeSidebar(): void { this.isSidebarOpen = false; }
   createExperience(): void { this.router.navigate(['/admin/experiences/create']); }
   setActiveTab(tab: string): void { this.activeTab = tab; }
+  onSearchChange(): void { /* filtering is done client-side via filteredExperiences getter */ }
 
-  onSearchChange(): void {
-    this.loadExperiences();
+  previewPublicProfile(): void {
+    if (this.guideEncryptedId) {
+      window.open(`/landing/profil/${this.guideEncryptedId}`, '_blank');
+    }
   }
 
   editExperience(exp: Experience): void {
@@ -143,7 +160,7 @@ export class ExperiencesComponent implements OnInit {
 
   get activeCount() { return this.experiences.filter(e => e.status === 'Active').length; }
   get draftCount() { return this.experiences.filter(e => e.status === 'Draft').length; }
-  get originalsCount() { return this.experiences.filter(e => e.status === 'Active').length; }
+  get originalsCount() { return this.experiences.filter(e => e.status === 'Active' && (e as any).is_original).length; }
 
   toggleMoreMenu(expId: number, event: Event): void {
     event.stopPropagation();
@@ -159,15 +176,16 @@ export class ExperiencesComponent implements OnInit {
   }
 
   get filteredExperiences(): Experience[] {
+    const q = this.searchQuery.toLowerCase().trim();
     return this.experiences.filter(e => {
       const matchesTab =
         this.activeTab === 'all' ||
         (this.activeTab === 'active' && e.status === 'Active') ||
-        (this.activeTab === 'draft' && e.status === 'Draft');
-      const matchesSearch = !this.searchQuery ||
-        e.title.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchesStatus = this.selectedStatus === 'All Status' || e.status === this.selectedStatus;
-      return matchesTab && matchesSearch && matchesStatus;
+        (this.activeTab === 'draft' && e.status === 'Draft') ||
+        (this.activeTab === 'originals' && e.status === 'Active' && (e as any).is_original);
+      const matchesSearch = !q || e.title.toLowerCase().includes(q) || e.category.toLowerCase().includes(q);
+      const matchesCategory = !this.selectedCategory || e.category === this.selectedCategory;
+      return matchesTab && matchesSearch && matchesCategory;
     });
   }
 }
