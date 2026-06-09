@@ -28,8 +28,31 @@ export class ExperiencesComponent implements OnInit {
   selectedCategory = '';
   openMenuId: number | null = null;
   guideEncryptedId = '';
-
   categories: string[] = [];
+
+  toast: { message: string; type: 'success' | 'error' | 'confirm'; onConfirm?: () => void } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
+
+  showConfirm(message: string, onConfirm: () => void): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type: 'confirm', onConfirm };
+  }
+
+  confirmAction(): void {
+    if (this.toast?.onConfirm) this.toast.onConfirm();
+    this.toast = null;
+  }
+
+  dismissToast(): void {
+    clearTimeout(this.toastTimer);
+    this.toast = null;
+  }
 
   constructor(
     private router: Router,
@@ -83,17 +106,19 @@ export class ExperiencesComponent implements OnInit {
   }
 
   deleteExperience(exp: Experience): void {
-    if (!confirm(`Delete "${exp.title}"? This action cannot be undone.`)) return;
-    this.actionInProgress = true;
-    this.experienceService.delete(exp.id).subscribe({
-      next: () => {
-        this.experiences = this.experiences.filter(e => e.id !== exp.id);
-        this.actionInProgress = false;
-      },
-      error: () => {
-        alert('Failed to delete experience.');
-        this.actionInProgress = false;
-      }
+    this.showConfirm(`Delete "${exp.title}"? This action cannot be undone.`, () => {
+      this.actionInProgress = true;
+      this.experienceService.delete(exp.id).subscribe({
+        next: () => {
+          this.experiences = this.experiences.filter(e => e.id !== exp.id);
+          this.actionInProgress = false;
+          this.showToast(`"${exp.title}" has been deleted.`);
+        },
+        error: () => {
+          this.actionInProgress = false;
+          this.showToast('Failed to delete experience.', 'error');
+        }
+      });
     });
   }
 
@@ -103,11 +128,9 @@ export class ExperiencesComponent implements OnInit {
       next: (updated) => {
         exp.status = updated.status;
         this.actionInProgress = false;
+        this.showToast(`"${exp.title}" is now live!`);
       },
-      error: () => {
-        alert('Failed to publish experience.');
-        this.actionInProgress = false;
-      }
+      error: () => { this.actionInProgress = false; this.showToast('Failed to publish experience.', 'error'); }
     });
   }
 
@@ -117,11 +140,9 @@ export class ExperiencesComponent implements OnInit {
       next: (updated) => {
         exp.status = updated.status;
         this.actionInProgress = false;
+        this.showToast(`"${exp.title}" has been paused.`);
       },
-      error: () => {
-        alert('Failed to pause experience.');
-        this.actionInProgress = false;
-      }
+      error: () => { this.actionInProgress = false; this.showToast('Failed to pause experience.', 'error'); }
     });
   }
 
@@ -131,11 +152,9 @@ export class ExperiencesComponent implements OnInit {
       next: (updated) => {
         exp.status = updated.status;
         this.actionInProgress = false;
+        this.showToast(`"${exp.title}" is now active again!`);
       },
-      error: () => {
-        alert('Failed to resume experience.');
-        this.actionInProgress = false;
-      }
+      error: () => { this.actionInProgress = false; this.showToast('Failed to resume experience.', 'error'); }
     });
   }
 
@@ -145,11 +164,9 @@ export class ExperiencesComponent implements OnInit {
       next: (newExp) => {
         this.experiences.unshift(newExp);
         this.actionInProgress = false;
+        this.showToast(`"${newExp.title}" created as a copy.`);
       },
-      error: () => {
-        alert('Failed to duplicate experience.');
-        this.actionInProgress = false;
-      }
+      error: () => { this.actionInProgress = false; this.showToast('Failed to duplicate experience.', 'error'); }
     });
   }
 

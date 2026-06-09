@@ -256,3 +256,20 @@
 </section>
   </main>
 </div>
+
+<!-- Toast / Confirm -->
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <ng-container *ngIf="toast.type === 'confirm'">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ toast.message }}</span>
+    <div class="toast-actions">
+      <button type="button" class="toast-btn cancel" (click)="dismissToast()">Cancel</button>
+      <button type="button" class="toast-btn confirm" (click)="confirmAction()">Delete</button>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="toast.type !== 'confirm'">
+    <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'"></i>
+    <span>{{ toast.message }}</span>
+    <button type="button" class="toast-close" (click)="dismissToast()"><i class="fas fa-times"></i></button>
+  </ng-container>
+</div>

@@ -1,5 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+// Confirm toast extra styles
+.toast-confirm {
+  background: #1f2937;
+  color: #fff;
+  max-width: 520px;
+  gap: 14px;
+
+  i { color: #fbbf24; font-size: 18px; flex-shrink: 0; }
+}
+
+.toast-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.toast-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &.cancel {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    &:hover { background: rgba(255,255,255,0.25); }
+  }
+
+  &.confirm {
+    background: #ef4444;
+    color: #fff;
+    &:hover { background: #dc2626; }
+  }
+}
+
 :host {
   display: block;
 }
