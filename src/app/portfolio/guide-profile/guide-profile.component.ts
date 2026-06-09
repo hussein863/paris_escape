@@ -34,10 +34,33 @@ export interface Guide {
   priceRange: string;
   responseTime: string;
   about: string;
+  headline: string;
   specialties: string[];
   meetingPoint: { name: string; address: string };
   pickupOptions: string;
   accessibility: string;
+  // Contact & social
+  publicEmail: string;
+  showEmail: boolean;
+  publicPhone: string;
+  showPhone: boolean;
+  instagram: string;
+  showInstagram: boolean;
+  tiktok: string;
+  showTiktok: boolean;
+  youtube: string;
+  showYoutube: boolean;
+  website: string;
+  showWebsite: boolean;
+  companyName: string;
+  // Policies
+  cancellationWindow: string;
+  latePolicyNotes: string;
+  safetyNotes: string;
+  // Pricing
+  childPricing: string;
+  minGroupSize: number;
+  maxGroupSize: number;
 }
 
 export interface Experience {

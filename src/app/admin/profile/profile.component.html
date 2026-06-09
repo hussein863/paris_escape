@@ -86,7 +86,7 @@
         <p class="completeness-message">
           <i class="fas fa-info-circle"></i>
           Complete {{ incompleteItems }} more items to boost your visibility
-          <button class="btn-link" type="button">View checklist</button>
+          <button class="btn-link" type="button" (click)="showChecklist = true">View checklist</button>
         </p>
       </div>
 
@@ -115,6 +115,41 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- Checklist Modal -->
+<div class="modal-overlay" *ngIf="showChecklist" (click)="showChecklist = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <h2>Profile Checklist</h2>
+        <p>{{ profileCompleteness }}% complete — {{ incompleteItems }} item(s) remaining</p>
+      </div>
+      <button class="modal-close" type="button" (click)="showChecklist = false">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-progress">
+      <div class="modal-progress-bar" [style.width.%]="profileCompleteness"></div>
+    </div>
+
+    <div class="checklist-items">
+      <div class="checklist-item" *ngFor="let item of checklistItems" [class.done]="item.done">
+        <div class="checklist-icon">
+          <i class="fas" [class.fa-check-circle]="item.done" [class.fa-circle]="!item.done"></i>
+        </div>
+        <div class="checklist-content">
+          <span class="checklist-label">{{ item.label }}</span>
+          <span class="checklist-hint" *ngIf="!item.done">{{ item.hint }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-primary" type="button" (click)="showChecklist = false">Got it</button>
+    </div>
+  </div>
 </div>
 
 <!-- Toast Notification -->

@@ -68,13 +68,30 @@ export class ProfileComponent implements OnInit {
       p.meeting_points.length > 0,
       !!p.base_rate,
       !!p.cancellation_window,
-      p.gallery_photos.length > 0,
     ];
     return Math.round((checks.filter(Boolean).length / checks.length) * 100);
   }
 
   get incompleteItems(): number {
-    return 10 - Math.round(this.profileCompleteness / 10);
+    return this.checklistItems.filter(i => !i.done).length;
+  }
+
+  showChecklist = false;
+
+  get checklistItems(): { label: string; done: boolean; hint: string }[] {
+    if (!this.profile) return [];
+    const p = this.profile;
+    return [
+      { label: 'Add a bio', done: !!p.bio, hint: 'Tell travelers who you are and what makes you unique.' },
+      { label: 'Set years of experience', done: !!p.years_of_experience, hint: 'Helps build trust with potential customers.' },
+      { label: 'Add at least one language', done: p.languages.length > 0, hint: 'Let travelers know which languages you speak.' },
+      { label: 'Add at least one specialty', done: p.specialties.length > 0, hint: 'Food, Art, History… what\'s your expertise?' },
+      { label: 'Add company or SIRET info', done: !!p.company_name || !!p.siret, hint: 'Required for professional listings.' },
+      { label: 'Set your base city', done: !!p.base_city, hint: 'Where are you based? This helps with local search.' },
+      { label: 'Add a meeting point', done: p.meeting_points.length > 0, hint: 'Travelers need to know where to meet you.' },
+      { label: 'Set your base rate', done: !!p.base_rate, hint: 'A starting price helps travelers plan their budget.' },
+      { label: 'Set cancellation policy', done: !!p.cancellation_window, hint: 'Required before your profile goes live.' },
+    ];
   }
 
   constructor(

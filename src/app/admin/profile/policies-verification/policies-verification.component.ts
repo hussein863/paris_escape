@@ -27,14 +27,17 @@ export class PoliciesVerificationComponent implements OnInit {
   cancellationWindows = ['24 hours before', '48 hours before', '72 hours before', '1 week before'];
 
   saving = false;
-  saveSuccess = false;
-  saveError = '';
-
-  submitSuccess = false;
-  submitError = '';
-
+  submitting = false;
   showDeactivateConfirm = false;
   deactivating = false;
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
 
   constructor(
     private guideService: GuideProfileService,
@@ -62,23 +65,13 @@ export class PoliciesVerificationComponent implements OnInit {
 
   save(): void {
     this.saving = true;
-    this.saveSuccess = false;
-    this.saveError = '';
     this.guideService.patch({
       cancellation_window: this.cancellationWindow,
       late_policy_notes: this.latePolicyNotes,
       safety_notes: this.safetyNotes,
-      unique_description: this.uniqueDescription,
     }).subscribe({
-      next: () => {
-        this.saving = false;
-        this.saveSuccess = true;
-        setTimeout(() => (this.saveSuccess = false), 3000);
-      },
-      error: (err) => {
-        this.saving = false;
-        this.saveError = err?.error?.detail ?? 'Save failed.';
-      },
+      next: () => { this.saving = false; this.showToast('Policies saved!'); },
+      error: () => { this.saving = false; this.showToast('Failed to save policies.', 'error'); },
     });
   }
 
@@ -110,22 +103,13 @@ export class PoliciesVerificationComponent implements OnInit {
 
   submitForReview(): void {
     if (!this.uniqueDescription?.trim()) {
-      this.submitError = 'Please describe what makes your experience unique';
+      this.showToast('Please describe what makes your experience unique.', 'error');
       return;
     }
-    this.saving = true;
-    this.submitSuccess = false;
-    this.submitError = '';
+    this.submitting = true;
     this.guideService.patch({ unique_description: this.uniqueDescription }).subscribe({
-      next: () => {
-        this.saving = false;
-        this.submitSuccess = true;
-        setTimeout(() => (this.submitSuccess = false), 3000);
-      },
-      error: (err) => {
-        this.saving = false;
-        this.submitError = err?.error?.detail ?? 'Submission failed.';
-      },
+      next: () => { this.submitting = false; this.showToast('Submitted for review! We\'ll get back to you shortly.'); },
+      error: () => { this.submitting = false; this.showToast('Submission failed. Please try again.', 'error'); },
     });
   }
 }

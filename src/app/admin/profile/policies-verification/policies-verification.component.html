@@ -72,17 +72,9 @@
     </div>
 
     <div class="submit-section">
-      <div class="save-feedback">
-        <span class="save-success" *ngIf="submitSuccess">
-          <i class="fas fa-check-circle"></i> Submitted for review!
-        </span>
-        <span class="save-error" *ngIf="submitError">
-          <i class="fas fa-exclamation-circle"></i> {{ submitError }}
-        </span>
-      </div>
-      <button class="btn btn-submit" type="button" (click)="submitForReview()" [disabled]="saving">
-        <i class="fas fa-paper-plane"></i>
-        {{ saving ? 'Submitting…' : 'Submit for Review' }}
+      <button class="btn btn-submit" type="button" (click)="submitForReview()" [disabled]="submitting">
+        <i class="fas" [class.fa-paper-plane]="!submitting" [class.fa-spinner]="submitting" [class.fa-spin]="submitting"></i>
+        {{ submitting ? 'Submitting…' : 'Submit for Review' }}
       </button>
     </div>
   </div>
@@ -149,4 +141,10 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'"></i>
+  <span>{{ toast.message }}</span>
+  <button type="button" class="toast-close" (click)="toast = null"><i class="fas fa-times"></i></button>
 </div>
