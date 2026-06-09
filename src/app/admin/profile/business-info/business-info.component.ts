@@ -20,8 +20,14 @@ export class BusinessInfoComponent implements OnInit {
   showPhoneOnProfile = false;
 
   saving = false;
-  saveSuccess = false;
-  saveError = '';
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
 
   constructor(private guideService: GuideProfileService) {}
 
@@ -40,8 +46,6 @@ export class BusinessInfoComponent implements OnInit {
 
   save(): void {
     this.saving = true;
-    this.saveSuccess = false;
-    this.saveError = '';
     this.guideService.patch({
       company_name: this.companyName,
       siret: this.siret,
@@ -51,15 +55,8 @@ export class BusinessInfoComponent implements OnInit {
       public_phone: this.publicPhone,
       show_phone_on_profile: this.showPhoneOnProfile,
     }).subscribe({
-      next: () => {
-        this.saving = false;
-        this.saveSuccess = true;
-        setTimeout(() => (this.saveSuccess = false), 3000);
-      },
-      error: (err) => {
-        this.saving = false;
-        this.saveError = err?.error?.detail ?? 'Save failed.';
-      },
+      next: () => { this.saving = false; this.showToast('Business info saved!'); },
+      error: () => { this.saving = false; this.showToast('Failed to save changes.', 'error'); },
     });
   }
 }

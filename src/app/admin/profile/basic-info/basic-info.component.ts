@@ -40,8 +40,14 @@ export class BasicInfoComponent implements OnInit {
   languageLevels = ['Native', 'Fluent', 'Conversational', 'Basic'];
 
   saving = false;
-  saveSuccess = false;
-  saveError = '';
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
 
   constructor(
     private guideService: GuideProfileService,
@@ -73,27 +79,15 @@ export class BasicInfoComponent implements OnInit {
 
   save(): void {
     this.saving = true;
-    this.saveSuccess = false;
-    this.saveError = '';
-
-    // Save name to user endpoint
     const fullName = [this.firstName, this.lastName].filter(Boolean).join(' ');
     this.http.patch(`${environment.apiUrl}/users/me/`, { name: fullName }).subscribe();
-
     this.guideService.patch({
       pronouns: this.pronouns,
       bio: this.bio,
       years_of_experience: this.yearsOfExperience,
     }).subscribe({
-      next: () => {
-        this.saving = false;
-        this.saveSuccess = true;
-        setTimeout(() => (this.saveSuccess = false), 3000);
-      },
-      error: (err) => {
-        this.saving = false;
-        this.saveError = err?.error?.detail ?? 'Save failed.';
-      },
+      next: () => { this.saving = false; this.showToast('Profile info saved!'); },
+      error: () => { this.saving = false; this.showToast('Failed to save changes.', 'error'); },
     });
   }
 

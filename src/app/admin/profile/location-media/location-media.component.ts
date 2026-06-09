@@ -32,11 +32,16 @@ export class LocationMediaComponent implements OnInit {
   galleryPhotos: { id: number; image_url: string; ordering: number }[] = [];
 
   locationSaving = false;
-  locationSuccess = false;
-  locationError = '';
-
   coverUploading = false;
   galleryUploading = false;
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
 
   constructor(private guideService: GuideProfileService) {}
 
@@ -53,18 +58,9 @@ export class LocationMediaComponent implements OnInit {
 
   saveLocation(): void {
     this.locationSaving = true;
-    this.locationSuccess = false;
-    this.locationError = '';
     this.guideService.patch({ base_city: this.baseCity, neighborhood: this.neighborhood }).subscribe({
-      next: () => {
-        this.locationSaving = false;
-        this.locationSuccess = true;
-        setTimeout(() => (this.locationSuccess = false), 3000);
-      },
-      error: (err) => {
-        this.locationSaving = false;
-        this.locationError = err?.error?.detail ?? 'Save failed.';
-      },
+      next: () => { this.locationSaving = false; this.showToast('Location saved!'); },
+      error: () => { this.locationSaving = false; this.showToast('Failed to save location.', 'error'); },
     });
   }
 

@@ -55,16 +55,8 @@
     </div>
 
     <div class="save-row">
-      <div class="save-feedback">
-        <span class="save-success" *ngIf="locationSuccess">
-          <i class="fas fa-check-circle"></i> Saved!
-        </span>
-        <span class="save-error" *ngIf="locationError">
-          <i class="fas fa-exclamation-circle"></i> {{ locationError }}
-        </span>
-      </div>
       <button class="btn btn-primary btn-save" type="button" (click)="saveLocation()" [disabled]="locationSaving">
-        <i class="fas fa-save"></i>
+        <i class="fas" [class.fa-save]="!locationSaving" [class.fa-spinner]="locationSaving" [class.fa-spin]="locationSaving"></i>
         {{ locationSaving ? 'Saving…' : 'Save Location' }}
       </button>
     </div>
@@ -113,4 +105,10 @@
       Download QR Code
     </button>
   </div>
+</div>
+
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'"></i>
+  <span>{{ toast.message }}</span>
+  <button type="button" class="toast-close" (click)="toast = null"><i class="fas fa-times"></i></button>
 </div>

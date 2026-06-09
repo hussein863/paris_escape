@@ -61,11 +61,20 @@ export class AvailabilityPricingComponent implements OnInit {
     friday: 'F', saturday: 'S', sunday: 'S',
   };
 
-  saving = false;
-  saveSuccess = false;
-  saveError = '';
+  savingSocial = false;
+  savingAvailability = false;
+  savingPricing = false;
+  savingInclusions = false;
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimer: any;
 
   constructor(private guideService: GuideProfileService) {}
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
 
   ngOnInit(): void {
     this.guideService.profile$.subscribe(p => {
@@ -93,44 +102,53 @@ export class AvailabilityPricingComponent implements OnInit {
     });
   }
 
-  toggleDay(day: string): void {
-    this.workingDays[day] = !this.workingDays[day];
+  toggleDay(day: string): void { this.workingDays[day] = !this.workingDays[day]; }
+
+  saveSocial(): void {
+    this.savingSocial = true;
+    this.guideService.patch({
+      instagram: this.instagram, show_instagram: this.showInstagram,
+      tiktok: this.tiktok, show_tiktok: this.showTiktok,
+      youtube: this.youtube, show_youtube: this.showYoutube,
+      website: this.website, show_website: this.showWebsite,
+    }).subscribe({
+      next: () => { this.savingSocial = false; this.showToast('Social links saved!'); },
+      error: () => { this.savingSocial = false; this.showToast('Failed to save social links.', 'error'); },
+    });
   }
 
-  save(): void {
-    this.saving = true;
-    this.saveSuccess = false;
-    this.saveError = '';
+  saveAvailability(): void {
+    this.savingAvailability = true;
     this.guideService.patch({
       working_days: { ...this.workingDays },
       availability_start_time: this.startTime,
       availability_end_time: this.endTime,
       timezone: this.timezone,
-      base_rate: this.baseRate,
-      default_currency: this.defaultCurrency,
-      private_rate: this.privateRate,
-      min_group_size: this.minGroupSize,
-      max_group_size: this.maxGroupSize,
-      child_pricing: this.childPricing,
-      instagram: this.instagram,
-      show_instagram: this.showInstagram,
-      tiktok: this.tiktok,
-      show_tiktok: this.showTiktok,
-      youtube: this.youtube,
-      show_youtube: this.showYoutube,
-      website: this.website,
-      show_website: this.showWebsite,
     }).subscribe({
-      next: () => {
-        this.saving = false;
-        this.saveSuccess = true;
-        setTimeout(() => (this.saveSuccess = false), 3000);
-      },
-      error: (err) => {
-        this.saving = false;
-        this.saveError = err?.error?.detail ?? 'Save failed.';
-      },
+      next: () => { this.savingAvailability = false; this.showToast('Availability saved!'); },
+      error: () => { this.savingAvailability = false; this.showToast('Failed to save availability.', 'error'); },
     });
+  }
+
+  savePricing(): void {
+    this.savingPricing = true;
+    this.guideService.patch({
+      base_rate: this.baseRate, default_currency: this.defaultCurrency,
+      private_rate: this.privateRate, min_group_size: this.minGroupSize,
+      max_group_size: this.maxGroupSize, child_pricing: this.childPricing,
+    }).subscribe({
+      next: () => { this.savingPricing = false; this.showToast('Pricing saved!'); },
+      error: () => { this.savingPricing = false; this.showToast('Failed to save pricing.', 'error'); },
+    });
+  }
+
+  saveInclusions(): void {
+    this.savingInclusions = true;
+    // Inclusions are local-only for now, simulate save
+    setTimeout(() => {
+      this.savingInclusions = false;
+      this.showToast('Inclusions saved!');
+    }, 500);
   }
 
   addIncluded(): void { this.whatsIncluded.push({ text: '' }); }

@@ -33,16 +33,8 @@
     </div>
 
     <div class="save-row">
-      <div class="save-feedback">
-        <span class="save-success" *ngIf="saveSuccess">
-          <i class="fas fa-check-circle"></i> Saved!
-        </span>
-        <span class="save-error" *ngIf="saveError">
-          <i class="fas fa-exclamation-circle"></i> {{ saveError }}
-        </span>
-      </div>
       <button class="btn btn-primary btn-save" type="button" (click)="save()" [disabled]="saving">
-        <i class="fas fa-save"></i>
+        <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
         {{ saving ? 'Saving…' : 'Save Changes' }}
       </button>
     </div>

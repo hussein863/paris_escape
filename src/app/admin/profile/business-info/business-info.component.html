@@ -35,10 +35,15 @@
   </div>
 
   <div class="save-row">
-    <span class="save-success" *ngIf="saveSuccess">Saved!</span>
-    <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
     <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
+      <i class="fas" [class.fa-save]="!saving" [class.fa-spinner]="saving" [class.fa-spin]="saving"></i>
       {{ saving ? 'Saving…' : 'Save Changes' }}
     </button>
   </div>
+</div>
+
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'"></i>
+  <span>{{ toast.message }}</span>
+  <button type="button" class="toast-close" (click)="toast = null"><i class="fas fa-times"></i></button>
 </div>
