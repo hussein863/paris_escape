@@ -58,8 +58,8 @@
       <button type="submit" class="btn btn-primary submit-btn">Send Message</button>
     </form>
     
-    <p class="response-time">
-      Typical response within 2 hours
+    <p class="response-time" *ngIf="guide.responseTime">
+      Typical response: {{ guide.responseTime }}
     </p>
   </div>
   
@@ -88,7 +88,7 @@
         <i class="fa-solid fa-rotate-left" style="color: black;"></i>
         <div class="trust-content">
           <span class="trust-title">Flexible Cancellation</span>
-          <span class="trust-desc">Free cancellation up to 24h before</span>
+          <span class="trust-desc">Free cancellation up to {{ guide.cancellationWindow || '24 hours before' }}</span>
         </div>
       </div>
     </div>

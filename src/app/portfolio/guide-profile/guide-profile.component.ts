@@ -192,6 +192,7 @@ export class GuideProfileComponent implements OnInit {
       priceRange: minPrice ? `€${minPrice} – €${Math.max(minPrice, maxPrice)}` : '',
       responseTime: g.response_time ?? '',
       about: g.bio ?? '',
+      headline: g.headline ?? '',
       specialties: (g.specialties ?? []).map((s: any) => s.name),
       meetingPoint: {
         name: (g.meeting_points ?? []).find((m: any) => m.is_default)?.name ?? g.meeting_point_name ?? '',
@@ -199,6 +200,28 @@ export class GuideProfileComponent implements OnInit {
       },
       pickupOptions: g.pickup_options ?? '',
       accessibility: g.accessibility ?? '',
+      // Contact & social
+      publicEmail: g.show_email_on_profile ? (g.public_email ?? '') : '',
+      showEmail: g.show_email_on_profile ?? false,
+      publicPhone: g.show_phone_on_profile ? (g.public_phone ?? '') : '',
+      showPhone: g.show_phone_on_profile ?? false,
+      instagram: g.show_instagram ? (g.instagram ?? '') : '',
+      showInstagram: g.show_instagram ?? false,
+      tiktok: g.show_tiktok ? (g.tiktok ?? '') : '',
+      showTiktok: g.show_tiktok ?? false,
+      youtube: g.show_youtube ? (g.youtube ?? '') : '',
+      showYoutube: g.show_youtube ?? false,
+      website: g.show_website ? (g.website ?? '') : '',
+      showWebsite: g.show_website ?? false,
+      companyName: g.company_name ?? '',
+      // Policies
+      cancellationWindow: g.cancellation_window ?? '',
+      latePolicyNotes: g.late_policy_notes ?? '',
+      safetyNotes: g.safety_notes ?? '',
+      // Pricing
+      childPricing: g.child_pricing ?? '',
+      minGroupSize: g.min_group_size ?? 1,
+      maxGroupSize: g.max_group_size ?? 8,
     };
   }
 

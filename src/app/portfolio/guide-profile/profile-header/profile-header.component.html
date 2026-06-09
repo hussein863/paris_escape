@@ -10,11 +10,10 @@
                     <div class="info-content">
                         <div class="name-badges">
                             <h1 class="name">{{ guide.name }}</h1>
-                            <span *ngIf="guide.isVerified" class="badge verified">
-                                Verified
-                            </span>
+                            <span *ngIf="guide.isVerified" class="badge verified">Verified</span>
                             <span *ngIf="guide.isOriginal" class="badge originals">Originals</span>
                         </div>
+                        <p class="guide-headline" *ngIf="guide.headline">{{ guide.headline }}</p>
 
                         <div class="meta-info">
                             <span class="languages">

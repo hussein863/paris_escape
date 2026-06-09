@@ -1,29 +1,101 @@
 <section class="profile-about">
   <h2 class="section-title">About {{ guide.name.split(' ')[0] }}</h2>
-  
+
   <div class="about-content" [class.expanded]="isExpanded">
     <p>{{ guide.about }}</p>
   </div>
-  
   <button class="read-more-btn" (click)="toggleReadMore()">
     {{ isExpanded ? 'Show less' : 'Read more' }}
   </button>
-  
-  <div class="specialties">
+
+  <div class="specialties" *ngIf="guide.specialties.length > 0">
     <h3>Specialties & Themes</h3>
     <div class="tags">
       <span class="tag" *ngFor="let specialty of guide.specialties">{{ specialty }}</span>
     </div>
   </div>
-  
+
   <div class="languages-section">
     <h3>Languages</h3>
     <div class="language-list">
       <div class="language-item" *ngFor="let lang of guide.languages">
-        <i class="fas fa-check" [style.color]="lang.level === 'Native' ? '#22c55e' : lang.level === 'Fluent' ? '#22c55e' : '#22c55e'"></i>
+        <i class="fas fa-check"></i>
         <span class="lang-name">{{ lang.name }}</span>
         <span class="lang-level">- {{ lang.level }}</span>
       </div>
     </div>
   </div>
+
+  <!-- Group & Pricing Info -->
+  <div class="about-meta" *ngIf="guide.minGroupSize || guide.maxGroupSize || guide.childPricing">
+    <h3>Group & Pricing</h3>
+    <div class="meta-grid">
+      <div class="meta-item" *ngIf="guide.minGroupSize || guide.maxGroupSize">
+        <i class="fas fa-users"></i>
+        <span>Group size: {{ guide.minGroupSize }}–{{ guide.maxGroupSize }} people</span>
+      </div>
+      <div class="meta-item" *ngIf="guide.childPricing">
+        <i class="fas fa-child"></i>
+        <span>Children: {{ guide.childPricing }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Policies -->
+  <div class="about-policies" *ngIf="guide.cancellationWindow || guide.latePolicyNotes || guide.safetyNotes">
+    <h3>Policies & Safety</h3>
+    <div class="policy-item" *ngIf="guide.cancellationWindow">
+      <i class="fas fa-rotate-left"></i>
+      <div>
+        <strong>Cancellation</strong>
+        <p>Free cancellation up to {{ guide.cancellationWindow }}</p>
+      </div>
+    </div>
+    <div class="policy-item" *ngIf="guide.latePolicyNotes">
+      <i class="fas fa-clock"></i>
+      <div>
+        <strong>Late Policy</strong>
+        <p>{{ guide.latePolicyNotes }}</p>
+      </div>
+    </div>
+    <div class="policy-item" *ngIf="guide.safetyNotes">
+      <i class="fas fa-shield-alt"></i>
+      <div>
+        <strong>Safety</strong>
+        <p>{{ guide.safetyNotes }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact & Social Links -->
+  <div class="about-contact" *ngIf="guide.publicEmail || guide.publicPhone || guide.instagram || guide.tiktok || guide.youtube || guide.website">
+    <h3>Contact & Social</h3>
+    <div class="contact-grid">
+      <a class="contact-item" *ngIf="guide.publicEmail" [href]="'mailto:' + guide.publicEmail">
+        <i class="fas fa-envelope"></i>
+        <span>{{ guide.publicEmail }}</span>
+      </a>
+      <a class="contact-item" *ngIf="guide.publicPhone" [href]="'tel:' + guide.publicPhone">
+        <i class="fas fa-phone"></i>
+        <span>{{ guide.publicPhone }}</span>
+      </a>
+      <a class="contact-item social" *ngIf="guide.instagram" [href]="'https://instagram.com/' + guide.instagram.replace('@','')" target="_blank">
+        <i class="fab fa-instagram"></i>
+        <span>{{ guide.instagram }}</span>
+      </a>
+      <a class="contact-item social" *ngIf="guide.tiktok" [href]="'https://tiktok.com/' + guide.tiktok.replace('@','')" target="_blank">
+        <i class="fab fa-tiktok"></i>
+        <span>{{ guide.tiktok }}</span>
+      </a>
+      <a class="contact-item social" *ngIf="guide.youtube" [href]="guide.youtube" target="_blank">
+        <i class="fab fa-youtube"></i>
+        <span>{{ guide.youtube }}</span>
+      </a>
+      <a class="contact-item social" *ngIf="guide.website" [href]="guide.website" target="_blank">
+        <i class="fas fa-globe"></i>
+        <span>{{ guide.website }}</span>
+      </a>
+    </div>
+  </div>
+
 </section>
