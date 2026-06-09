@@ -46,6 +46,15 @@ export class ProfileComponent implements OnInit {
   bioEditText = '';
   bioSaving = false;
 
+  toast: { message: string; type: 'success' | 'error' | 'info' } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' | 'info' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
+
   get profileCompleteness(): number {
     if (!this.profile) return 0;
     const p = this.profile;
@@ -114,21 +123,20 @@ export class ProfileComponent implements OnInit {
       this.avatarPreview = e.target?.result as string;
     };
     reader.readAsDataURL(file);
-  }
-
-  saveAvatar(): void {
-    if (!this.avatarFile) return;
+    // Auto-save immediately
     this.avatarSaving = true;
     const fd = new FormData();
-    fd.append('avatar', this.avatarFile);
+    fd.append('avatar', file);
     this.http.post(`${environment.apiUrl}/users/avatar/`, fd).subscribe({
       next: () => {
         this.avatarSaving = false;
         this.avatarFile = null;
         this.auth.loadMe().subscribe();
+        this.showToast('Profile photo updated successfully!');
       },
       error: () => {
         this.avatarSaving = false;
+        this.showToast('Failed to upload photo. Please try again.', 'error');
       },
     });
   }
@@ -136,19 +144,15 @@ export class ProfileComponent implements OnInit {
   previewProfile(): void {
     const guideId = this.profile?.id;
     if (!guideId) {
-      alert('Please complete your profile first');
+      this.showToast('Please complete your profile first.', 'info');
       return;
     }
     const encryptedId = this.idEncrypt.encryptId(guideId);
     window.open(`/landing/profil/${encryptedId}`, '_blank');
   }
 
-  saveDraft(): void {
-    alert('Draft saved! Your changes will be preserved.');
-  }
-
   publishChanges(): void {
-    alert('Profile published! Your changes are now live.');
+    this.showToast('Profile published! Your changes are now live.');
   }
 
   goToSupport(): void {
@@ -162,7 +166,7 @@ export class ProfileComponent implements OnInit {
 
   saveBio(): void {
     if (!this.bioEditText.trim()) {
-      alert('Bio cannot be empty');
+      this.showToast('Bio cannot be empty.', 'error');
       return;
     }
     this.bioSaving = true;
@@ -176,7 +180,7 @@ export class ProfileComponent implements OnInit {
       },
       error: () => {
         this.bioSaving = false;
-        alert('Failed to save bio');
+        this.showToast('Failed to save bio. Please try again.', 'error');
       }
     });
   }

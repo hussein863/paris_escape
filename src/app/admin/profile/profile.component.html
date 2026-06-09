@@ -16,7 +16,10 @@
       <div class="profile-header">
         <div class="profile-header-left">
           <div class="profile-avatar">
-            <img [src]="avatarPreview || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'" alt="Profile photo" />
+            <img *ngIf="avatarPreview" [src]="avatarPreview" alt="Profile photo" (error)="avatarPreview = null" />
+            <div *ngIf="!avatarPreview" class="avatar-initials">
+              {{ (userName || 'U').charAt(0).toUpperCase() }}
+            </div>
             <input
               type="file"
               id="avatarUpload"
@@ -57,17 +60,12 @@
           </div>
         </div>
         <div class="profile-header-actions">
-          <button class="btn btn-secondary" type="button" *ngIf="avatarFile" (click)="saveAvatar()" [disabled]="avatarSaving">
-            <i class="fas fa-save"></i>
-            {{ avatarSaving ? 'Saving…' : 'Save Photo' }}
-          </button>
+          <span *ngIf="avatarSaving" class="avatar-saving-indicator">
+            <i class="fas fa-spinner fa-spin"></i> Saving photo…
+          </span>
           <button class="btn btn-secondary" type="button" (click)="previewProfile()">
             <i class="fa-solid fa-eye" style="color: rgba(55, 65, 81, 1);"></i>
             Preview Profile
-          </button>
-          <button class="btn btn-secondary" type="button" (click)="saveDraft()">
-            <i class="fas fa-file-alt"></i>
-            Save Draft
           </button>
           <button class="btn btn-primary" type="button" (click)="publishChanges()">
             <i class="fa-solid fa-check"></i>
@@ -117,4 +115,13 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'" [class.fa-info-circle]="toast.type === 'info'"></i>
+  <span>{{ toast.message }}</span>
+  <button type="button" class="toast-close" (click)="toast = null">
+    <i class="fas fa-times"></i>
+  </button>
 </div>

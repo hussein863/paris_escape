@@ -59,7 +59,7 @@ export class CheckoutComponent implements OnInit {
     private router: Router,
     private experienceService: ExperienceService,
     private bookingService: BookingService,
-    private auth: AuthService,
+    public auth: AuthService,
     private idEncrypt: IdEncryptService
   ) {}
 
@@ -122,7 +122,7 @@ export class CheckoutComponent implements OnInit {
       experience: this.experience!.id,
       guide: this.experience!.guide,
       date: this.selectedDate,
-      time: this.selectedTime ? this.selectedTime + ':00' : '09:00:00',
+      time: this.formatTime(this.selectedTime) || '09:00:00',
       adults: this.adultsCount,
       children: this.childrenCount,
       base_price: this.experience!.base_price,
@@ -157,6 +157,29 @@ export class CheckoutComponent implements OnInit {
         this.submitting = false;
       }
     });
+  }
+
+  formatTime(time: string): string {
+    if (!time) return '09:00:00';
+    time = time.trim();
+    // Already HH:MM:SS
+    if (/^\d{1,2}:\d{2}:\d{2}$/.test(time)) return time;
+    // HH:MM → HH:MM:00
+    if (/^\d{1,2}:\d{2}$/.test(time)) {
+      const [h, m] = time.split(':');
+      return `${h.padStart(2, '0')}:${m}:00`;
+    }
+    // "9:00 AM" / "10:00 PM" → HH:MM:00
+    const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hours = parseInt(match[1], 10);
+      const minutes = match[2];
+      const period = match[3].toUpperCase();
+      if (period === 'AM' && hours === 12) hours = 0;
+      if (period === 'PM' && hours !== 12) hours += 12;
+      return `${String(hours).padStart(2, '0')}:${minutes}:00`;
+    }
+    return '09:00:00';
   }
 
   goToReservations(): void { this.router.navigate(['/client/reservations']); }

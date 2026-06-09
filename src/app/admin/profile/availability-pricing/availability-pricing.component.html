@@ -1,70 +1,76 @@
 <div class="availability-pricing-wrapper">
+
   <!-- Social Links -->
   <div class="section-card">
     <h2 class="section-title">Social Links</h2>
+    <p class="section-hint">Check the box next to each link to show it on your public profile.</p>
 
     <div class="form-group">
       <label for="instagram">Instagram</label>
       <div class="social-input-wrapper">
+        <span class="social-icon"><i class="fab fa-instagram"></i></span>
         <input id="instagram" type="text" class="form-control" placeholder="@username" [(ngModel)]="instagram" />
-        <div class="form-checkbox-inline">
-          <input type="checkbox" id="show-instagram" [(ngModel)]="showInstagram" />
-        </div>
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="showInstagram" />
+          <span>Show</span>
+        </label>
       </div>
     </div>
 
     <div class="form-group">
       <label for="tiktok">TikTok</label>
       <div class="social-input-wrapper">
+        <span class="social-icon"><i class="fab fa-tiktok"></i></span>
         <input id="tiktok" type="text" class="form-control" placeholder="@username" [(ngModel)]="tiktok" />
-        <div class="form-checkbox-inline">
-          <input type="checkbox" id="show-tiktok" [(ngModel)]="showTiktok" />
-        </div>
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="showTiktok" />
+          <span>Show</span>
+        </label>
       </div>
     </div>
 
     <div class="form-group">
       <label for="youtube">YouTube</label>
       <div class="social-input-wrapper">
+        <span class="social-icon"><i class="fab fa-youtube"></i></span>
         <input id="youtube" type="text" class="form-control" placeholder="Channel URL" [(ngModel)]="youtube" />
-        <div class="form-checkbox-inline">
-          <input type="checkbox" id="show-youtube" [(ngModel)]="showYoutube" />
-        </div>
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="showYoutube" />
+          <span>Show</span>
+        </label>
       </div>
     </div>
 
     <div class="form-group">
       <label for="website">Website</label>
       <div class="social-input-wrapper">
+        <span class="social-icon"><i class="fas fa-globe"></i></span>
         <input id="website" type="text" class="form-control" placeholder="https://yourwebsite.com" [(ngModel)]="website" />
-        <div class="form-checkbox-inline">
-          <input type="checkbox" id="show-website" [(ngModel)]="showWebsite" />
-        </div>
+        <label class="toggle-label">
+          <input type="checkbox" [(ngModel)]="showWebsite" />
+          <span>Show</span>
+        </label>
       </div>
     </div>
 
-    <p class="form-hint">
-      <i class="fas fa-info-circle"></i>
-      Check to show on public profile
-    </p>
+    <div class="section-footer">
+      <button class="btn btn-primary" type="button" (click)="saveSocial()" [disabled]="savingSocial">
+        <i class="fas" [class.fa-save]="!savingSocial" [class.fa-spinner]="savingSocial" [class.fa-spin]="savingSocial"></i>
+        {{ savingSocial ? 'Saving…' : 'Save Social Links' }}
+      </button>
+    </div>
   </div>
 
   <!-- Availability Defaults -->
   <div class="section-card">
-    <div class="section-header">
-      <h2 class="section-title">Availability Defaults</h2>
-    </div>
+    <h2 class="section-title">Availability Defaults</h2>
+    <p class="section-hint">Set your typical working schedule. You can override these on individual experiences.</p>
 
     <div class="form-group">
       <label>Working Days</label>
       <div class="days-selector">
-        <button
-          type="button"
-          class="day-btn"
-          *ngFor="let day of dayKeys"
-          [class.active]="workingDays[day]"
-          (click)="toggleDay(day)"
-        >
+        <button type="button" class="day-btn" *ngFor="let day of dayKeys"
+          [class.active]="workingDays[day]" (click)="toggleDay(day)">
           {{ dayLabels[day] }}
         </button>
       </div>
@@ -87,11 +93,19 @@
         <option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
       </select>
     </div>
+
+    <div class="section-footer">
+      <button class="btn btn-primary" type="button" (click)="saveAvailability()" [disabled]="savingAvailability">
+        <i class="fas" [class.fa-save]="!savingAvailability" [class.fa-spinner]="savingAvailability" [class.fa-spin]="savingAvailability"></i>
+        {{ savingAvailability ? 'Saving…' : 'Save Availability' }}
+      </button>
+    </div>
   </div>
 
   <!-- Pricing Defaults -->
   <div class="section-card">
     <h2 class="section-title">Pricing Defaults</h2>
+    <p class="section-hint">These will be pre-filled when you create a new experience.</p>
 
     <div class="form-group">
       <label for="baseRate">Base Rate (per person)</label>
@@ -125,11 +139,19 @@
         <option *ngFor="let option of childPricingOptions" [value]="option">{{ option }}</option>
       </select>
     </div>
+
+    <div class="section-footer">
+      <button class="btn btn-primary" type="button" (click)="savePricing()" [disabled]="savingPricing">
+        <i class="fas" [class.fa-save]="!savingPricing" [class.fa-spinner]="savingPricing" [class.fa-spin]="savingPricing"></i>
+        {{ savingPricing ? 'Saving…' : 'Save Pricing' }}
+      </button>
+    </div>
   </div>
 
   <!-- Inclusions Defaults -->
   <div class="section-card">
     <h2 class="section-title">Inclusions Defaults</h2>
+    <p class="section-hint">These defaults will be pre-filled when you create a new experience.</p>
 
     <div class="inclusions-grid">
       <div class="form-group">
@@ -137,14 +159,10 @@
         <div class="inclusions-list">
           <div class="inclusion-item" *ngFor="let item of whatsIncluded; let i = index">
             <input type="text" class="form-control" [(ngModel)]="item.text" placeholder="e.g., Expert guide" />
-            <button class="btn-icon btn-remove" type="button" (click)="removeIncluded(i)">
-              <i class="fas fa-times"></i>
-            </button>
+            <button class="btn-icon btn-remove" type="button" (click)="removeIncluded(i)"><i class="fas fa-times"></i></button>
           </div>
         </div>
-        <button class="btn-add" type="button" (click)="addIncluded()">
-          <i class="fas fa-plus"></i> Add Item
-        </button>
+        <button class="btn-add" type="button" (click)="addIncluded()"><i class="fas fa-plus"></i> Add Item</button>
       </div>
 
       <div class="form-group">
@@ -152,14 +170,10 @@
         <div class="inclusions-list">
           <div class="inclusion-item" *ngFor="let item of notIncluded; let i = index">
             <input type="text" class="form-control" [(ngModel)]="item.text" placeholder="e.g., Food &amp; drinks" />
-            <button class="btn-icon btn-remove" type="button" (click)="removeNotIncluded(i)">
-              <i class="fas fa-times"></i>
-            </button>
+            <button class="btn-icon btn-remove" type="button" (click)="removeNotIncluded(i)"><i class="fas fa-times"></i></button>
           </div>
         </div>
-        <button class="btn-add" type="button" (click)="addNotIncluded()">
-          <i class="fas fa-plus"></i> Add Item
-        </button>
+        <button class="btn-add" type="button" (click)="addNotIncluded()"><i class="fas fa-plus"></i> Add Item</button>
       </div>
 
       <div class="form-group">
@@ -168,24 +182,26 @@
           <div class="addon-item" *ngFor="let addon of optionalAddons; let i = index">
             <input type="text" class="form-control" [(ngModel)]="addon.text" placeholder="e.g., Photographer" />
             <input type="number" class="form-control addon-price" [(ngModel)]="addon.price" placeholder="Price" min="0" />
-            <button class="btn-icon btn-remove" type="button" (click)="removeAddon(i)">
-              <i class="fas fa-times"></i>
-            </button>
+            <button class="btn-icon btn-remove" type="button" (click)="removeAddon(i)"><i class="fas fa-times"></i></button>
           </div>
         </div>
-        <button class="btn-add" type="button" (click)="addAddon()">
-          <i class="fas fa-plus"></i> Add Add-on
-        </button>
+        <button class="btn-add" type="button" (click)="addAddon()"><i class="fas fa-plus"></i> Add Add-on</button>
       </div>
+    </div>
+
+    <div class="section-footer">
+      <button class="btn btn-primary" type="button" (click)="saveInclusions()" [disabled]="savingInclusions">
+        <i class="fas" [class.fa-save]="!savingInclusions" [class.fa-spinner]="savingInclusions" [class.fa-spin]="savingInclusions"></i>
+        {{ savingInclusions ? 'Saving…' : 'Save Inclusions' }}
+      </button>
     </div>
   </div>
 
-  <!-- Save -->
-  <div class="save-row">
-    <span class="save-success" *ngIf="saveSuccess">Saved!</span>
-    <span class="save-error" *ngIf="saveError">{{ saveError }}</span>
-    <button class="btn btn-primary" type="button" (click)="save()" [disabled]="saving">
-      {{ saving ? 'Saving…' : 'Save Changes' }}
-    </button>
-  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'"></i>
+  <span>{{ toast.message }}</span>
+  <button type="button" class="toast-close" (click)="toast = null"><i class="fas fa-times"></i></button>
 </div>

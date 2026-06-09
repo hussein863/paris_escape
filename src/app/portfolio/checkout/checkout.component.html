@@ -1,6 +1,27 @@
-<div class="checkout-container">
+<!-- Full-page booking confirmation -->
+<div class="booking-confirmed-page" *ngIf="currentStep === 3">
   <app-header></app-header>
-  
+  <div class="confirmed-body">
+    <div class="confirmed-card">
+      <div class="confirmed-icon">🎉</div>
+      <h1 class="confirmed-title">Booking Confirmed!</h1>
+      <p class="confirmed-subtitle">Your experience has been booked. Check your email for details.</p>
+      <div class="confirmed-ref" *ngIf="bookingRef">
+        <span class="ref-label">Booking reference</span>
+        <span class="ref-value">{{ bookingRef }}</span>
+      </div>
+      <button class="btn-continue confirmed-btn" (click)="goToReservations()">
+        <i class="fas fa-calendar-check"></i> View My Reservations
+      </button>
+      <a routerLink="/client/experiences" class="confirmed-link">Browse more experiences</a>
+    </div>
+  </div>
+  <app-footer></app-footer>
+</div>
+
+<div class="checkout-container" *ngIf="currentStep !== 3">
+  <app-header></app-header>
+
   <div class="checkout-content">
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
@@ -128,8 +149,8 @@
           </div>
         </section>
 
-        <!-- Account Options -->
-        <section class="checkout-card">
+        <!-- Account Options — only shown to guests -->
+        <section class="checkout-card" *ngIf="!auth.isLoggedIn()">
           <h2 class="card-title">Account Options</h2>
           <div class="account-options">
             <label class="radio-option" [class.selected]="accountOption === 'signin'">
@@ -193,18 +214,6 @@
           {{ submitting ? 'Confirming booking…' : 'Confirm & Pay' }}
         </button>
 
-        <!-- Step 3 Confirmation -->
-        <section class="checkout-card" *ngIf="currentStep === 3" style="margin-top:24px;text-align:center;padding:40px 32px;">
-          <div style="font-size:48px;margin-bottom:16px;">🎉</div>
-          <h2 style="color:#16a34a;font-size:24px;margin:0 0 8px;">Booking Confirmed!</h2>
-          <p style="color:#6b7280;font-size:15px;margin:0 0 20px;">Your experience has been booked. Check your email for details.</p>
-          <div *ngIf="bookingRef" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 20px;margin-bottom:24px;display:inline-block;">
-            <span style="font-size:13px;color:#6b7280;">Booking reference</span><br>
-            <span style="font-size:20px;font-weight:700;color:#0b0b0b;letter-spacing:1px;">{{ bookingRef }}</span>
-          </div>
-          <br>
-          <button class="btn-continue" (click)="goToReservations()" style="display:inline-block">View My Reservations</button>
-        </section>
       </div>
 
       <!-- Right Column - Order Summary -->
@@ -268,4 +277,3 @@
     </div>
   </div>
 </div>
-<app-footer></app-footer>

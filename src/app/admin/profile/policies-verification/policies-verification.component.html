@@ -142,7 +142,7 @@
         <strong>Deactivate Profile</strong>
         <p>Your profile will be hidden from public view</p>
       </div>
-      <button class="btn-danger" type="button" (click)="confirmDeactivate()">Deactivate</button>
+      <button class="btn btn-danger" type="button" (click)="confirmDeactivate()">Deactivate</button>
     </div>
 
     <div class="danger-confirm" *ngIf="showDeactivateConfirm">
@@ -151,7 +151,7 @@
         <button class="btn btn-secondary" type="button" (click)="cancelDeactivate()" [disabled]="deactivating">
           Cancel
         </button>
-        <button class="btn-danger" type="button" (click)="doDeactivate()" [disabled]="deactivating">
+        <button class="btn btn-danger" type="button" (click)="doDeactivate()" [disabled]="deactivating">
           {{ deactivating ? 'Deactivating…' : 'Yes, Deactivate' }}
         </button>
       </div>
