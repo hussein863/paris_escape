@@ -47,7 +47,10 @@
     </div>
 
     <!-- Loading -->
-    <div class="empty-state" *ngIf="loading">Loading favorites…</div>
+    <div class="empty-state" *ngIf="loading">
+      <div class="empty-icon"><i class="fas fa-spinner fa-spin"></i></div>
+      <p class="empty-title">Loading favorites…</p>
+    </div>
 
     <!-- Experiences tab -->
     <div *ngIf="activeTab === 'experiences' && !loading">
@@ -82,8 +85,10 @@
 
       <ng-template #noFavorites>
         <div class="empty-state">
-          <p>No saved experiences yet.</p>
-          <a routerLink="/landing/experience" class="btn btn-primary">Explore experiences</a>
+          <div class="empty-icon"><i class="fas fa-heart"></i></div>
+          <h3 class="empty-title">No saved experiences yet</h3>
+          <p class="empty-subtitle">Start exploring Paris and save the experiences you love.</p>
+          <a routerLink="/landing/experience" class="empty-cta">Explore experiences</a>
         </div>
       </ng-template>
     </div>
@@ -91,7 +96,9 @@
     <!-- Guides tab -->
     <div *ngIf="activeTab === 'guides' && !loading">
       <div class="empty-state">
-        <p>Guide favorites coming soon.</p>
+        <div class="empty-icon"><i class="fas fa-user-circle"></i></div>
+        <h3 class="empty-title">Guide favorites coming soon</h3>
+        <p class="empty-subtitle">You'll be able to save your favourite guides here.</p>
       </div>
     </div>
 

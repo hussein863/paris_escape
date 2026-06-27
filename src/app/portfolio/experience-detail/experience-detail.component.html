@@ -111,7 +111,7 @@
 </app-auth-prompt-modal>
 
 <!-- Write Review Modal -->
-<div class="review-backdrop" *ngIf="showReviewModal" (click)="showReviewModal = false">
+<div class="review-backdrop" [style.display]="showReviewModal ? 'flex' : 'none'" (click)="showReviewModal = false">
   <div class="review-modal" (click)="$event.stopPropagation()" role="dialog">
     <div class="modal-header">
       <h3>Write a Review</h3>
@@ -138,7 +138,7 @@
 </div>
 
 <!-- Report Modal -->
-<div class="review-backdrop" *ngIf="showReportModal" (click)="showReportModal = false">
+<div class="review-backdrop" [style.display]="showReportModal ? 'flex' : 'none'" (click)="showReportModal = false">
   <div class="review-modal" (click)="$event.stopPropagation()" role="dialog">
     <div class="modal-header">
       <h3>Report this Experience</h3>

@@ -50,7 +50,7 @@
 </app-auth-prompt-modal>
 
 <!-- Write Review Modal -->
-<div class="gp-backdrop" *ngIf="showReviewModal" (click)="showReviewModal = false">
+<div class="gp-backdrop" [style.display]="showReviewModal ? 'flex' : 'none'" (click)="showReviewModal = false">
   <div class="gp-modal" (click)="$event.stopPropagation()" role="dialog">
     <div class="gp-modal-header">
       <h3>Write a Review</h3>
@@ -77,7 +77,7 @@
 </div>
 
 <!-- Report Guide Modal -->
-<div class="gp-backdrop" *ngIf="showReportModal" (click)="showReportModal = false">
+<div class="gp-backdrop" [style.display]="showReportModal ? 'flex' : 'none'" (click)="showReportModal = false">
   <div class="gp-modal" (click)="$event.stopPropagation()" role="dialog">
     <div class="gp-modal-header">
       <h3>Report this Guide</h3>

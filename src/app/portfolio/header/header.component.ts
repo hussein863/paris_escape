@@ -22,7 +22,8 @@ export class HeaderComponent {
 
   constructor(public auth: AuthService, private router: Router) {}
 
-  get userName(): string { return this.auth.user()?.name?.split(' ')[0] ?? ''; }
+  get userName(): string { return this.auth.user()?.name ?? ''; }
+  get userRole(): string { return this.auth.user()?.role ?? 'Customer'; }
   get userAvatar(): string | null { return this.auth.user()?.avatar_url ?? null; }
   get initials(): string {
     return (this.auth.user()?.name ?? 'U').split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
@@ -47,7 +48,7 @@ export class HeaderComponent {
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
-    if (!target.closest('.user-menu') && !target.closest('.user-dropdown')) {
+    if (!target.closest('.user-menu')) {
       this.dropdownOpen = false;
     }
   }

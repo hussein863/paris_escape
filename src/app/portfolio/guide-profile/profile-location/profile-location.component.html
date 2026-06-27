@@ -2,7 +2,9 @@
   <h2 class="section-title">Location & Meeting</h2>
 
   <div class="map-container">
-    <div class="map-placeholder">
+    <iframe *ngIf="mapsEmbedUrl" [src]="mapsEmbedUrl" class="map-iframe"
+      allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div *ngIf="!mapsEmbedUrl" class="map-placeholder">
       <img src="assets/images/map.svg" alt="Map">
     </div>
   </div>

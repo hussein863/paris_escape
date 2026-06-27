@@ -34,19 +34,37 @@
 
       <!-- Logged in -->
       <div class="user-menu" *ngIf="auth.isLoggedIn()" (click)="toggleDropdown()">
-        <div class="user-avatar-wrap">
-          <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="user-avatar-img">
+        <div class="avatar-wrapper">
+          <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="user-avatar">
           <div *ngIf="!userAvatar" class="user-initials">{{ initials }}</div>
         </div>
-        <span class="user-name-label">{{ userName }}</span>
-        <i class="fas fa-chevron-down" style="font-size:11px;color:#6b7280" [class.fa-chevron-up]="dropdownOpen"></i>
+        <div class="user-info">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">{{ userRole }}</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-arrow" [class.open]="dropdownOpen"></i>
 
-        <div class="user-dropdown" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+        <div class="profile-dropdown" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+          <div class="dropdown-header">
+            <img *ngIf="userAvatar" [src]="userAvatar" [alt]="userName" class="user-avatar small">
+            <div *ngIf="!userAvatar" class="user-initials small">{{ initials }}</div>
+            <div>
+              <div class="dropdown-name">{{ userName }}</div>
+              <div class="dropdown-role">{{ userRole }}</div>
+            </div>
+          </div>
+          <hr class="dropdown-divider">
           <button class="dropdown-item" (click)="goToDashboard()">
             <i class="fas fa-gauge-high"></i> Dashboard
           </button>
+          <button class="dropdown-item" [routerLink]="'/client/reservations'">
+            <i class="fas fa-calendar-check"></i> My Reservations
+          </button>
+          <button class="dropdown-item" [routerLink]="'/client/messages'">
+            <i class="fas fa-message"></i> Messages
+          </button>
           <button class="dropdown-item" [routerLink]="isGuide ? '/admin/profile' : '/client/settings'">
-            <i class="fas fa-user"></i> Profile
+            <i class="fas fa-gear"></i> Settings
           </button>
           <hr class="dropdown-divider">
           <button class="dropdown-item logout" (click)="logout()">
