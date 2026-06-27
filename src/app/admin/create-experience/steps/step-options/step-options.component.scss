@@ -146,6 +146,25 @@
     font-weight: 400;
   }
 
+  .addon-check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #0066ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 102, 255, 0.4);
+
+    i {
+      font-size: 12px;
+      color: #fff;
+    }
+  }
+
   @media (max-width: 640px) {
     padding: 16px;
   }
