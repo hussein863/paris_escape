@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Guide } from '../guide-profile.component';
@@ -19,6 +19,8 @@ export class ProfileSidebarComponent {
 
   messageSending = false;
   showAuthModal = false;
+
+  @Output() reportClicked = new EventEmitter<void>();
 
   constructor(
     private router: Router,

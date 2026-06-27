@@ -33,7 +33,7 @@
       </div>
 
       <aside class="sidebar">
-        <app-profile-sidebar [guide]="guide" [guideId]="guide.id"></app-profile-sidebar>
+        <app-profile-sidebar [guide]="guide" [guideId]="guide.id" (reportClicked)="onReportGuideClicked()"></app-profile-sidebar>
       </aside>
     </div>
 
@@ -41,4 +41,76 @@
   </ng-container>
 
   <app-footer></app-footer>
+</div>
+
+<app-auth-prompt-modal
+  [visible]="showAuthModal"
+  [action]="authModalAction"
+  (closed)="showAuthModal = false">
+</app-auth-prompt-modal>
+
+<!-- Write Review Modal -->
+<div class="gp-backdrop" *ngIf="showReviewModal" (click)="showReviewModal = false">
+  <div class="gp-modal" (click)="$event.stopPropagation()" role="dialog">
+    <div class="gp-modal-header">
+      <h3>Write a Review</h3>
+      <button class="gp-modal-close" (click)="showReviewModal = false"><i class="fas fa-times"></i></button>
+    </div>
+    <p class="gp-modal-subtitle">{{ guide?.name }}</p>
+
+    <div class="gp-star-picker">
+      <button *ngFor="let s of [1,2,3,4,5]" type="button" class="gp-star-btn"
+        [class.filled]="s <= reviewRating" (click)="reviewRating = s">
+        <i class="fas fa-star"></i>
+      </button>
+    </div>
+
+    <textarea class="gp-textarea" placeholder="Share your experience with this guide…" [(ngModel)]="reviewContent" rows="4"></textarea>
+
+    <div class="gp-error" *ngIf="reviewError">{{ reviewError }}</div>
+
+    <button class="gp-submit-btn" (click)="submitReview()"
+      [disabled]="reviewSubmitting || reviewRating === 0 || !reviewContent.trim()">
+      {{ reviewSubmitting ? 'Submitting…' : 'Submit Review' }}
+    </button>
+  </div>
+</div>
+
+<!-- Report Guide Modal -->
+<div class="gp-backdrop" *ngIf="showReportModal" (click)="showReportModal = false">
+  <div class="gp-modal" (click)="$event.stopPropagation()" role="dialog">
+    <div class="gp-modal-header">
+      <h3>Report this Guide</h3>
+      <button class="gp-modal-close" (click)="showReportModal = false"><i class="fas fa-times"></i></button>
+    </div>
+
+    <ng-container *ngIf="!reportSuccess">
+      <div class="gp-field">
+        <label>Reason</label>
+        <select [(ngModel)]="reportReason" class="gp-select">
+          <option value="">Select a reason</option>
+          <option value="misleading">Misleading information</option>
+          <option value="inappropriate">Inappropriate content</option>
+          <option value="scam">Scam or fraud</option>
+          <option value="safety">Safety concern</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="gp-field">
+        <label>Description</label>
+        <textarea class="gp-textarea" placeholder="Please provide details…" [(ngModel)]="reportDescription" rows="4"></textarea>
+      </div>
+      <div class="gp-error" *ngIf="reportError">{{ reportError }}</div>
+      <button class="gp-submit-btn" (click)="submitReport()"
+        [disabled]="reportSubmitting || !reportReason || !reportDescription.trim()">
+        {{ reportSubmitting ? 'Submitting…' : 'Submit Report' }}
+      </button>
+    </ng-container>
+
+    <div class="gp-success" *ngIf="reportSuccess">
+      <i class="fas fa-check-circle"></i>
+      <p>Thank you. Your report has been submitted and our team will review it.</p>
+      <button class="gp-submit-btn" (click)="showReportModal = false">Close</button>
+    </div>
+  </div>
 </div>

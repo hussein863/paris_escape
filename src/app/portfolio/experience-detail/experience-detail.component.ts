@@ -276,7 +276,7 @@ export class ExperienceDetailComponent implements OnInit {
     private reviewService: ReviewService,
     private bookingService: BookingService,
     private favoriteService: FavoriteService,
-    private auth: AuthService,
+    public auth: AuthService,
     private http: HttpClient,
     private idEncrypt: IdEncryptService
   ) {}
