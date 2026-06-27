@@ -27,6 +27,7 @@ import { ClientReviewsComponent } from './portfolio/client/reviews/reviews.compo
 import { CheckoutComponent } from './portfolio/checkout/checkout.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 import { ExperienceDetailComponent } from './portfolio/experience-detail/experience-detail.component';
+import { GuidesListComponent } from './portfolio/guides-list/guides-list.component';
 
 import { SuperAdminComponent } from './super-admin/super-admin.component';
 import { DashboardComponent as SuperAdminDashboardComponent } from './super-admin/dashboard/dashboard.component';
@@ -68,6 +69,10 @@ export const routes: Routes = [
       {
         path: 'experience/:encryptedId/book',
         component: CheckoutComponent
+      },
+      {
+        path: 'guides',
+        component: GuidesListComponent,
       },
       {
         path: 'profil/:encryptedId',

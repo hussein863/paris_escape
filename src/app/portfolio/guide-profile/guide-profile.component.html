@@ -22,7 +22,14 @@
         <app-profile-about [guide]="guide"></app-profile-about>
         <app-profile-location [guide]="guide"></app-profile-location>
         <app-profile-experiences [experiences]="experiences" [guideName]="guide.name"></app-profile-experiences>
-        <app-profile-reviews [reviews]="reviews" [stats]="reviewStats"></app-profile-reviews>
+        <app-profile-reviews
+          [reviews]="reviews"
+          [stats]="reviewStats"
+          [canReview]="canReviewGuide"
+          [isLoggedIn]="authService.isLoggedIn()"
+          (writeReviewClicked)="onWriteReviewClicked()"
+          (reportClicked)="onReportGuideClicked()">
+        </app-profile-reviews>
       </div>
 
       <aside class="sidebar">

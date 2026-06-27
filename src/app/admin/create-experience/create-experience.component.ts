@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -20,7 +20,7 @@ import { ExperienceWizardService } from '../../core/services/experience-wizard.s
   templateUrl: './create-experience.component.html',
   styleUrl: './create-experience.component.scss',
 })
-export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CreateExperienceComponent implements OnInit, OnDestroy {
   @ViewChild(StepBasicsComponent) stepBasics!: StepBasicsComponent;
   @ViewChild(StepMediaComponent) stepMedia!: StepMediaComponent;
   @ViewChild(StepPricingComponent) stepPricing!: StepPricingComponent;
@@ -34,9 +34,25 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
   currentStep = 1;
   totalSteps = 8;
   saving = false;
-  saveError = '';
   isEditing = false;
   pendingPrefill: any = null;
+
+  toast: { message: string; type: 'success' | 'error' } | null = null;
+  private toastTimer: any;
+
+  showToast(message: string, type: 'success' | 'error' = 'success'): void {
+    clearTimeout(this.toastTimer);
+    this.toast = { message, type };
+    this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
+  }
+
+  private parseApiError(err: any): string {
+    if (err?.error && typeof err.error === 'object') {
+      const msgs = Object.values(err.error).flat();
+      if (msgs.length) return (msgs[0] as string);
+    }
+    return err?.error?.detail || 'Save failed. Please try again.';
+  }
 
   steps = [
     { number: 1, title: 'Create a new experience', subtitle: 'Basics', description: 'Basics', completed: false },
@@ -83,7 +99,8 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
         highlights: (exp.highlights ?? []).join('\n'),
         category: exp.category ?? '',
         subcategory: exp.subcategory ?? '',
-        tags: (exp.tags ?? []).join(', '),
+        // subcategories dropdown is refreshed after categories load in ngOnInit
+        tags: exp.tags ?? [],
         difficulty: exp.difficulty ?? 'Easy',
         durationValue: exp.duration_value ?? 2,
         durationUnit: exp.duration_unit ?? 'hours',
@@ -141,10 +158,6 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
-  ngAfterViewInit(): void {
-    if (this.pendingPrefill) this.prefillSteps(this.pendingPrefill);
-  }
-
   ngOnDestroy(): void {
     this.wizardService.clearId();
   }
@@ -162,14 +175,14 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   async nextStep(): Promise<void> {
-    this.saveError = '';
     this.saving = true;
     try {
       await this.saveCurrentStep();
       this.steps[this.currentStep - 1].completed = true;
       if (this.currentStep < this.totalSteps) this.currentStep++;
     } catch (err: any) {
-      this.saveError = err?.message || 'Save failed. Please try again.';
+      const msg = this.parseApiError(err);
+      if (msg !== 'Please fix the errors above.') this.showToast(msg, 'error');
     } finally {
       this.saving = false;
     }
@@ -188,12 +201,15 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   async saveDraft(): Promise<void> {
-    this.saveError = '';
     this.saving = true;
     try {
       await this.saveCurrentStep();
+      this.showToast('Draft saved successfully!');
     } catch (err: any) {
-      this.saveError = err?.message || 'Save failed.';
+      // Field-level validation errors are shown inline by each step component.
+      // Only show a toast for non-validation errors (network failures, etc.).
+      const msg = this.parseApiError(err);
+      if (msg !== 'Please fix the errors above.') this.showToast(msg, 'error');
     } finally {
       this.saving = false;
     }
@@ -201,9 +217,8 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
 
   async publish(): Promise<void> {
     const id = this.wizardService.experienceId;
-    if (!id) { this.saveError = 'Please complete step 1 first.'; return; }
+    if (!id) { this.showToast('Please complete step 1 first.', 'error'); return; }
     this.saving = true;
-    this.saveError = '';
     this.wizardService.publish(id).subscribe({
       next: () => {
         this.saving = false;
@@ -211,7 +226,7 @@ export class CreateExperienceComponent implements OnInit, AfterViewInit, OnDestr
       },
       error: (err) => {
         this.saving = false;
-        this.saveError = err?.error?.detail || 'Publish failed.';
+        this.showToast(this.parseApiError(err), 'error');
       }
     });
   }

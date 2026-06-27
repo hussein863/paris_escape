@@ -137,7 +137,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(private auth: AuthService, private http: HttpClient, private router: Router) {}
 
-  goToSupport(): void { this.router.navigate(['/support']); }
+  goToSupport(): void { this.router.navigate(['/admin/support']); }
 
   ngOnInit(): void {
     this.auth.loadMe().subscribe({ next: () => this.populateProfile() });

@@ -245,8 +245,8 @@
           <div class="cancellation-info">
             <i class="fas fa-check"></i>
             <div>
-              <strong>Free cancellation until 24h before</strong>
-              <a href="#" class="link-small" (click)="viewCancellationPolicy()">View full cancellation policy</a>
+              <strong>Free cancellation until {{ cancellationWindowLabel(experience?.policy?.cancellation_window || '24-hours') }} before</strong>
+              <a href="#" class="link-small" (click)="viewCancellationPolicy($event)">View full cancellation policy</a>
             </div>
           </div>
 
@@ -274,6 +274,68 @@
           </div>
         </div>
       </aside>
+    </div>
+  </div>
+</div>
+
+<!-- Cancellation Policy Modal -->
+<div class="policy-backdrop" *ngIf="showPolicyModal" (click)="closePolicyModal()">
+  <div class="policy-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+    <div class="policy-modal-header">
+      <h2 class="policy-modal-title">Cancellation Policy</h2>
+      <button class="policy-close-btn" (click)="closePolicyModal()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="policy-modal-body">
+
+      <!-- Free cancellation window -->
+      <div class="policy-section" *ngIf="experience?.policy?.cancellation_window">
+        <div class="policy-row highlight">
+          <i class="fas fa-check-circle"></i>
+          <div>
+            <strong>Free cancellation</strong>
+            <p>Cancel up to {{ cancellationWindowLabel(experience!.policy!.cancellation_window) }} before the experience start time and receive a full refund.</p>
+          </div>
+        </div>
+        <div class="policy-row warning">
+          <i class="fas fa-exclamation-circle"></i>
+          <div>
+            <strong>Late cancellation</strong>
+            <p>Cancellations made less than {{ cancellationWindowLabel(experience!.policy!.cancellation_window) }} before the start time are non-refundable.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- No-show policy -->
+      <div class="policy-section" *ngIf="experience?.policy?.no_show_policy">
+        <h3 class="policy-section-title">No-show</h3>
+        <p class="policy-text">{{ noShowLabel(experience!.policy!.no_show_policy) }}</p>
+      </div>
+
+      <!-- Late arrival -->
+      <div class="policy-section" *ngIf="experience?.policy?.late_arrival_policy">
+        <h3 class="policy-section-title">Late arrival</h3>
+        <p class="policy-text">{{ lateArrivalLabel(experience!.policy!.late_arrival_policy) }}</p>
+      </div>
+
+      <!-- Weather policy -->
+      <div class="policy-section" *ngIf="experience?.policy?.weather_policy">
+        <h3 class="policy-section-title">Weather</h3>
+        <p class="policy-text">{{ weatherLabel(experience!.policy!.weather_policy) }}</p>
+      </div>
+
+      <!-- Fallback when no policy data -->
+      <div class="policy-section" *ngIf="!experience?.policy">
+        <p class="policy-text">This experience offers free cancellation up to 24 hours before the scheduled start time. After that, cancellations are non-refundable. Please contact the guide or our support team for any questions.</p>
+      </div>
+
+    </div>
+
+    <div class="policy-modal-footer">
+      <button class="btn-policy-close" (click)="closePolicyModal()">Got it</button>
     </div>
   </div>
 </div>

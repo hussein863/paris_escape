@@ -1,4 +1,4 @@
-﻿import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
@@ -16,10 +16,18 @@ interface TimeSlot {
   templateUrl: './step-availability.component.html',
   styleUrl: './step-availability.component.scss',
 })
-export class StepAvailabilityComponent {
+export class StepAvailabilityComponent implements OnInit {
   @Output() dataChange = new EventEmitter<any>();
 
   constructor(private wizardService: ExperienceWizardService) {}
+
+  ngOnInit(): void {
+    const saved = this.wizardService.getStepState('availability');
+    if (saved) {
+      Object.assign(this.formData, saved);
+      if (saved.timeSlots) this.timeSlots = saved.timeSlots;
+    }
+  }
 
   saveToApi(): Promise<void> {
     const id = this.wizardService.experienceId;
@@ -208,6 +216,7 @@ export class StepAvailabilityComponent {
 
   emitData(): void {
     this.formData.timeSlots = this.timeSlots;
+    this.wizardService.saveStepState('availability', { ...this.formData, timeSlots: this.timeSlots });
     this.dataChange.emit(this.formData);
   }
 }

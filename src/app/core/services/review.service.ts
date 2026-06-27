@@ -37,4 +37,8 @@ export class ReviewService {
   deleteReply(replyId: number): Observable<void> {
     return this.http.delete<void>(`${this.api}/replies/${replyId}/`);
   }
+
+  report(data: { report_type: string; experience?: number; guide?: number; reason: string; description: string }): Observable<any> {
+    return this.http.post<any>(`${this.api}/reports/`, data);
+  }
 }

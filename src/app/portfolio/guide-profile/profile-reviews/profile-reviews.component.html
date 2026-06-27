@@ -1,8 +1,19 @@
 <section class="profile-reviews">
   <div class="reviews-header">
     <h2 class="section-title">Reviews</h2>
-    <button class="write-review-btn">Write a Review</button>
+    <button
+      class="write-review-btn"
+      [disabled]="!canReview"
+      [title]="!isLoggedIn ? 'Sign in to write a review' : !canReview ? 'Complete an experience with this guide first' : ''"
+      (click)="writeReviewClicked.emit()">
+      Write a Review
+    </button>
   </div>
+
+  <p class="review-eligibility" *ngIf="isLoggedIn && !canReview">
+    <i class="fas fa-info-circle"></i>
+    You can write a review after completing an experience with this guide.
+  </p>
   
   <div class="reviews-summary">
     <div class="rating-overview">
@@ -69,4 +80,11 @@
   </div>
   
   <button class="load-more-btn">Load More Reviews</button>
+
+  <div class="report-link">
+    <button class="report-link-btn" (click)="reportClicked.emit()">
+      <i class="fas fa-flag"></i>
+      Report this guide
+    </button>
+  </div>
 </section>

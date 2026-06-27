@@ -74,37 +74,12 @@ export class StepMediaComponent implements OnInit {
 
   mediaPlan = {
     plan: 'Basic Plan',
-    slotsUsed: 5,
+    slotsUsed: 0,
     totalSlots: 10
   };
 
   coverImage: MediaFile | null = null;
-  galleryPhotos: MediaFile[] = [
-    {
-      id: '1',
-      url: 'assets/images/7a7113833eadb15abfafa4514a2f369ae3bd1ba6.png',
-      caption: '',
-      type: 'image'
-    },
-    {
-      id: '2',
-      url: 'assets/images/878d3e8ad6794dd8a9549ec87d000a314f995acc.png',
-      caption: '',
-      type: 'image'
-    },
-    {
-      id: '3',
-      url: 'assets/images/4881259d9ed9a0877b3b8ab62a22da225796a349.png',
-      caption: '',
-      type: 'image'
-    },
-    {
-      id: '4',
-      url: 'assets/images/ba961a02d223dbe18a01f685691568d55461e116.png',
-      caption: '',
-      type: 'image'
-    }
-  ];
+  galleryPhotos: MediaFile[] = [];
   videoTeaser: MediaFile | null = null;
 
   photoTips = [

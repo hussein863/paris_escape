@@ -1,6 +1,6 @@
 <section class="hero">
   <div class="hero-overlay"></div>
-  
+
   <div class="hero-content">
     <h1 class="hero-title">Explore Paris like a local</h1>
     <p class="hero-subtitle">
@@ -9,13 +9,37 @@
 
     <div class="hero-search">
       <div class="search-input-wrapper">
-        <input 
-          type="text" 
-          class="search-input" 
+        <input
+          type="text"
+          class="search-input"
           placeholder="Where would you like to explore?"
           [(ngModel)]="searchQuery"
-          (keyup.enter)="onSearch()">
-          <i class="search-icon fas fa-search"></i>
+          (input)="onSearchInput()"
+          (keyup.enter)="onSearch()"
+          (blur)="closeDropdown()"
+          autocomplete="off">
+        <i class="search-icon fas fa-search"></i>
+
+        <div class="search-dropdown" *ngIf="showDropdown">
+          <div
+            class="suggestion-item"
+            *ngFor="let exp of suggestions"
+            (mousedown)="selectSuggestion(exp)">
+            <div class="suggestion-image">
+              <img *ngIf="exp.image_url" [src]="exp.image_url" [alt]="exp.title">
+              <div *ngIf="!exp.image_url" class="suggestion-placeholder">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+            </div>
+            <div class="suggestion-body">
+              <span class="suggestion-title">{{ exp.title }}</span>
+              <span class="suggestion-category" *ngIf="exp.category">{{ exp.category }}</span>
+            </div>
+            <div class="suggestion-price">
+              From {{ exp.currency === 'EUR' ? '€' : exp.currency === 'USD' ? '$' : '£' }}{{ exp.base_price | number:'1.0-0' }}
+            </div>
+          </div>
+        </div>
       </div>
 
       <button class="btn-search" (click)="onSearch()">

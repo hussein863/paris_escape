@@ -10,11 +10,12 @@ export class ExperienceService {
 
   constructor(private http: HttpClient) {}
 
-  list(params?: { search?: string; ordering?: string; page?: number }): Observable<PaginatedResponse<Experience>> {
+  list(params?: { search?: string; ordering?: string; page?: number; available_today?: boolean }): Observable<PaginatedResponse<Experience>> {
     let httpParams = new HttpParams();
     if (params?.search) httpParams = httpParams.set('search', params.search);
     if (params?.ordering) httpParams = httpParams.set('ordering', params.ordering);
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
+    if (params?.available_today) httpParams = httpParams.set('available_today', '1');
     return this.http.get<PaginatedResponse<Experience>>(`${this.api}/`, { params: httpParams });
   }
 

@@ -40,12 +40,6 @@
         </div>
       </header>
 
-      <!-- Save Error -->
-      <div class="save-error-banner" *ngIf="saveError">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        {{ saveError }}
-      </div>
-
       <!-- Stepper -->
       <div class="stepper">
         <div
@@ -64,46 +58,22 @@
 
       <!-- Step Content -->
       <div class="step-content">
-        <!-- Step 1: Basics -->
-        <div class="step-panel" *ngIf="currentStep === 1">
-          <app-step-basics></app-step-basics>
-        </div>
-
-        <!-- Step 2: Media -->
-        <div class="step-panel" *ngIf="currentStep === 2">
-          <app-step-media [prefillData]="pendingPrefill"></app-step-media>
-        </div>
-
-        <!-- Step 3: Pricing -->
-        <div class="step-panel" *ngIf="currentStep === 3">
-          <app-step-pricing></app-step-pricing>
-        </div>
-
-        <!-- Step 4: Options and Add-ons -->
-        <div class="step-panel" *ngIf="currentStep === 4">
-          <app-step-options></app-step-options>
-        </div>
-
-        <!-- Step 5: Availability -->
-        <div class="step-panel" *ngIf="currentStep === 5">
-          <app-step-availability></app-step-availability>
-        </div>
-
-        <!-- Step 6: Inclusions -->
-        <div class="step-panel" *ngIf="currentStep === 6">
-          <app-step-inclusions></app-step-inclusions>
-        </div>
-
-        <!-- Step 7: Policies -->
-        <div class="step-panel" *ngIf="currentStep === 7">
-          <app-step-policies></app-step-policies>
-        </div>
-
-        <!-- Step 8: Preview -->
-        <div class="step-panel" *ngIf="currentStep === 8">
-          <app-step-preview [experienceId]="experienceId"></app-step-preview>
-        </div>
+        <div class="step-panel" [hidden]="currentStep !== 1"><app-step-basics></app-step-basics></div>
+        <div class="step-panel" [hidden]="currentStep !== 2"><app-step-media [prefillData]="pendingPrefill"></app-step-media></div>
+        <div class="step-panel" [hidden]="currentStep !== 3"><app-step-pricing></app-step-pricing></div>
+        <div class="step-panel" [hidden]="currentStep !== 4"><app-step-options></app-step-options></div>
+        <div class="step-panel" [hidden]="currentStep !== 5"><app-step-availability></app-step-availability></div>
+        <div class="step-panel" [hidden]="currentStep !== 6"><app-step-inclusions></app-step-inclusions></div>
+        <div class="step-panel" [hidden]="currentStep !== 7"><app-step-policies></app-step-policies></div>
+        <div class="step-panel" [hidden]="currentStep !== 8"><app-step-preview [experienceId]="experienceId"></app-step-preview></div>
       </div>
     </section>
   </main>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-times-circle]="toast.type === 'error'"></i>
+  <span>{{ toast.message }}</span>
+  <button type="button" class="toast-close" (click)="toast = null"><i class="fas fa-times"></i></button>
 </div>

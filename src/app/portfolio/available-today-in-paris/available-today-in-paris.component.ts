@@ -18,7 +18,7 @@ export class AvailableTodayInParisComponent implements OnInit {
   constructor(private experienceService: ExperienceService, private router: Router) {}
 
   ngOnInit(): void {
-    this.experienceService.list({ ordering: '-views', page: 1 }).subscribe({
+    this.experienceService.list({ ordering: '-views', page: 1, available_today: true }).subscribe({
       next: (res) => {
         this.todayExperiences = res.results.slice(0, 4).map(e => ({
           id: e.id,

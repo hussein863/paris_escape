@@ -47,14 +47,16 @@ export class ClientMessagesComponent implements OnInit {
     this.messagingService.listConversations().subscribe({
       next: (res) => {
         this.conversations = res.results;
-        const targetId = this.route.snapshot.queryParamMap.get('conversationId');
-        if (targetId) {
-          const target = this.conversations.find(c => c.id === +targetId);
-          if (target) {
-            this.selectConversation(target);
-          } else if (this.conversations.length > 0) {
-            this.selectConversation(this.conversations[0]);
-          }
+        const conversationId = this.route.snapshot.queryParamMap.get('conversationId');
+        const guideId = this.route.snapshot.queryParamMap.get('guideId');
+        let target: Conversation | undefined;
+        if (conversationId) {
+          target = this.conversations.find(c => c.id === +conversationId);
+        } else if (guideId) {
+          target = this.conversations.find(c => c.guide === +guideId);
+        }
+        if (target) {
+          this.selectConversation(target);
         } else if (this.conversations.length > 0) {
           this.selectConversation(this.conversations[0]);
         }

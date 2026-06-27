@@ -1,8 +1,14 @@
 <section class="meeting-point-section">
   <h2 class="section-title">Meeting point</h2>
 
-  <div class="map-placeholder">
-    <img src="assets/images/map.svg" alt="Map">
+  <div class="map-container">
+    <iframe
+      [src]="mapsEmbedUrl"
+      class="map-iframe"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
   </div>
 
   <div class="meeting-info">

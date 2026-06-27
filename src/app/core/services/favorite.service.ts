@@ -14,6 +14,10 @@ export class FavoriteService {
     return this.http.get<PaginatedResponse<Favorite>>(`${this.api}/`);
   }
 
+  check(experienceId: number): Observable<PaginatedResponse<Favorite>> {
+    return this.http.get<PaginatedResponse<Favorite>>(`${this.api}/?experience=${experienceId}`);
+  }
+
   add(experienceId: number): Observable<Favorite> {
     return this.http.post<Favorite>(`${this.api}/`, { experience: experienceId });
   }

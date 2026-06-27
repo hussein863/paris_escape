@@ -38,11 +38,51 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #1a1a1a;
     color: white;
   }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.review-eligibility {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+
+  i { color: #9ca3af; }
+}
+
+.report-link {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.report-link-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+
+  &:hover { color: #ef4444; }
+  i { font-size: 12px; }
 }
 
 .reviews-summary {

@@ -25,7 +25,7 @@ export class ParisEscapeOriginalsComponent implements OnInit {
 
   ngOnInit(): void {
     // Load top 3 active experiences as "originals"
-    this.experienceService.list({ ordering: '-views', page: 1 }).subscribe({
+    this.experienceService.list({ ordering: '-rating,-created_date', page: 1 }).subscribe({
       next: (res) => {
         this.originals = res.results.slice(0, 3).map(e => ({
           id: e.id,

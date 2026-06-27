@@ -1,4 +1,4 @@
-<a class="card-person" *ngIf="guide" [routerLink]="['/landing/profil', guide.id]" style="text-decoration:none;display:block;cursor:pointer">
+<a class="card-person" *ngIf="guide" [routerLink]="['/landing/profil', guide.encryptedId]" style="text-decoration:none;display:block;cursor:pointer">
   <div class="guide-photo-wrapper">
     <img [src]="guide.photo" [alt]="guide.name" class="guide-photo">
   </div>
@@ -6,10 +6,15 @@
   <div class="guide-info">
     <h3 class="guide-name">{{ guide.name }}</h3>
     <p class="guide-specialty">{{ guide.specialty }}</p>
-    
+
+    <div class="guide-languages" *ngIf="guide.languages?.length">
+      <span class="lang-pill" *ngFor="let lang of guide.languages.slice(0, 3)">{{ lang }}</span>
+    </div>
+
     <div class="guide-rating">
       <i class="fas fa-star"></i>
       <span class="rating-value">{{ guide.rating.toFixed(1) }}</span>
+      <span class="review-count" *ngIf="guide.reviewCount">({{ guide.reviewCount }})</span>
     </div>
-    </div>
+  </div>
 </a>

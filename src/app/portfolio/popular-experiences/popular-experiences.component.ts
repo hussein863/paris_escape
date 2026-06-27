@@ -18,7 +18,7 @@ export class PopularExperiencesComponent implements OnInit {
   constructor(private experienceService: ExperienceService, private router: Router) {}
 
   ngOnInit(): void {
-    this.experienceService.list({ ordering: '-rating', page: 1 }).subscribe({
+    this.experienceService.list({ ordering: '-bookings,-rating', page: 1 }).subscribe({
       next: (res) => {
         this.experiences = res.results.slice(0, 6).map(e => ({
           id: e.id,

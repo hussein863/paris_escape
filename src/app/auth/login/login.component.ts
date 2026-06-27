@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -17,7 +17,11 @@ export class LoginComponent {
   error = '';
   loading = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   onSubmit(): void {
     if (!this.email || !this.password) return;
@@ -26,7 +30,10 @@ export class LoginComponent {
 
     this.auth.login(this.email, this.password).subscribe({
       next: (user) => {
-        if (user.role === 'Guide' || user.role === 'Admin') {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        if (returnUrl) {
+          this.router.navigateByUrl(returnUrl);
+        } else if (user.role === 'Guide' || user.role === 'Admin') {
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.router.navigate(['/client/home']);

@@ -22,11 +22,11 @@
       <div
         *ngFor="let thumb of thumbnails; let i = index"
         class="thumbnail"
-        [class.has-more]="i === 3"
+        [class.has-more]="i === 3 && remainingCount > 0"
         (click)="openLightbox(i + 1)">
         <img [src]="thumb.url" [alt]="thumb.alt" />
-        <span *ngIf="i === 3" class="more-overlay">
-          +12
+        <span *ngIf="i === 3 && remainingCount > 0" class="more-overlay">
+          +{{ remainingCount }}
         </span>
       </div>
     </div>

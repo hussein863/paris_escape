@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-newsletter',
@@ -12,7 +14,10 @@ import { FormsModule } from '@angular/forms';
 export class NewsletterComponent {
   email = '';
   submitted = false;
+  loading = false;
   error = '';
+
+  constructor(private http: HttpClient) {}
 
   onSubscribe(event: Event): void {
     event.preventDefault();
@@ -21,9 +26,18 @@ export class NewsletterComponent {
       this.error = 'Please enter a valid email address.';
       return;
     }
-    // Optimistic confirmation — no backend endpoint needed for newsletter
-    this.submitted = true;
-    this.email = '';
+    this.loading = true;
+    this.http.post(`${environment.apiUrl}/users/newsletter/`, { email: this.email }).subscribe({
+      next: () => {
+        this.loading = false;
+        this.submitted = true;
+        this.email = '';
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error?.detail ?? 'Something went wrong. Please try again.';
+      }
+    });
   }
 
   private isValidEmail(email: string): boolean {

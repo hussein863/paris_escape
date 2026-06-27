@@ -4,6 +4,127 @@
   overflow-x: hidden;
 }
 
+.field-error {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.input-error {
+  border-color: #dc2626 !important;
+  &:focus { outline-color: #dc2626; }
+}
+
+.tag-input-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: text;
+
+  &:focus-within {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #ede9fe;
+  color: #4f46e5;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7c3aed;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 2px;
+  display: flex;
+  align-items: center;
+
+  &:hover { color: #dc2626; }
+}
+
+.tag-text-input {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  padding: 2px 0;
+}
+
+.no-meeting-points-hint {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.add-mp-form {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+
+  .form-group { margin-bottom: 12px; }
+
+  .mp-form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 8px;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      border: 1px solid transparent;
+
+      &.btn-secondary {
+        background: #fff;
+        border-color: #e2e8f0;
+        color: #0f172a;
+        &:hover { background: #f8fafc; border-color: #cbd5e1; }
+      }
+
+      &.btn-primary {
+        background: #111;
+        border-color: #111;
+        color: #fff;
+        &:hover { background: #000; }
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 400px;

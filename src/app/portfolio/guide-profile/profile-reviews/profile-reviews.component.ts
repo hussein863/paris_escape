@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Review } from '../guide-profile.component';
 
@@ -18,7 +18,12 @@ interface ReviewStats {
 export class ProfileReviewsComponent {
   @Input() reviews: Review[] = [];
   @Input() stats!: ReviewStats;
-  
+  @Input() canReview: boolean = false;
+  @Input() isLoggedIn: boolean = false;
+
+  @Output() writeReviewClicked = new EventEmitter<void>();
+  @Output() reportClicked = new EventEmitter<void>();
+
   selectedFilter = 'all';
   filters = ['All', '5 stars', '4 stars', 'Louvre Tour', 'Montmartre Tour', 'Food Tour'];
 
@@ -27,7 +32,7 @@ export class ProfileReviewsComponent {
   }
 
   getBarWidth(count: number): number {
-    const max = Math.max(...this.stats.distribution.map(d => d.count));
+    const max = Math.max(...this.stats.distribution.map(d => d.count), 1);
     return (count / max) * 100;
   }
 

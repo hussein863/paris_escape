@@ -1,0 +1,40 @@
+<div class="calendar">
+  <!-- Header -->
+  <div class="cal-header">
+    <button class="nav-btn" (click)="prevMonth()" type="button" aria-label="Previous month">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span class="month-label">{{ monthLabel }}</span>
+    <button class="nav-btn" (click)="nextMonth()" type="button" aria-label="Next month">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- Weekday headers -->
+  <div class="cal-grid">
+    <div class="weekday-header" *ngFor="let wd of WEEKDAYS">{{ wd }}</div>
+
+    <!-- Days -->
+    <ng-container *ngFor="let week of weeks">
+      <div
+        *ngFor="let day of week"
+        class="day-cell"
+        [class.in-month]="day.inMonth"
+        [class.today]="day.isToday"
+        [class.selected]="day.isSelected"
+        [class.disabled]="day.isDisabled || !day.inMonth"
+        (click)="selectDay(day)"
+        [attr.aria-label]="day.dateStr"
+        [attr.tabindex]="day.isDisabled || !day.inMonth ? -1 : 0"
+        (keydown.enter)="selectDay(day)"
+        (keydown.space)="selectDay(day)">
+        {{ day.inMonth ? day.dayNum : '' }}
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Legend -->
+  <div class="cal-legend" *ngIf="recurringPattern === 'weekends'">
+    <i class="fas fa-info-circle"></i> Available on weekends only
+  </div>
+</div>

@@ -7,6 +7,8 @@ import { catchError } from 'rxjs/operators';
 import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { MessagingService } from '../../core/services/messaging.service';
 import { AuthService } from '../../core/services/auth.service';
+import { BookingService } from '../../core/services/booking.service';
+import { ReviewService } from '../../core/services/review.service';
 import { ProfileHeaderComponent } from './profile-header/profile-header.component';
 import { ProfileAboutComponent } from './profile-about/profile-about.component';
 import { ProfileLocationComponent } from './profile-location/profile-location.component';
@@ -16,6 +18,8 @@ import { ProfileSidebarComponent } from './profile-sidebar/profile-sidebar.compo
 import { ProfileSimilarGuidesComponent } from './profile-similar-guides/profile-similar-guides.component';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { FormsModule } from '@angular/forms';
+import { AuthPromptModalComponent } from '../component/auth-prompt-modal/auth-prompt-modal.component';
 import { environment } from '../../../environments/environment';
 
 export interface Guide {
@@ -104,7 +108,9 @@ export interface SimilarGuide {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
+    AuthPromptModalComponent,
     ProfileHeaderComponent,
     ProfileAboutComponent,
     ProfileLocationComponent,
@@ -124,6 +130,28 @@ export class GuideProfileComponent implements OnInit {
   messageSending = false;
 
   guideId: number | null = null;
+
+  // Review gating
+  canReviewGuide = false;
+
+  // Auth modal
+  showAuthModal = false;
+  authModalAction = '';
+
+  // Review modal
+  showReviewModal = false;
+  reviewRating = 0;
+  reviewContent = '';
+  reviewSubmitting = false;
+  reviewError = '';
+
+  // Report modal
+  showReportModal = false;
+  reportReason = '';
+  reportDescription = '';
+  reportSubmitting = false;
+  reportError = '';
+  reportSuccess = false;
   guide!: Guide;
   experiences: Experience[] = [];
   reviews: Review[] = [];
@@ -136,7 +164,9 @@ export class GuideProfileComponent implements OnInit {
     private http: HttpClient,
     private idEncrypt: IdEncryptService,
     private messagingService: MessagingService,
-    private authService: AuthService,
+    private bookingService: BookingService,
+    private reviewService: ReviewService,
+    public authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -146,6 +176,9 @@ export class GuideProfileComponent implements OnInit {
     if (!id) { this.router.navigate(['/landing']); return; }
     this.guideId = id;
     this.loadGuide(id);
+    if (this.authService.isLoggedIn()) {
+      this.checkReviewEligibility(id);
+    }
   }
 
   loadGuide(id: number): void {
@@ -282,6 +315,90 @@ export class GuideProfileComponent implements OnInit {
       reviewCount: g.review_count ?? 0,
       specialty: (g.specialties ?? []).map((s: any) => s.name).join(', '),
     };
+  }
+
+  checkReviewEligibility(guideId: number): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    this.bookingService.list().subscribe({
+      next: (res) => {
+        this.canReviewGuide = res.results.some(b =>
+          b.guide === guideId &&
+          b.status === 'Confirmed' &&
+          new Date(b.date) < today
+        );
+      }
+    });
+  }
+
+  onWriteReviewClicked(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.authModalAction = 'write a review';
+      this.showAuthModal = true;
+      return;
+    }
+    this.reviewRating = 0;
+    this.reviewContent = '';
+    this.reviewError = '';
+    this.showReviewModal = true;
+  }
+
+  submitReview(): void {
+    if (this.reviewRating === 0 || !this.reviewContent.trim() || !this.experiences.length) return;
+    this.reviewSubmitting = true;
+    this.reviewError = '';
+    this.reviewService.create({
+      experience: this.experiences[0].id,
+      guide: this.guideId!,
+      rating: this.reviewRating,
+      content: this.reviewContent,
+    }).subscribe({
+      next: (rev) => {
+        this.reviewSubmitting = false;
+        this.showReviewModal = false;
+        const author = this.authService.user()?.name ?? 'You';
+        this.reviews.unshift(this.mapReview({ ...rev, customer_name: author }));
+        this.reviewStats = this.buildStats([...this.reviews.map(r => ({ rating: r.rating }))]);
+      },
+      error: () => {
+        this.reviewSubmitting = false;
+        this.reviewError = 'Failed to submit review. Please try again.';
+      }
+    });
+  }
+
+  onReportGuideClicked(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.authModalAction = 'report this guide';
+      this.showAuthModal = true;
+      return;
+    }
+    this.reportReason = '';
+    this.reportDescription = '';
+    this.reportError = '';
+    this.reportSuccess = false;
+    this.showReportModal = true;
+  }
+
+  submitReport(): void {
+    if (!this.reportReason || !this.reportDescription.trim()) return;
+    this.reportSubmitting = true;
+    this.reportError = '';
+    this.reviewService.report({
+      report_type: 'guide',
+      guide: this.guideId!,
+      reason: this.reportReason,
+      description: this.reportDescription,
+    }).subscribe({
+      next: () => {
+        this.reportSubmitting = false;
+        this.reportSuccess = true;
+      },
+      error: () => {
+        this.reportSubmitting = false;
+        this.reportError = 'Failed to submit report. Please try again.';
+      }
+    });
   }
 
   messageGuide(): void {

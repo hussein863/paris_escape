@@ -64,6 +64,9 @@
         <div class="photo-grid">
           <div class="photo-item" *ngFor="let photo of galleryPhotos">
             <img [src]="photo.url" [alt]="photo.caption || 'Gallery photo'" />
+            <button class="remove-btn" (click)="removeGalleryPhoto(photo.id)">
+              <i class="fa-solid fa-times"></i>
+            </button>
             <input
               type="text"
               class="caption-input"

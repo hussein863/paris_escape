@@ -16,7 +16,7 @@ export class HeaderComponent {
 
   navItems = [
     { label: 'Experiences', route: '/landing/experience' },
-    { label: 'Guides',      route: '/landing/experience' },
+    { label: 'Guides',      route: '/landing/guides' },
     { label: 'How it works', route: '/landing/experience' },
   ];
 

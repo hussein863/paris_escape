@@ -23,38 +23,71 @@
     <!-- Stats Cards -->
     <section class="stats-section">
       <div class="stats-grid">
+
+        <!-- Upcoming Trips card -->
         <div class="stat-card" (click)="goToReservations()">
-          <div class="stat-content">
-            <i class="fas fa-calendar-check stat-icon"></i>
-            <div class="stat-label">Upcoming Trips</div>
-            <div class="stat-subtitle">{{ upcomingSubtitle }}</div>
+          <div class="stat-card-body">
+            <div class="stat-content">
+              <i class="fas fa-calendar-check stat-icon"></i>
+              <div class="stat-label">Upcoming Trips</div>
+              <div class="stat-subtitle">{{ upcomingSubtitle }}</div>
+            </div>
+            <div class="stat-value">{{ upcomingCount }}</div>
           </div>
-          <div class="stat-value">{{ upcomingCount }}</div>
+          <div class="stat-card-footer" *ngIf="reservations.length > 0">
+            <img [src]="reservations[0].experience_image || 'assets/images/card_image/louvre.png'"
+              class="stat-trip-img" alt="Trip">
+            <div class="stat-trip-info">
+              <div class="stat-trip-title">{{ reservations[0].experience_title || ('Booking #' + reservations[0].booking_ref) }}</div>
+              <div class="stat-trip-date">{{ reservations[0].date | date:'mediumDate' }}</div>
+            </div>
+          </div>
         </div>
+
+        <!-- Messages card -->
         <div class="stat-card" (click)="goToMessages()">
-          <div class="stat-content">
-            <i class="fas fa-message stat-icon"></i>
-            <div class="stat-label">Messages</div>
-            <div class="stat-subtitle">{{ unreadCount > 0 ? 'From ' + unreadCount + ' guide(s)' : '—' }}</div>
+          <div class="stat-card-body">
+            <div class="stat-content">
+              <i class="fas fa-message stat-icon"></i>
+              <div class="stat-label">Messages</div>
+              <div class="stat-subtitle">{{ unreadCount > 0 ? 'From ' + unreadCount + ' guide(s)' : '—' }}</div>
+            </div>
+            <div class="stat-value">{{ unreadCount }}</div>
           </div>
-          <div class="stat-value">{{ unreadCount }}</div>
+          <div class="stat-card-footer" *ngIf="conversations.length > 0">
+            <div class="avatar-stack">
+              <img *ngFor="let conv of conversations.slice(0, 3)"
+                [src]="conv.guide_avatar || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg'"
+                class="avatar-stack-item" [title]="conv.guide_name || 'Guide'">
+            </div>
+            <span class="avatar-stack-label">
+              {{ conversations.length > 1 ? conversations.length + ' guides' : (conversations[0].guide_name || 'Guide') }}
+            </span>
+          </div>
         </div>
+
         <div class="stat-card" (click)="goToFavorites()">
-          <div class="stat-content">
-            <i class="fas fa-heart stat-icon"></i>
-            <div class="stat-label">Saved Items</div>
-            <div class="stat-subtitle">{{ savedCount > 0 ? savedCount + ' saved' : '—' }}</div>
+          <div class="stat-card-body">
+            <div class="stat-content">
+              <i class="fas fa-heart stat-icon"></i>
+              <div class="stat-label">Saved Items</div>
+              <div class="stat-subtitle">{{ savedCount > 0 ? savedCount + ' saved' : '—' }}</div>
+            </div>
+            <div class="stat-value">{{ savedCount }}</div>
           </div>
-          <div class="stat-value">{{ savedCount }}</div>
         </div>
+
         <div class="stat-card" (click)="goToReservations()">
-          <div class="stat-content">
-            <i class="fas fa-clock-rotate-left stat-icon"></i>
-            <div class="stat-label">Completed Trips</div>
-            <div class="stat-subtitle">{{ completedCount > 0 ? completedCount + ' completed' : '—' }}</div>
+          <div class="stat-card-body">
+            <div class="stat-content">
+              <i class="fas fa-clock-rotate-left stat-icon"></i>
+              <div class="stat-label">Completed Trips</div>
+              <div class="stat-subtitle">{{ completedCount > 0 ? completedCount + ' completed' : '—' }}</div>
+            </div>
+            <div class="stat-value">{{ completedCount }}</div>
           </div>
-          <div class="stat-value">{{ completedCount }}</div>
         </div>
+
       </div>
     </section>
 
@@ -87,10 +120,13 @@
       <div class="reservations-list" *ngIf="reservations.length > 0; else noReservations">
         <div class="reservation-card" *ngFor="let reservation of reservations">
           <div class="reservation-image">
-            <img src="assets/images/7f12ea1300756f144a0fb5daaf68dbfc01103a46.png" alt="Booking">
+            <img [src]="reservation.experience_image || 'assets/images/card_image/louvre.png'"
+              [alt]="reservation.experience_title || 'Booking'">
           </div>
           <div class="reservation-details">
-            <h3 class="reservation-title">Booking #{{ reservation.booking_ref }}</h3>
+            <h3 class="reservation-title">
+              {{ reservation.experience_title || ('Booking #' + reservation.booking_ref) }}
+            </h3>
             <div class="reservation-info">
               <div class="info-item">
                 <i class="fas fa-calendar"></i>
@@ -106,9 +142,6 @@
               </div>
             </div>
             <div class="reservation-actions">
-              <button class="btn-outline" style="color:rgba(0,0,0,1);">
-                <i class="fas fa-qrcode"></i> QR Code
-              </button>
               <button class="btn-dark" (click)="goToReservations()">Manage Booking</button>
             </div>
           </div>
@@ -181,21 +214,11 @@
                 <i class="fas fa-times"></i>
               </button>
             </div>
-            <div *ngIf="tasks.length === 0" class="empty-state">
+            <div *ngIf="tasks.length === 0" class="empty-state" style="padding:20px 28px;">
               All tasks completed! 🎉
             </div>
           </div>
         </section>
-
-        <div class="system-notice">
-          <i class="fas fa-bell notice-icon"></i>
-          <div class="notice-content">
-            <div class="notice-title">System Notice</div>
-            <div class="notice-text">We've updated our cancellation policy.
-              <br><a (click)="goToFAQs()" style="cursor:pointer;">Learn more</a>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -208,7 +231,7 @@
         </a>
       </div>
 
-      <div class="experiences-grid" *ngIf="favoriteExperiences.length > 0; else noFavorites">
+      <div class="favorites-grid" *ngIf="favoriteExperiences.length > 0; else noFavorites">
         <div class="experience-card" *ngFor="let exp of favoriteExperiences"
           [routerLink]="getExperienceLink(exp.id)" style="cursor:pointer;">
           <div class="experience-image">

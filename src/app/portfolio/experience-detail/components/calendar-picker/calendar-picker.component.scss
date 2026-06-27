@@ -1,0 +1,124 @@
+:host { display: block; }
+
+.calendar {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  user-select: none;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.month-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: background 0.15s, color 0.15s;
+
+  i { font-size: 12px; }
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.weekday-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  padding: 4px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// ── Day cells ─────────────────────────────────────────────────────────────────
+.day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:not(.disabled):hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  // Day not in current month — invisible but occupies space
+  &:not(.in-month) {
+    color: transparent;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  // Today — outlined ring
+  &.today:not(.selected) {
+    border: 2px solid #111827;
+    color: #111827;
+    font-weight: 700;
+  }
+
+  // Selected — filled black circle
+  &.selected {
+    background: #111827;
+    color: #ffffff;
+    font-weight: 700;
+
+    &:hover { background: #374151; }
+  }
+
+  // Disabled (past / blocked / wrong pattern)
+  &.disabled.in-month {
+    color: #d1d5db;
+    cursor: not-allowed;
+    background: none;
+
+    &:hover { background: none; }
+  }
+}
+
+// ── Legend ────────────────────────────────────────────────────────────────────
+.cal-legend {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  i { font-size: 11px; }
+}

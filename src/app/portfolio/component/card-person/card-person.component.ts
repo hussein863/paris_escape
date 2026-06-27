@@ -4,9 +4,11 @@ import { RouterModule } from '@angular/router';
 
 export interface Guide {
   id: number;
+  encryptedId: string;
   name: string;
   specialty: string;
   rating: number;
+  reviewCount: number;
   photo: string;
   languages: string[];
 }

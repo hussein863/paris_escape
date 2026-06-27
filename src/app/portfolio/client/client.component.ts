@@ -33,7 +33,8 @@ export class ClientComponent implements OnInit {
   }
 
   onFiltersChanged(filters: ExperienceFilters): void {
-    this.activeFilters = { ...this.activeFilters, ...filters };
+    const search = this.activeFilters.search;
+    this.activeFilters = search ? { ...filters, search } : { ...filters };
     this.mobileFiltersOpen = false;
   }
 

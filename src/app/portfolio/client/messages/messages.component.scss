@@ -124,6 +124,34 @@
   padding-bottom: 12px;
 }
 
+.conv-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 8px;
+
+  i {
+    font-size: 36px;
+    color: #d1d5db;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+  }
+
+  span {
+    font-size: 13px;
+    color: #9ca3af;
+  }
+}
+
 .conversation-item {
   display: flex;
   gap: 6px;

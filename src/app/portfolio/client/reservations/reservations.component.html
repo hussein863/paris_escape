@@ -33,10 +33,18 @@
             <div class="card-info">
               <h3 class="card-title">{{ reservation.experience_title || ('Booking #' + reservation.booking_ref) }}</h3>
 
-              <div class="meta-row" *ngIf="reservation.guide_name">
-                <i class="fas fa-user"></i>
-                <span>Guide: {{ reservation.guide_name }}</span>
-              </div>
+              <a
+                class="guide-row"
+                *ngIf="reservation.guide_name"
+                [routerLink]="['/landing/profil', encryptedGuideId(reservation.guide)]">
+                <img
+                  class="guide-avatar"
+                  [src]="reservation.guide_avatar || 'assets/images/avatar-placeholder.png'"
+                  [alt]="reservation.guide_name"
+                  (error)="$any($event.target).src='assets/images/avatar-placeholder.png'">
+                <span class="guide-name">{{ reservation.guide_name }}</span>
+                <i class="fas fa-arrow-right guide-arrow"></i>
+              </a>
 
               <div class="meta-row">
                 <i class="fas fa-calendar"></i>
@@ -74,7 +82,10 @@
           </div>
 
           <div class="card-actions">
-            <a class="btn primary" [routerLink]="['/landing/experience', reservation.experience]">View Experience</a>
+            <a class="btn primary" [routerLink]="['/landing/experience', encryptedExperienceId(reservation.experience)]">View Experience</a>
+            <a class="btn outline" *ngIf="reservation.guide_name" [routerLink]="['/client/messages']" [queryParams]="{ guideId: reservation.guide }">
+              <i class="fas fa-comment-dots"></i> Message Guide
+            </a>
             <button
               class="btn outline"
               *ngIf="activeTab === 'past' && reservation.status === 'Confirmed'"
@@ -96,6 +107,30 @@
         No reservations in this category yet.
       </div>
     </section>
+
+    <!-- Cancel Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="cancelModalOpen" (click)="closeCancelModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Cancel Reservation</h3>
+          <button class="modal-close" (click)="closeCancelModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <p class="modal-exp-title" *ngIf="cancelTarget">
+          {{ cancelTarget.experience_title || ('Booking #' + cancelTarget.booking_ref) }}
+        </p>
+        <p class="cancel-warning">
+          Are you sure you want to cancel this reservation? This action cannot be undone and cancellation fees may apply depending on the policy.
+        </p>
+        <div class="modal-actions">
+          <button class="btn outline" (click)="closeCancelModal()" [disabled]="cancelling">
+            Keep Reservation
+          </button>
+          <button class="btn outline danger" (click)="confirmCancel()" [disabled]="cancelling">
+            {{ cancelling ? 'Cancelling…' : 'Yes, Cancel' }}
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Review Modal -->
     <div class="modal-overlay" *ngIf="reviewModalOpen" (click)="closeReviewModal()">
@@ -138,11 +173,11 @@
         <p>Our support team is here to assist you with any questions</p>
       </div>
       <div class="support-actions">
-        <button class="btn primary">
+        <button class="btn primary" (click)="goToSupport()">
           <i class="fas fa-headset"></i>
           Contact Support
         </button>
-        <button class="btn outline">
+        <button class="btn outline" (click)="goToFAQs()">
           <i class="fas fa-book"></i>
           FAQs
         </button>

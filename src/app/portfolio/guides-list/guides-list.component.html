@@ -1,0 +1,67 @@
+<app-header></app-header>
+
+<div class="guides-page">
+  <!-- Page header -->
+  <div class="page-hero">
+    <div class="hero-inner">
+      <h1>Our Guides</h1>
+      <p>Meet the locals who make Paris unforgettable</p>
+
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          placeholder="Search by name, specialty…"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="guides-body">
+
+    <!-- Language tabs -->
+    <div class="lang-tabs">
+      <button
+        *ngFor="let lang of languages"
+        class="lang-tab"
+        [class.active]="selectedLanguage === lang"
+        (click)="selectLanguage(lang)">
+        {{ lang }}
+      </button>
+    </div>
+
+    <!-- Result count -->
+    <p class="result-count" *ngIf="!loading">
+      {{ totalCount }} guide{{ totalCount !== 1 ? 's' : '' }}
+      <span *ngIf="selectedLanguage !== 'All'"> speaking {{ selectedLanguage }}</span>
+      <span *ngIf="searchQuery"> matching "{{ searchQuery }}"</span>
+    </p>
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading guides…</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="guides-grid" *ngIf="!loading && allGuides.length > 0">
+      <app-card-person *ngFor="let guide of allGuides" [guide]="guide"></app-card-person>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!loading && allGuides.length === 0">
+      <i class="fas fa-user-slash"></i>
+      <h3>No guides found</h3>
+      <p *ngIf="searchQuery">Try a different search term or clear the filter.</p>
+      <p *ngIf="!searchQuery && selectedLanguage !== 'All'">No guides speaking {{ selectedLanguage }} yet.</p>
+      <button class="btn-reset" (click)="selectLanguage('All'); searchQuery = ''">
+        View all guides
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<app-footer></app-footer>

@@ -118,20 +118,85 @@
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  gap: 16px;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
-  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: self-start;
+  flex-direction: column;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
   }
+}
+
+.stat-card-body {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.stat-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.stat-trip-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.stat-trip-info {
+  min-width: 0;
+}
+
+.stat-trip-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-trip-date {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.avatar-stack {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-right: 4px;
+}
+
+.avatar-stack-item {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  margin-left: -8px;
+
+  &:last-child {
+    margin-left: 0;
+  }
+}
+
+.avatar-stack-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
 }
 
 .stat-icon {
@@ -614,6 +679,22 @@
   }
 }
 
+// Favorites grid — cards stay small, don't stretch full width
+.favorites-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .experience-card {
+    width: 260px;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+  }
+}
+
 /* Make experience cards smaller in Recently Viewed section */
 .recently-viewed-section .experiences-grid {
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -1036,8 +1117,9 @@
   }
 }
 
-// System Notice
+// System Notice (hidden)
 .system-notice {
+  display: none;
   display: flex;
   gap: 12px;
   padding: 25px;

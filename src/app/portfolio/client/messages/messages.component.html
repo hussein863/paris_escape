@@ -62,8 +62,10 @@
           </div>
         </div>
 
-        <div class="empty-state" *ngIf="filteredConversations.length === 0">
-          No conversations yet.
+        <div class="conv-empty-state" *ngIf="filteredConversations.length === 0">
+          <i class="fas fa-comments"></i>
+          <p>No conversations yet.</p>
+          <span>Your messages with guides will appear here.</span>
         </div>
       </div>
     </aside>

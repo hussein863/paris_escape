@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Review {
@@ -21,6 +21,11 @@ export class ReviewsSectionComponent {
   @Input() reviews: Review[] = [];
   @Input() averageRating: number = 0;
   @Input() totalReviews: number = 0;
+  @Input() canReview: boolean = false;
+  @Input() isLoggedIn: boolean = false;
+
+  @Output() writeReviewClicked = new EventEmitter<void>();
+  @Output() reportClicked = new EventEmitter<void>();
 
   activeFilter = 'all';
   filters = ['All', '5 stars', '4 stars', 'With photos'];
@@ -33,7 +38,5 @@ export class ReviewsSectionComponent {
     return Array(rating).fill(0);
   }
 
-  loadMore(): void {
-    // Load more reviews
-  }
+  loadMore(): void {}
 }

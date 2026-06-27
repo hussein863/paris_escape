@@ -31,7 +31,7 @@
 
 .recent-grid {
     display: grid;
-    grid-template-columns: repeat(3, 270px);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 
     @media (max-width: 1024px) {
@@ -50,7 +50,7 @@
     transition: transform 0.25s ease;
     background: white;
     border-radius: 12px;
-    width: fit-content;
+    width: 100%;
     border: 1px solid #E5E7EB;
     &:hover {
         transform: translateY(-2px);
@@ -62,11 +62,9 @@
 }
 
 .card-image-wrapper {
-    max-width: 254px;
+    width: 100%;
     position: relative;
-    min-width: 254px;
-    max-height: 128px;
-    min-height: 128px;
+    height: 160px;
     overflow: hidden;
     border-radius: 10px;
     background: #f0f0f0;

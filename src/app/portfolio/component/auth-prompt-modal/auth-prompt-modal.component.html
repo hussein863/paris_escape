@@ -1,0 +1,25 @@
+<div class="backdrop" *ngIf="visible" (click)="close()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+    <button class="close-btn" (click)="close()" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <div class="modal-icon">
+      <i class="fas fa-user-circle"></i>
+    </div>
+
+    <h2 class="modal-title">Sign in to {{ action }}</h2>
+
+    <p class="modal-subtitle">
+      Join Paris Escape to message guides, save favourites, and manage all your bookings in one place.
+    </p>
+
+    <div class="modal-actions">
+      <button class="btn-primary" (click)="goToLogin()">Sign in</button>
+      <button class="btn-secondary" (click)="goToRegister()">Create a free account</button>
+    </div>
+
+    <p class="modal-hint">It only takes a minute</p>
+  </div>
+</div>

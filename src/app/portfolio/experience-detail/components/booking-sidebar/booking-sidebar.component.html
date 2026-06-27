@@ -8,50 +8,55 @@
     </div>
     <p class="price-label">Taxes and fees included</p>
 
-    <!-- Date Picker -->
+    <!-- Date Picker — custom calendar -->
     <div class="form-group">
       <label class="form-label">Date</label>
-      <div class="input-wrapper">
-        <input
-          type="date"
-          class="form-input"
-          [(ngModel)]="selectedDate"
-          (ngModelChange)="onDateChange()"
-          placeholder="mm/dd/yyyy" />
-      </div>
+      <app-calendar-picker
+        [selectedDate]="selectedDate"
+        [recurringPattern]="recurringPattern"
+        [blockedRanges]="blockedRanges"
+        (dateSelected)="onDateSelected($event)">
+      </app-calendar-picker>
     </div>
 
     <!-- Time Picker -->
-    <div class="form-group">
+    <div class="form-group" *ngIf="selectedDate">
       <label class="form-label">Time</label>
-      <div class="select-wrapper">
-        <select class="form-select" [(ngModel)]="selectedTime">
-          <option *ngFor="let time of times" [value]="time">{{ time }}</option>
-        </select>
-        <i class="fas fa-chevron-down"></i>
+      <div class="time-slots" *ngIf="times.length > 0; else noTimes">
+        <button
+          *ngFor="let time of times"
+          type="button"
+          class="time-slot"
+          [class.selected]="selectedTime === time"
+          (click)="selectedTime = time">
+          {{ time }}
+        </button>
       </div>
+      <ng-template #noTimes>
+        <p class="no-slots">No times available for this date</p>
+      </ng-template>
     </div>
 
     <!-- Guests Picker -->
     <div class="form-group">
       <label class="form-label">Guests</label>
-      <div class="select-wrapper">
-        <select class="form-select" [(ngModel)]="guests">
-          <option *ngFor="let n of guestOptions" [value]="n">{{ n }} guest{{ n > 1 ? 's' : '' }}</option>
-        </select>
-        <i class="fas fa-chevron-down"></i>
+      <div class="stepper">
+        <button type="button" class="stepper-btn" (click)="decrementGuests()" [disabled]="guests <= 1">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="stepper-value">{{ guests }} guest{{ guests > 1 ? 's' : '' }}</span>
+        <button type="button" class="stepper-btn" (click)="incrementGuests()" [disabled]="guests >= maxPeople">
+          <i class="fas fa-plus"></i>
+        </button>
       </div>
     </div>
 
     <!-- Add-ons -->
-    <div class="addons-section">
+    <div class="addons-section" *ngIf="addOns.length > 0">
       <label class="form-label">Add-ons</label>
       <div class="addons-list">
         <label *ngFor="let addOn of addOns" class="addon-item">
-          <input
-            type="checkbox"
-            [checked]="addOn.selected"
-            (change)="toggleAddOn(addOn)" />
+          <input type="checkbox" [checked]="addOn.selected" (change)="toggleAddOn(addOn)" />
           <span class="addon-checkbox"></span>
           <span class="addon-info">
             <span class="addon-name">{{ addOn.name }}</span>

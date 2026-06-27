@@ -182,9 +182,40 @@ export class CheckoutComponent implements OnInit {
     return '09:00:00';
   }
 
+  showPolicyModal = false;
+
   goToReservations(): void { this.router.navigate(['/client/reservations']); }
   applyPromoCode(): void { /* promo codes not yet implemented */ }
-  viewCancellationPolicy(): void {}
+  viewCancellationPolicy(event: Event): void { event.preventDefault(); this.showPolicyModal = true; }
+  closePolicyModal(): void { this.showPolicyModal = false; }
+
+  cancellationWindowLabel(code: string): string {
+    return ({ '24-hours': '24 hours', '48-hours': '48 hours', '72-hours': '72 hours' } as any)[code] ?? code;
+  }
+
+  lateArrivalLabel(code: string): string {
+    return ({
+      'wait-15':      'We wait up to 15 minutes for late arrivals.',
+      'start-on-time': 'The experience starts on time. Late arrivals join at the current point in the tour.',
+      'custom':       'Please contact the guide for late arrival details.',
+    } as any)[code] ?? code;
+  }
+
+  noShowLabel(code: string): string {
+    return ({
+      'no-refund':      'No-shows are non-refundable.',
+      'partial-refund': 'A partial refund may be issued for no-shows at the guide\'s discretion.',
+      'custom':         'Please contact the guide for no-show details.',
+    } as any)[code] ?? code;
+  }
+
+  weatherLabel(code: string): string {
+    return ({
+      'light-rain':       'The experience runs in light rain. No cancellation for minor weather.',
+      'cancel-bad':       'The experience is cancelled in case of bad weather, with a full refund.',
+      'reschedule-severe': 'The experience will be rescheduled in case of severe weather.',
+    } as any)[code] ?? code;
+  }
   setAccountOption(option: 'signin' | 'guest'): void { this.accountOption = option; }
   removeAddon(_id: string): void {}
 }

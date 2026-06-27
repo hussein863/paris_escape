@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CardPersonComponent, Guide } from '../component/card-person/card-person.component';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -18,16 +19,22 @@ export class GuidesByLanguageComponent implements OnInit {
   allGuides: Guide[] = [];
   loading = true;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private idEncrypt: IdEncryptService,
+  ) {}
 
   ngOnInit(): void {
     this.http.get<{ results: any[] }>(`${environment.apiUrl}/users/guides/`).subscribe({
       next: (res) => {
         this.allGuides = res.results.map(g => ({
           id: g.id,
+          encryptedId: this.idEncrypt.encryptId(g.id),
           name: g.user?.name ?? `Guide #${g.id}`,
           specialty: (g.specialties ?? []).map((s: any) => s.name).join(', ') || 'Paris Expert',
           rating: parseFloat(g.rating ?? 0),
+          reviewCount: g.review_count ?? 0,
           photo: g.user?.avatar_url ?? g.user?.avatar ?? 'assets/images/avatar/sophie.png',
           languages: (g.languages ?? []).map((l: any) => l.name),
         }));
@@ -39,7 +46,7 @@ export class GuidesByLanguageComponent implements OnInit {
 
   get filteredGuides(): Guide[] {
     if (!this.allGuides.length) return [];
-    return this.allGuides.filter(g => g.languages.includes(this.selectedLanguage));
+    return this.allGuides.filter(g => g.languages.includes(this.selectedLanguage)).slice(0, 8);
   }
 
   selectLanguage(language: string): void {
@@ -47,6 +54,6 @@ export class GuidesByLanguageComponent implements OnInit {
   }
 
   onViewAllGuides(): void {
-    this.router.navigate(['/landing/experience']);
+    this.router.navigate(['/landing/guides'], { queryParams: { language: this.selectedLanguage } });
   }
 }

@@ -11,12 +11,18 @@ export class ExperienceWizardService {
   private _experienceId$ = new BehaviorSubject<number | null>(null);
   readonly experienceId$ = this._experienceId$.asObservable();
 
+  /** Persistent form state keyed by step name — survives component destroy/recreate */
+  private _stepsState: Record<string, any> = {};
+
   get experienceId(): number | null { return this._experienceId$.value; }
 
   constructor(private http: HttpClient) {}
 
   setId(id: number): void { this._experienceId$.next(id); }
-  clearId(): void { this._experienceId$.next(null); }
+  clearId(): void { this._experienceId$.next(null); this._stepsState = {}; }
+
+  saveStepState(key: string, data: any): void { this._stepsState[key] = { ...data }; }
+  getStepState(key: string): any { return this._stepsState[key] ?? null; }
 
   create(data: Record<string, any>): Observable<Experience> {
     return this.http.post<Experience>(`${this.api}/`, data).pipe(

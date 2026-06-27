@@ -2,7 +2,7 @@
   <div class="container">
     <h2 class="section-title">Stay inspired</h2>
     <p class="section-subtitle">Get exclusive travel tips, hidden gems, and special offers delivered to your inbox</p>
-    
+
     <div *ngIf="submitted" style="text-align:center;padding:1.5rem;background:#dcfce7;border-radius:12px;color:#166534;font-weight:500">
       <i class="fas fa-check-circle"></i> You're subscribed! We'll send you the best of Paris.
     </div>
@@ -16,7 +16,10 @@
           [(ngModel)]="email"
           name="email"
           required>
-        <button type="submit" class="subscribe-button">Subscribe</button>
+        <button type="submit" class="subscribe-button" [disabled]="loading">
+          <span *ngIf="!loading">Subscribe</span>
+          <span *ngIf="loading"><i class="fas fa-spinner fa-spin"></i></span>
+        </button>
       </div>
       <p class="error-text" *ngIf="error" style="color:#dc2626;font-size:13px;margin-top:0.5rem">{{ error }}</p>
       <p class="privacy-text">

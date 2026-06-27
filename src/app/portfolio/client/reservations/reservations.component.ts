@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { BookingService } from '../../../core/services/booking.service';
 import { ReviewService } from '../../../core/services/review.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Booking } from '../../../core/models';
 
 type ReservationTab = 'upcoming' | 'past' | 'cancelled' | 'disputes';
@@ -28,6 +29,11 @@ export class ClientReservationsComponent implements OnInit {
     { key: 'disputes', label: 'Disputes', count: 0 }
   ];
 
+  // Cancel confirmation modal state
+  cancelModalOpen = false;
+  cancelTarget: Booking | null = null;
+  cancelling = false;
+
   // Review modal state
   reviewModalOpen = false;
   reviewTarget: Booking | null = null;
@@ -39,7 +45,17 @@ export class ClientReservationsComponent implements OnInit {
   constructor(
     private bookingService: BookingService,
     private reviewService: ReviewService,
+    private idEncrypt: IdEncryptService,
+    private router: Router,
   ) {}
+
+  encryptedExperienceId(id: number): string {
+    return this.idEncrypt.encryptId(id);
+  }
+
+  encryptedGuideId(id: number): string {
+    return this.idEncrypt.encryptId(id);
+  }
 
   ngOnInit(): void {
     this.loading = true;
@@ -94,13 +110,31 @@ export class ClientReservationsComponent implements OnInit {
   }
 
   cancelBooking(booking: Booking): void {
-    this.bookingService.cancel(booking.id).subscribe({
+    this.cancelTarget = booking;
+    this.cancelModalOpen = true;
+  }
+
+  closeCancelModal(): void {
+    this.cancelModalOpen = false;
+    this.cancelTarget = null;
+    this.cancelling = false;
+  }
+
+  confirmCancel(): void {
+    if (!this.cancelTarget) return;
+    this.cancelling = true;
+    this.bookingService.cancel(this.cancelTarget.id).subscribe({
       next: () => {
-        booking.status = 'Cancelled';
+        this.cancelTarget!.status = 'Cancelled';
         this.updateTabCounts();
-      }
+        this.closeCancelModal();
+      },
+      error: () => { this.cancelling = false; }
     });
   }
+
+  goToSupport(): void { this.router.navigate(['/admin/support']); }
+  goToFAQs(): void { this.router.navigate(['/admin/support']); }
 
   openReviewModal(booking: Booking): void {
     this.reviewTarget = booking;

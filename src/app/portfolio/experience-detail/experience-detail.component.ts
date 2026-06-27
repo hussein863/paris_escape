@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ExperienceHeaderComponent } from './components/experience-header/experience-header.component';
@@ -15,6 +16,7 @@ import { PoliciesSectionComponent } from './components/policies-section/policies
 import { SimilarExperiencesComponent } from './components/similar-experiences/similar-experiences.component';
 import { ExperienceService } from '../../core/services/experience.service';
 import { ReviewService } from '../../core/services/review.service';
+import { BookingService } from '../../core/services/booking.service';
 import { FavoriteService } from '../../core/services/favorite.service';
 import { AuthService } from '../../core/services/auth.service';
 import { IdEncryptService } from '../../core/services/id-encrypt.service';
@@ -22,12 +24,15 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Experience } from '../../core/models';
 import { RecentlyViewedComponent } from '../client/recently-viewed/recently-viewed.component';
+import { AuthPromptModalComponent } from '../component/auth-prompt-modal/auth-prompt-modal.component';
+import { BookingParams } from './components/booking-sidebar/booking-sidebar.component';
 
 @Component({
   selector: 'app-experience-detail',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     HeaderComponent,
     FooterComponent,
@@ -40,7 +45,8 @@ import { RecentlyViewedComponent } from '../client/recently-viewed/recently-view
     ReviewsSectionComponent,
     FaqSectionComponent,
     PoliciesSectionComponent,
-    SimilarExperiencesComponent
+    SimilarExperiencesComponent,
+    AuthPromptModalComponent,
   ],
   templateUrl: './experience-detail.component.html',
   styleUrl: './experience-detail.component.scss'
@@ -241,11 +247,34 @@ export class ExperienceDetailComponent implements OnInit {
   isFavorited = false;
   favoriteId: number | null = null;
   favoriteLoading = false;
+  favoriteError = '';
+  showAuthModal = false;
+  authModalAction = '';
+
+  // Review gating
+  canReviewExperience = false;
+
+  // Review modal
+  showReviewModal = false;
+  reviewRating = 0;
+  reviewContent = '';
+  reviewSubmitting = false;
+  reviewError = '';
+
+  // Report modal
+  showReportModal = false;
+  reportReason = '';
+  reportDescription = '';
+  reportSubmitting = false;
+  reportError = '';
+  reportSuccess = false;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private experienceService: ExperienceService,
     private reviewService: ReviewService,
+    private bookingService: BookingService,
     private favoriteService: FavoriteService,
     private auth: AuthService,
     private http: HttpClient,
@@ -258,7 +287,10 @@ export class ExperienceDetailComponent implements OnInit {
     const id = this.idEncrypt.decryptId(encryptedId);
     if (id) {
       this.loadExperience(id);
-      if (this.auth.isLoggedIn()) this.checkFavoriteStatus(id);
+      if (this.auth.isLoggedIn()) {
+        this.checkFavoriteStatus(id);
+        this.checkReviewEligibility(id);
+      }
     }
   }
 
@@ -300,27 +332,144 @@ export class ExperienceDetailComponent implements OnInit {
   }
 
   checkFavoriteStatus(expId: number): void {
-    this.favoriteService.list().subscribe({
+    this.favoriteService.check(expId).subscribe({
       next: (res) => {
-        const fav = res.results.find(f => f.experience === expId);
+        const fav = res.results[0];
         if (fav) { this.isFavorited = true; this.favoriteId = fav.id; }
       }
     });
   }
 
   toggleFavorite(): void {
-    if (!this.auth.isLoggedIn() || !this.experience) return;
+    if (!this.auth.isLoggedIn()) {
+      this.authModalAction = 'save to your favourites';
+      this.showAuthModal = true;
+      return;
+    }
+    if (!this.experience) return;
     this.favoriteLoading = true;
+    this.favoriteError = '';
     if (this.isFavorited && this.favoriteId) {
       this.favoriteService.remove(this.favoriteId).subscribe({
         next: () => { this.isFavorited = false; this.favoriteId = null; this.favoriteLoading = false; },
-        error: () => { this.favoriteLoading = false; }
+        error: () => { this.favoriteLoading = false; this.favoriteError = 'Could not remove from favorites.'; }
       });
     } else {
       this.favoriteService.add(this.experience.id).subscribe({
         next: (fav) => { this.isFavorited = true; this.favoriteId = fav.id; this.favoriteLoading = false; },
-        error: () => { this.favoriteLoading = false; }
+        error: (err) => {
+          this.favoriteLoading = false;
+          if (err?.status === 400) {
+            this.checkFavoriteStatus(this.experience!.id);
+          } else {
+            this.favoriteError = 'Could not save to favorites.';
+          }
+        }
       });
+    }
+  }
+
+  checkReviewEligibility(expId: number): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    this.bookingService.list().subscribe({
+      next: (res) => {
+        this.canReviewExperience = res.results.some(b =>
+          b.experience === expId &&
+          b.status === 'Confirmed' &&
+          new Date(b.date) < today
+        );
+      }
+    });
+  }
+
+  onWriteReviewClicked(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.authModalAction = 'write a review';
+      this.showAuthModal = true;
+      return;
+    }
+    this.reviewRating = 0;
+    this.reviewContent = '';
+    this.reviewError = '';
+    this.showReviewModal = true;
+  }
+
+  submitReview(): void {
+    if (this.reviewRating === 0 || !this.reviewContent.trim()) return;
+    this.reviewSubmitting = true;
+    this.reviewError = '';
+    this.reviewService.create({
+      experience: this.experience!.id,
+      guide: this.experience!.guide,
+      rating: this.reviewRating,
+      content: this.reviewContent,
+    }).subscribe({
+      next: (rev) => {
+        this.reviewSubmitting = false;
+        this.showReviewModal = false;
+        const author = this.auth.user()?.name ?? 'You';
+        this.reviewsData.reviews.unshift({ author, avatar: '', rating: rev.rating, date: 'Just now', comment: rev.content });
+        this.reviewsData.totalReviews++;
+      },
+      error: () => {
+        this.reviewSubmitting = false;
+        this.reviewError = 'Failed to submit review. Please try again.';
+      }
+    });
+  }
+
+  onReportClicked(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.authModalAction = 'report this experience';
+      this.showAuthModal = true;
+      return;
+    }
+    this.reportReason = '';
+    this.reportDescription = '';
+    this.reportError = '';
+    this.reportSuccess = false;
+    this.showReportModal = true;
+  }
+
+  submitReport(): void {
+    if (!this.reportReason || !this.reportDescription.trim()) return;
+    this.reportSubmitting = true;
+    this.reportError = '';
+    this.reviewService.report({
+      report_type: 'experience',
+      experience: this.experience!.id,
+      reason: this.reportReason,
+      description: this.reportDescription,
+    }).subscribe({
+      next: () => {
+        this.reportSubmitting = false;
+        this.reportSuccess = true;
+      },
+      error: () => {
+        this.reportSubmitting = false;
+        this.reportError = 'Failed to submit report. Please try again.';
+      }
+    });
+  }
+
+  onContactRequested(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.authModalAction = 'contact your guide';
+      this.showAuthModal = true;
+    } else {
+      const queryParams = this.experience?.guide ? { guideId: this.experience.guide } : {};
+      this.router.navigate(['/client/messages'], { queryParams });
+    }
+  }
+
+  onBookRequested(params: BookingParams): void {
+    if (!this.auth.isLoggedIn()) {
+      this.authModalAction = 'book this experience';
+      this.showAuthModal = true;
+    } else {
+      const encryptedId = this.idEncrypt.encryptId(this.experience!.id);
+      this.router.navigate(['/landing/experience', encryptedId, 'book'], { queryParams: params });
     }
   }
 

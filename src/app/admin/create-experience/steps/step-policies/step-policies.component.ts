@@ -1,4 +1,4 @@
-﻿import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
@@ -10,10 +10,15 @@ import { ExperienceWizardService } from '../../../../core/services/experience-wi
   templateUrl: './step-policies.component.html',
   styleUrl: './step-policies.component.scss',
 })
-export class StepPoliciesComponent {
+export class StepPoliciesComponent implements OnInit {
   @Output() dataChange = new EventEmitter<any>();
 
   constructor(private wizardService: ExperienceWizardService) {}
+
+  ngOnInit(): void {
+    const saved = this.wizardService.getStepState('policies');
+    if (saved) Object.assign(this.formData, saved);
+  }
 
   saveToApi(): Promise<void> {
     const id = this.wizardService.experienceId;
@@ -153,6 +158,7 @@ export class StepPoliciesComponent {
   }
 
   emitData(): void {
+    this.wizardService.saveStepState('policies', this.formData);
     this.dataChange.emit(this.formData);
   }
 }

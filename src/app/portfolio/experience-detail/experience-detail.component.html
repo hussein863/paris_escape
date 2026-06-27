@@ -41,8 +41,15 @@
             [whatToBring]="overviewData.whatToBring"></app-experience-overview>
           <app-meeting-point [meetingPoint]="meetingPointData"></app-meeting-point>
           <app-guide-profile [guide]="guideData" [guideId]="guideId"></app-guide-profile>
-          <app-reviews-section [reviews]="reviewsData.reviews" [averageRating]="reviewsData.averageRating"
-            [totalReviews]="reviewsData.totalReviews"></app-reviews-section>
+          <app-reviews-section
+            [reviews]="reviewsData.reviews"
+            [averageRating]="reviewsData.averageRating"
+            [totalReviews]="reviewsData.totalReviews"
+            [canReview]="canReviewExperience"
+            [isLoggedIn]="auth.isLoggedIn()"
+            (writeReviewClicked)="onWriteReviewClicked()"
+            (reportClicked)="onReportClicked()">
+          </app-reviews-section>
         </div>
 
         <!-- Right Column - Booking Sidebar (hidden on mobile via CSS) -->
@@ -53,7 +60,9 @@
             [currency]="experience?.currency ?? 'EUR'"
             [options]="experience?.options ?? []"
             [availability]="experience?.availability ?? null"
-            [maxPeople]="experience?.max_people ?? 10">
+            [maxPeople]="experience?.max_people ?? 10"
+            (bookRequested)="onBookRequested($event)"
+            (contactRequested)="onContactRequested()">
           </app-booking-sidebar>
         </aside>
       </div>
@@ -94,3 +103,75 @@
 </div>
 
 <app-footer></app-footer>
+
+<app-auth-prompt-modal
+  [visible]="showAuthModal"
+  [action]="authModalAction"
+  (closed)="showAuthModal = false">
+</app-auth-prompt-modal>
+
+<!-- Write Review Modal -->
+<div class="review-backdrop" *ngIf="showReviewModal" (click)="showReviewModal = false">
+  <div class="review-modal" (click)="$event.stopPropagation()" role="dialog">
+    <div class="modal-header">
+      <h3>Write a Review</h3>
+      <button class="modal-close" (click)="showReviewModal = false"><i class="fas fa-times"></i></button>
+    </div>
+    <p class="modal-exp-title">{{ experience?.title }}</p>
+
+    <div class="star-picker">
+      <button *ngFor="let s of [1,2,3,4,5]" type="button" class="star-btn"
+        [class.filled]="s <= reviewRating" (click)="reviewRating = s">
+        <i class="fas fa-star"></i>
+      </button>
+    </div>
+
+    <textarea class="modal-textarea" placeholder="Share your experience…" [(ngModel)]="reviewContent" rows="4"></textarea>
+
+    <div class="modal-error" *ngIf="reviewError">{{ reviewError }}</div>
+
+    <button class="btn-modal-submit" (click)="submitReview()"
+      [disabled]="reviewSubmitting || reviewRating === 0 || !reviewContent.trim()">
+      {{ reviewSubmitting ? 'Submitting…' : 'Submit Review' }}
+    </button>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="review-backdrop" *ngIf="showReportModal" (click)="showReportModal = false">
+  <div class="review-modal" (click)="$event.stopPropagation()" role="dialog">
+    <div class="modal-header">
+      <h3>Report this Experience</h3>
+      <button class="modal-close" (click)="showReportModal = false"><i class="fas fa-times"></i></button>
+    </div>
+
+    <ng-container *ngIf="!reportSuccess">
+      <div class="modal-field">
+        <label>Reason</label>
+        <select [(ngModel)]="reportReason" class="modal-select">
+          <option value="">Select a reason</option>
+          <option value="misleading">Misleading information</option>
+          <option value="inappropriate">Inappropriate content</option>
+          <option value="scam">Scam or fraud</option>
+          <option value="safety">Safety concern</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Description</label>
+        <textarea class="modal-textarea" placeholder="Please provide details…" [(ngModel)]="reportDescription" rows="4"></textarea>
+      </div>
+      <div class="modal-error" *ngIf="reportError">{{ reportError }}</div>
+      <button class="btn-modal-submit" (click)="submitReport()"
+        [disabled]="reportSubmitting || !reportReason || !reportDescription.trim()">
+        {{ reportSubmitting ? 'Submitting…' : 'Submit Report' }}
+      </button>
+    </ng-container>
+
+    <div class="modal-success" *ngIf="reportSuccess">
+      <i class="fas fa-check-circle"></i>
+      <p>Thank you. Your report has been submitted and our team will review it.</p>
+      <button class="btn-modal-submit" (click)="showReportModal = false">Close</button>
+    </div>
+  </div>
+</div>

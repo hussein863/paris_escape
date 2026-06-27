@@ -82,12 +82,12 @@ export class HomeComponent implements OnInit {
 
   // ─── Navigation ──────────────────────────────────────────────────────────────
   searchExperiences(): void { this.router.navigate(['/landing/experience']); }
-  browseGuides(): void { this.router.navigate(['/landing/profil']); }
-  contactSupport(): void { this.router.navigate(['/support']); }
+  browseGuides(): void { this.router.navigate(['/landing/experience']); }
+  contactSupport(): void { this.router.navigate(['/admin/support']); }
   goToReservations(): void { this.router.navigate(['/client/reservations']); }
   goToMessages(): void { this.router.navigate(['/client/messages']); }
   goToFavorites(): void { this.router.navigate(['/client/favorites']); }
-  goToFAQs(): void { this.router.navigate(['/support']); }
+  goToFAQs(): void { this.router.navigate(['/admin/support']); }
   goToDisputes(): void { this.router.navigate(['/client/reservations'], { queryParams: { tab: 'disputes' } }); }
 
   discoverByMood(search: string): void {
@@ -102,7 +102,8 @@ export class HomeComponent implements OnInit {
     this.bookingService.list().subscribe({
       next: (res) => {
         const upcoming = res.results.filter(b =>
-          (b.status === 'Confirmed' || b.status === 'Pending') && new Date(b.date) >= today
+          b.status === 'Pending' ||
+          (b.status === 'Confirmed' && new Date(b.date) >= today)
         );
         const completed = res.results.filter(b =>
           b.status === 'Confirmed' && new Date(b.date) < today

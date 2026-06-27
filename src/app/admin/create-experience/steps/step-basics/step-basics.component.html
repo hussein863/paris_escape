@@ -8,21 +8,21 @@
 
         <!-- Experience Title -->
         <div class="form-group">
-          <label for="title">Experience title <span
-              class="required">*</span></label>
+          <label for="title">Experience title <span class="required">*</span></label>
           <input
             id="title"
             type="text"
+            [class.input-error]="fieldErrors['title']"
             class="form-input"
             placeholder="e.g., Montmartre Art & Culture Walk"
             [(ngModel)]="formData.title"
-            (ngModelChange)="onDataChange()" />
+            (ngModelChange)="onDataChange('title')" />
+          <div class="field-error" *ngIf="fieldErrors['title']">{{ fieldErrors['title'] }}</div>
         </div>
 
         <!-- Short Description -->
         <div class="form-group">
-          <label for="shortDesc">Short description <span
-              class="required">*</span></label>
+          <label for="shortDesc">Short description <span class="required">*</span></label>
           <textarea
             id="shortDesc"
             class="form-textarea"
@@ -30,9 +30,8 @@
             maxlength="150"
             placeholder="Brief description that appears on cards (max 150 characters)"
             [(ngModel)]="formData.shortDescription"
-            (ngModelChange)="onDataChange()"></textarea>
-          <div class="char-count">{{shortDescriptionLength}}/150
-            characters</div>
+            (ngModelChange)="onDataChange('shortDescription')"></textarea>
+          <div class="char-count">{{shortDescriptionLength}}/150 characters</div>
         </div>
 
         <!-- Long Description -->
@@ -76,20 +75,17 @@
         <!-- Category and Subcategory -->
         <div class="form-row">
           <div class="form-group">
-            <label for="category">Category <span
-                class="required">*</span></label>
+            <label for="category">Category <span class="required">*</span></label>
             <select
               id="category"
+              [class.input-error]="fieldErrors['category']"
               class="form-select"
               [(ngModel)]="formData.category"
-              (ngModelChange)="onDataChange()">
-              <option value>Select category</option>
-              <option value="art-culture">Art & Culture</option>
-              <option value="food-wine">Food & Wine</option>
-              <option value="photography">Photography</option>
-              <option value="nature">Nature & Outdoor</option>
-              <option value="history">History</option>
+              (ngModelChange)="onCategoryChange()">
+              <option value="">Select category</option>
+              <option *ngFor="let cat of categories" [value]="cat.slug">{{ cat.name }}</option>
             </select>
+            <div class="field-error" *ngIf="fieldErrors['category']">{{ fieldErrors['category'] }}</div>
           </div>
 
           <div class="form-group">
@@ -98,43 +94,48 @@
               id="subcategory"
               class="form-select"
               [(ngModel)]="formData.subcategory"
-              (ngModelChange)="onDataChange()">
-              <option value>Select subcategory</option>
-              <option value="walking-tour">Walking Tour</option>
-              <option value="museum">Museum Visit</option>
-              <option value="workshop">Workshop</option>
+              (ngModelChange)="onDataChange('subcategory')"
+              [disabled]="!formData.category">
+              <option value="">{{ formData.category ? 'Select subcategory' : 'Select a category first' }}</option>
+              <option *ngFor="let sub of subcategories" [value]="sub.slug">{{ sub.name }}</option>
             </select>
           </div>
         </div>
 
         <!-- Tags -->
         <div class="form-group">
-          <label for="tags">Tags</label>
-          <input
-            id="tags"
-            type="text"
-            class="form-input"
-            placeholder="Add tags separated by commas (e.g., romantic, family-friendly, photo)"
-            [(ngModel)]="formData.tags"
-            (ngModelChange)="onDataChange()" />
-          <div class="help-text">Tags help travelers find your experience</div>
+          <label>Tags</label>
+          <div class="tag-input-wrapper">
+            <span class="tag-chip" *ngFor="let tag of formData.tags">
+              {{ tag }}
+              <button type="button" class="tag-remove" (click)="removeTag(tag)">×</button>
+            </span>
+            <input
+              type="text"
+              class="tag-text-input"
+              placeholder="{{ formData.tags.length ? 'Add another tag...' : 'Type a tag and press Enter' }}"
+              [(ngModel)]="tagInput"
+              (keydown)="addTag($event)" />
+          </div>
+          <div class="help-text">Press Enter to add each tag</div>
         </div>
 
         <!-- Difficulty and Duration -->
         <div class="form-row">
           <div class="form-group">
-            <label for="difficulty">Difficulty level <span
-                class="required">*</span></label>
+            <label for="difficulty">Difficulty level <span class="required">*</span></label>
             <select
               id="difficulty"
+              [class.input-error]="fieldErrors['difficulty']"
               class="form-select"
               [(ngModel)]="formData.difficulty"
-              (ngModelChange)="onDataChange()">
-              <option value>Select difficulty</option>
+              (ngModelChange)="onDataChange('difficulty')">
+              <option value="">Select difficulty</option>
               <option value="Easy">Easy</option>
               <option value="Moderate">Moderate</option>
               <option value="Hard">Hard</option>
             </select>
+            <div class="field-error" *ngIf="fieldErrors['difficulty']">{{ fieldErrors['difficulty'] }}</div>
           </div>
 
           <div class="form-group">
@@ -247,24 +248,47 @@
       <section class="form-section">
         <h2>Meeting Point</h2>
 
-        <div class="form-group">
-          <label for="meetingPoint">Select meeting point <span
-              class="required">*</span></label>
+        <div class="form-group" *ngIf="meetingPoints.length > 0">
+          <label for="meetingPoint">Select meeting point</label>
           <select
             id="meetingPoint"
             class="form-select"
-            [(ngModel)]="formData.meetingPoint"
-            (ngModelChange)="onDataChange()">
-            <option value>Choose from your presets</option>
-            <option value="place1">Eiffel Tower Main Entrance</option>
-            <option value="place2">Notre-Dame Square</option>
-            <option value="place3">Montmartre Sacré-Cœur</option>
+            [(ngModel)]="formData.meetingPointId"
+            (ngModelChange)="onDataChange('meetingPointId')">
+            <option [ngValue]="null">Choose a meeting point</option>
+            <option *ngFor="let mp of meetingPoints" [ngValue]="mp.id">
+              {{ mp.name }}{{ mp.address ? ' — ' + mp.address : '' }}{{ mp.is_default ? ' ★' : '' }}
+            </option>
           </select>
         </div>
 
-        <div class="divider">or</div>
+        <p class="no-meeting-points-hint" *ngIf="meetingPoints.length === 0 && !showAddMeetingPoint">
+          No meeting points saved yet. Add one below.
+        </p>
 
-        <button type="button" class="add-meeting-point">
+        <!-- Inline add form -->
+        <div class="add-mp-form" *ngIf="showAddMeetingPoint">
+          <div class="form-group">
+            <label>Name <span class="required">*</span></label>
+            <input type="text" class="form-input" placeholder="e.g. Eiffel Tower Main Entrance"
+              [(ngModel)]="newMeetingPoint.name" />
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" class="form-input" placeholder="e.g. Champ de Mars, 5 Av. Anatole France, 75007 Paris"
+              [(ngModel)]="newMeetingPoint.address" />
+          </div>
+          <div class="field-error" *ngIf="meetingPointError">{{ meetingPointError }}</div>
+          <div class="mp-form-actions">
+            <button type="button" class="btn-secondary" (click)="cancelAddMeetingPoint()" [disabled]="savingMeetingPoint">Cancel</button>
+            <button type="button" class="btn-primary" (click)="saveMeetingPoint()" [disabled]="savingMeetingPoint">
+              <i class="fa-solid fa-spinner fa-spin" *ngIf="savingMeetingPoint"></i>
+              {{ savingMeetingPoint ? 'Saving...' : 'Save Meeting Point' }}
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="add-meeting-point" *ngIf="!showAddMeetingPoint" (click)="openAddMeetingPoint()">
           <i class="fa-solid fa-plus"></i>
           Add new meeting point
         </button>

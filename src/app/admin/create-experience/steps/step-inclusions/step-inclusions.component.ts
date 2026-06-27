@@ -1,4 +1,4 @@
-﻿import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
@@ -25,10 +25,19 @@ interface Template {
   templateUrl: './step-inclusions.component.html',
   styleUrl: './step-inclusions.component.scss',
 })
-export class StepInclusionsComponent {
+export class StepInclusionsComponent implements OnInit {
   @Output() dataChange = new EventEmitter<any>();
 
   constructor(private wizardService: ExperienceWizardService) {}
+
+  ngOnInit(): void {
+    const saved = this.wizardService.getStepState('inclusions');
+    if (saved) {
+      if (saved.included) this.includedItems = saved.included;
+      if (saved.notIncluded) this.notIncludedItems = saved.notIncluded;
+      if (saved.toBring) this.toBringItems = saved.toBring;
+    }
+  }
 
   saveToApi(): Promise<void> {
     const id = this.wizardService.experienceId;
@@ -220,11 +229,9 @@ export class StepInclusionsComponent {
   }
 
   emitData(): void {
-    this.dataChange.emit({
-      included: this.includedItems,
-      notIncluded: this.notIncludedItems,
-      toBring: this.toBringItems
-    });
+    const data = { included: this.includedItems, notIncluded: this.notIncludedItems, toBring: this.toBringItems };
+    this.wizardService.saveStepState('inclusions', data);
+    this.dataChange.emit(data);
   }
 }
 
