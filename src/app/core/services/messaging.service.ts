@@ -38,4 +38,8 @@ export class MessagingService {
       map(r => r.count)
     );
   }
+
+  markAsRead(conversationId: number): Observable<any> {
+    return this.http.post(`${this.api}/conversations/${conversationId}/mark-read/`, {});
+  }
 }

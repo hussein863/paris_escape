@@ -151,6 +151,7 @@ export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChec
     this.selectedConversation = conversation;
     conversation.is_unread = false;
     this.messages = [];
+    this.messagingService.markAsRead(conversation.id).subscribe({ error: () => {} });
     this.messagingService.getConversation(conversation.id).subscribe({
       next: (full) => {
         this.messages = full.messages ?? [];
@@ -174,6 +175,9 @@ export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChec
         this.messages = [...this.messages, msg];
         if (this.selectedConversation) {
           this.selectedConversation.last_message = text;
+          this.selectedConversation.is_unread = false;
+          // Sending a message implicitly marks it read for the sender
+          this.messagingService.markAsRead(this.selectedConversation.id).subscribe({ error: () => {} });
         }
         this.sendingMessage = false;
       },

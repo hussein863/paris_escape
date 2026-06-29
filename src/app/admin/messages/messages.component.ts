@@ -139,9 +139,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
   selectConversation(conversation: Conversation): void {
     this.selectedConversation = conversation;
     conversation.unread = false;
+    this.messagingService.markAsRead(conversation.id).subscribe({ error: () => {} });
     this.messagingService.getConversation(conversation.id).subscribe({
       next: (c: ApiConversation) => {
-        // Update guide avatar from API response
         if (this.selectedConversation) {
           this.selectedConversation.guide_avatar = c.guide_avatar;
         }
@@ -169,6 +169,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
         });
         if (this.selectedConversation) {
           this.selectedConversation.lastMessage = text;
+          this.selectedConversation.unread = false;
+          this.messagingService.markAsRead(this.selectedConversation.id).subscribe({ error: () => {} });
         }
       },
       error: (err) => {
