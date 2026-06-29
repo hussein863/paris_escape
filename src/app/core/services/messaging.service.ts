@@ -22,7 +22,13 @@ export class MessagingService {
     return this.http.post<Message>(`${this.api}/`, { conversation: conversationId, text });
   }
 
-  startConversation(guideId: number): Observable<Conversation> {
+  /** Start a conversation anchored to a specific experience. */
+  startConversationForExperience(experienceId: number): Observable<Conversation> {
+    return this.http.post<Conversation>(`${this.api}/conversations/`, { experience: experienceId });
+  }
+
+  /** Start a conversation with a guide (no specific experience). */
+  startConversationWithGuide(guideId: number): Observable<Conversation> {
     return this.http.post<Conversation>(`${this.api}/conversations/`, { guide: guideId });
   }
 }

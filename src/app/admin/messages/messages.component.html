@@ -135,26 +135,30 @@
       </div>
     </div>
 
-    <!-- Booking Info Card -->
-    <div class="booking-info-card" *ngIf="bookingInfo">
+    <!-- Experience Context Card -->
+    <div class="booking-info-card" *ngIf="selectedConversation?.tourName || selectedConversation?.tourImage">
       <div class="booking-info-content">
-        <img [src]="bookingInfo.image" alt="Tour" class="booking-image" />
+        <img
+          *ngIf="selectedConversation?.tourImage"
+          [src]="selectedConversation!.tourImage"
+          alt="Experience"
+          class="booking-image"
+          (error)="onAvatarError($event)"
+        />
+        <div class="booking-image booking-image--placeholder" *ngIf="!selectedConversation?.tourImage">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
         <div class="booking-details">
-          <h3>{{ bookingInfo.tourName }}</h3>
-          <p class="booking-datetime">{{ bookingInfo.date }} • {{ bookingInfo.time }}</p>
-          <span class="booking-status">{{ bookingInfo.status }}</span>
+          <h3>{{ selectedConversation?.tourName || 'Experience Inquiry' }}</h3>
+          <p class="booking-datetime">
+            <ng-container *ngIf="selectedConversation?.experiencePrice">€{{ selectedConversation!.experiencePrice }}/person</ng-container>
+            <ng-container *ngIf="selectedConversation?.experienceDuration"> · {{ selectedConversation!.experienceDuration }}</ng-container>
+          </p>
+          <span class="booking-status">{{ selectedConversation?.status === 'Confirmed' ? 'Confirmed' : 'Pre-inquiry' }}</span>
         </div>
       </div>
       <div class="booking-actions">
         <button class="btn btn-outline-sm" type="button">View Reservation</button>
-        <button class="btn btn-outline-sm" type="button">
-          <i class="fas fa-qrcode"></i>
-          QR Code
-        </button>
-        <button class="btn btn-outline-sm" type="button">
-          <i class="fas fa-map-marker-alt"></i>
-          Maps
-        </button>
       </div>
     </div>
 

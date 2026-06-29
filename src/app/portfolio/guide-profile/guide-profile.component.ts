@@ -408,7 +408,7 @@ export class GuideProfileComponent implements OnInit {
     }
     if (!this.guideId) return;
     this.messageSending = true;
-    this.messagingService.startConversation(this.guideId).subscribe({
+    this.messagingService.startConversationWithGuide(this.guideId).subscribe({
       next: (conv) => {
         this.messageSending = false;
         this.router.navigate(['/client/messages'], { queryParams: { conversationId: conv.id } });

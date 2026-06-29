@@ -458,7 +458,7 @@ export class ExperienceDetailComponent implements OnInit {
       this.authModalAction = 'contact your guide';
       this.showAuthModal = true;
     } else {
-      const queryParams = this.experience?.guide ? { guideId: this.experience.guide } : {};
+      const queryParams = this.experience ? { experienceId: this.experience.id } : {};
       this.router.navigate(['/client/messages'], { queryParams });
     }
   }

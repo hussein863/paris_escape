@@ -152,9 +152,230 @@
   }
 }
 
+// ── Conversation thumbnail (experience image + guide badge) ──────────────────
+.conv-thumb {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.conv-thumb-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+}
+
+.conv-thumb-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 20px;
+    color: #9ca3af;
+  }
+}
+
+.conv-guide-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+
+  &--initial {
+    background: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+.conv-guide-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0;
+}
+
+.conv-guide-name {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.conversation-top-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+// ── Context card (experience info pinned at top of chat) ─────────────────────
+.context-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  flex-wrap: wrap;
+}
+
+.context-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.context-exp-img-wrap {
+  flex-shrink: 0;
+}
+
+.context-exp-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+}
+
+.context-exp-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 24px;
+    color: #9ca3af;
+  }
+}
+
+.context-exp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.context-exp-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.context-exp-meta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.context-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.context-status-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #2563eb;
+
+  &.confirmed {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  &.inquiry {
+    background: #fef9c3;
+    color: #a16207;
+  }
+}
+
+.context-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #0b0b0b;
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover { background: #1f1f1f; }
+
+  &.outline {
+    background: #fff;
+    color: #0b0b0b;
+    border: 1px solid #d1d5db;
+
+    &:hover { background: #f3f4f6; }
+  }
+}
+
+.messages-empty {
+  flex: 1;
+  padding: 60px 20px;
+}
+
+.empty-chat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-chat-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #9ca3af;
+
+  i {
+    font-size: 40px;
+    color: #d1d5db;
+  }
+
+  p {
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    margin: 0;
+  }
+}
+
 .conversation-item {
   display: flex;
-  gap: 6px;
+  gap: 10px;
   padding: 14px 20px;
   border-top: 1px solid #eef2f7;
   cursor: pointer;
@@ -167,6 +388,10 @@
 
   &.active {
     background: #eff6ff;
+  }
+
+  &.unread .conversation-name {
+    font-weight: 700;
   }
 }
 
@@ -308,8 +533,10 @@
   display: flex;
   flex-direction: column;
   padding: 20px 24px 24px;
-  gap: 16px;
+  gap: 14px;
   min-width: 0;
+  height: calc(100vh - 80px);
+  overflow: hidden;
 }
 
 .chat-header {
@@ -494,8 +721,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 8px 4px 0;
+  padding: 8px 4px 8px;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .date-pill {

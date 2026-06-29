@@ -831,6 +831,14 @@
     border-radius: 8px;
     flex-shrink: 0;
 
+    &--placeholder {
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      i { font-size: 24px; color: #9ca3af; }
+    }
+
     @media (max-width: 480px) {
       width: 70px;
       height: 52px;

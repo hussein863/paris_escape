@@ -259,6 +259,12 @@ export interface Conversation {
   guide_avatar?: string;
   customer_name?: string;
   customer_avatar?: string;
+  experience?: number | null;
+  experience_id?: number | null;
+  experience_title?: string | null;
+  experience_image?: string | null;
+  experience_price?: number | null;
+  experience_duration?: string | null;
   booking: number | null;
   status: 'Confirmed' | 'Pending' | 'Pre-contact' | 'Open';
   last_message: string;

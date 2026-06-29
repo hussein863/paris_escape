@@ -36,7 +36,7 @@ export class ProfileSidebarComponent {
     const id = this.guideId;
     if (!id) return;
     this.messageSending = true;
-    this.messagingService.startConversation(id).subscribe({
+    this.messagingService.startConversationWithGuide(id).subscribe({
       next: (conv) => {
         this.messageSending = false;
         this.router.navigate(['/client/messages'], { queryParams: { conversationId: conv.id } });

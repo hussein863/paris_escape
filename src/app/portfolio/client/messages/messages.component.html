@@ -2,7 +2,7 @@
   <app-client-header></app-client-header>
   <div class="messages-layout">
 
-    <!-- Sidebar: conversation list -->
+    <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
     <aside class="messages-sidebar">
       <div class="sidebar-header">
         <h1>Messages</h1>
@@ -22,43 +22,68 @@
 
       <div class="search-bar">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search conversations..." [(ngModel)]="searchQuery">
+        <input type="text" placeholder="Search conversations…" [(ngModel)]="searchQuery">
       </div>
 
       <div class="sidebar-divider"></div>
 
-      <div *ngIf="loading" class="empty-state">Loading…</div>
+      <div *ngIf="loading" class="conv-empty-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading…</p>
+      </div>
 
       <div class="conversations-list" *ngIf="!loading">
         <div
           class="conversation-item"
-          *ngFor="let conversation of filteredConversations"
-          [class.active]="selectedConversation?.id === conversation.id"
-          (click)="selectConversation(conversation)"
+          *ngFor="let conv of filteredConversations"
+          [class.active]="selectedConversation?.id === conv.id"
+          [class.unread]="conv.is_unread"
+          (click)="selectConversation(conv)"
         >
-          <img
-            *ngIf="conversation.guide_avatar"
-            [src]="conversation.guide_avatar"
-            alt="Guide"
-            class="conversation-avatar"
-            (error)="onAvatarError($event)"
-          >
-          <div class="avatar-badge-small guide" *ngIf="!conversation.guide_avatar">
-            {{ (conversation.guide_name || 'G').charAt(0).toUpperCase() }}
+          <!-- Experience thumbnail -->
+          <div class="conv-thumb">
+            <img
+              *ngIf="conv.experience_image"
+              [src]="conv.experience_image"
+              alt=""
+              class="conv-thumb-img"
+              (error)="onAvatarError($event)"
+            >
+            <div *ngIf="!conv.experience_image" class="conv-thumb-placeholder">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <!-- Guide avatar badge overlapping the thumbnail -->
+            <img
+              *ngIf="conv.guide_avatar"
+              [src]="conv.guide_avatar"
+              alt=""
+              class="conv-guide-badge"
+              (error)="onAvatarError($event)"
+            >
+            <div *ngIf="!conv.guide_avatar" class="conv-guide-badge conv-guide-badge--initial">
+              {{ (conv.guide_name || 'G').charAt(0).toUpperCase() }}
+            </div>
           </div>
+
           <div class="conversation-body">
             <div class="conversation-top">
-              <span class="conversation-name">{{ conversation.guide_name || ('Guide #' + conversation.guide) }}</span>
-              <span class="conversation-time">{{ conversation.last_message_at | date:'shortDate' }}</span>
+              <span class="conversation-name">
+                {{ conv.experience_title || conv.guide_name || 'Conversation' }}
+              </span>
+              <div class="conversation-top-right">
+                <span class="unread-dot" *ngIf="conv.is_unread"></span>
+                <span class="conversation-time">{{ conv.last_message_at | date:'d MMM' }}</span>
+              </div>
             </div>
-            <div class="conversation-badges">
+            <div class="conv-guide-line">
+              <span class="conv-guide-name">{{ conv.guide_name || ('Guide #' + conv.guide) }}</span>
               <span class="status-pill"
-                [class.confirmed]="conversation.status === 'Confirmed'"
-                [class.pending]="conversation.status === 'Pending'"
-                [class.support]="conversation.status === 'Open'"
-              >{{ conversation.status }}</span>
+                [class.confirmed]="conv.status === 'Confirmed'"
+                [class.pending]="conv.status === 'Pending'"
+                [class.inquiry]="!conv.booking"
+              >{{ conv.booking ? conv.status : 'Pre-inquiry' }}</span>
             </div>
-            <p class="conversation-preview">{{ conversation.last_message || 'No messages yet' }}</p>
+            <p class="conversation-preview">{{ conv.last_message || 'No messages yet' }}</p>
           </div>
         </div>
 
@@ -70,23 +95,25 @@
       </div>
     </aside>
 
-    <!-- Chat area -->
+    <!-- ── Chat area ───────────────────────────────────────────────────── -->
     <section class="messages-main" *ngIf="selectedConversation; else noSelection">
+
+      <!-- Chat header: guide info -->
       <header class="chat-header">
         <div class="chat-header-left">
           <img
-            *ngIf="selectedConversation?.guide_avatar"
+            *ngIf="selectedConversation.guide_avatar"
             [src]="selectedConversation.guide_avatar"
             alt="Guide"
             class="chat-avatar"
             (error)="onAvatarError($event)"
           >
-          <div class="avatar-badge-header guide" *ngIf="!selectedConversation?.guide_avatar">
-            {{ (selectedConversation?.guide_name || 'G').charAt(0).toUpperCase() }}
+          <div class="avatar-badge-header guide" *ngIf="!selectedConversation.guide_avatar">
+            {{ (selectedConversation.guide_name || 'G').charAt(0).toUpperCase() }}
           </div>
           <div class="chat-header-info">
             <h2>{{ selectedConversation.guide_name || ('Guide #' + selectedConversation.guide) }}</h2>
-            <p>{{ selectedConversation.status }}</p>
+            <p>Paris Escape Guide</p>
           </div>
         </div>
         <button class="icon-btn" type="button" aria-label="More options">
@@ -94,39 +121,75 @@
         </button>
       </header>
 
-      <div class="booking-card" *ngIf="selectedConversation.booking">
-        <div class="booking-info">
-          <div>
-            <h3>Booking ref: {{ selectedConversation.booking }}</h3>
-            <p>{{ selectedConversation.status }}</p>
+      <!-- ── Experience context card (always shown) ───────────────────── -->
+      <div class="context-card">
+        <div class="context-card-left">
+          <div class="context-exp-img-wrap">
+            <img
+              *ngIf="selectedConversation.experience_image"
+              [src]="selectedConversation.experience_image"
+              alt=""
+              class="context-exp-img"
+              (error)="onAvatarError($event)"
+            >
+            <div *ngIf="!selectedConversation.experience_image" class="context-exp-placeholder">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+          </div>
+          <div class="context-exp-info">
+            <span class="context-exp-title">
+              {{ selectedConversation.experience_title || 'Experience Inquiry' }}
+            </span>
+            <span class="context-exp-meta">
+              <ng-container *ngIf="selectedConversation.experience_price">
+                €{{ selectedConversation.experience_price }}/person
+              </ng-container>
+              <ng-container *ngIf="selectedConversation.experience_duration">
+                &nbsp;·&nbsp;{{ selectedConversation.experience_duration }}
+              </ng-container>
+            </span>
           </div>
         </div>
-        <div class="booking-actions">
-          <button class="btn outline" type="button" style="border: 1px solid rgba(0,0,0,1); color: black;">View Reservation</button>
-          <button class="btn outline" type="button"><i class="fas fa-qrcode"></i> QR Code</button>
+        <div class="context-card-right">
+          <span class="context-status-pill"
+            [class.confirmed]="selectedConversation.booking"
+            [class.inquiry]="!selectedConversation.booking"
+          >{{ contextStatus }}</span>
+          <button
+            *ngIf="!selectedConversation.booking && selectedConversation.experience_id"
+            class="btn context-btn"
+            type="button"
+            (click)="bookExperience()"
+          >Book Now</button>
+          <button
+            *ngIf="selectedConversation.booking"
+            class="btn context-btn outline"
+            type="button"
+            (click)="viewReservation()"
+          ><i class="fas fa-calendar-check"></i> View Reservation</button>
         </div>
       </div>
 
       <div class="chat-divider"></div>
 
-      <div class="messages-area">
+      <!-- Messages -->
+      <div class="messages-area" #messagesArea>
         <div class="date-pill">
           Conversation started {{ selectedConversation.last_message_at | date:'mediumDate' }}
         </div>
 
         <ng-container *ngFor="let message of messages">
           <div class="message-row" [class.user]="message.sender_type === 'Customer'">
-            <!-- Guide Avatar -->
             <div class="avatar-wrapper" *ngIf="message.sender_type === 'Guide'">
               <img
-                *ngIf="selectedConversation?.guide_avatar"
+                *ngIf="selectedConversation.guide_avatar"
                 [src]="selectedConversation.guide_avatar"
                 alt="Guide"
                 class="message-avatar"
                 (error)="onAvatarError($event)"
               >
-              <div class="avatar-badge guide" *ngIf="!selectedConversation?.guide_avatar">
-                {{ (selectedConversation?.guide_name || 'G').charAt(0).toUpperCase() }}
+              <div class="avatar-badge guide" *ngIf="!selectedConversation.guide_avatar">
+                {{ (selectedConversation.guide_name || 'G').charAt(0).toUpperCase() }}
               </div>
             </div>
 
@@ -134,7 +197,6 @@
               {{ message.text }}
             </div>
 
-            <!-- Customer Avatar -->
             <div class="avatar-wrapper" *ngIf="message.sender_type === 'Customer'">
               <img
                 *ngIf="currentUserAvatar"
@@ -153,23 +215,25 @@
           </div>
         </ng-container>
 
-        <div class="empty-state" *ngIf="messages.length === 0">
-          No messages yet. Say hello!
+        <div class="conv-empty-state messages-empty" *ngIf="messages.length === 0">
+          <i class="fas fa-paper-plane"></i>
+          <p>No messages yet</p>
+          <span>Say hello and ask about the experience!</span>
         </div>
       </div>
 
       <div class="chat-divider"></div>
 
+      <!-- Input -->
       <div class="message-input-area">
         <div *ngIf="messageError" class="message-error">
           <i class="fas fa-exclamation-circle"></i>
           {{ messageError }}
         </div>
-
         <div class="message-input">
           <input
             type="text"
-            placeholder="Type your message..."
+            placeholder="Type your message…"
             [(ngModel)]="newMessage"
             (keydown.enter)="$event.preventDefault(); sendMessage()"
             [disabled]="sendingMessage"
@@ -179,14 +243,17 @@
           </button>
         </div>
         <div class="chat-footer">
-          Messages are monitored for safety. <a href="#">Learn more</a>
+          Messages are monitored for safety.
         </div>
       </div>
     </section>
 
     <ng-template #noSelection>
       <section class="messages-main empty-chat">
-        <p>Select a conversation to start messaging.</p>
+        <div class="empty-chat-inner">
+          <i class="fas fa-comments"></i>
+          <p>Select a conversation to start messaging.</p>
+        </div>
       </section>
     </ng-template>
 

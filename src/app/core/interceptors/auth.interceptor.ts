@@ -31,6 +31,12 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
         return throwError(() => error);
       }
 
+      // If no token was sent, this is an expected 401 for an unauthenticated
+      // request to a protected endpoint — don't redirect, just propagate.
+      if (!token) {
+        return throwError(() => error);
+      }
+
       const refreshToken = localStorage.getItem('refresh_token');
 
       if (!refreshToken || isRefreshing) {

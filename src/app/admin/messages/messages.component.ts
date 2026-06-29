@@ -25,6 +25,10 @@ interface Conversation {
   timestamp: string;
   status: 'Confirmed' | 'Pending' | 'Pre-contact' | 'Open';
   tourName: string;
+  tourImage?: string;
+  experiencePrice?: number | null;
+  experienceDuration?: string | null;
+  experienceId?: number | null;
   unread: boolean;
   flagged?: boolean;
   archived?: boolean;
@@ -70,7 +74,11 @@ export class MessagesComponent implements OnInit {
           lastMessage: c.last_message,
           timestamp: new Date(c.last_message_at).toLocaleDateString(),
           status: c.status as any,
-          tourName: '',
+          tourName: c.experience_title || '',
+          tourImage: c.experience_image || '',
+          experiencePrice: c.experience_price,
+          experienceDuration: c.experience_duration,
+          experienceId: c.experience_id,
           unread: c.is_unread || false,
           flagged: c.is_flagged || false,
           archived: c.is_archived || false

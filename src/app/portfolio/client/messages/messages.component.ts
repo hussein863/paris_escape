@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { MessagingService } from '../../../core/services/messaging.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Conversation, Message } from '../../../core/models';
 
 @Component({
@@ -14,7 +15,9 @@ import { Conversation, Message } from '../../../core/models';
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.scss'
 })
-export class ClientMessagesComponent implements OnInit {
+export class ClientMessagesComponent implements OnInit, AfterViewChecked {
+  @ViewChild('messagesArea') messagesArea!: ElementRef;
+
   searchQuery = '';
   activeFilter: 'All' | 'Unread' | 'Archived' = 'All';
   newMessage = '';
@@ -30,37 +33,71 @@ export class ClientMessagesComponent implements OnInit {
   constructor(
     private messagingService: MessagingService,
     private route: ActivatedRoute,
+    private router: Router,
     private auth: AuthService,
+    private idEncrypt: IdEncryptService,
   ) {}
+
+  ngAfterViewChecked(): void {
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom(): void {
+    try {
+      if (this.messagesArea) {
+        this.messagesArea.nativeElement.scrollTop = this.messagesArea.nativeElement.scrollHeight;
+      }
+    } catch {}
+  }
 
   private loadCurrentUserInfo(): void {
     const user = this.auth.user();
     if (user) {
       this.currentUserName = user.name || 'You';
-      this.currentUserAvatar = user.avatar || '';
+      this.currentUserAvatar = user.avatar_url || user.avatar || '';
     }
   }
 
   ngOnInit(): void {
     this.loadCurrentUserInfo();
     this.loading = true;
+
     this.messagingService.listConversations().subscribe({
       next: (res) => {
         this.conversations = res.results;
+        this.loading = false;
+
+        const experienceId = this.route.snapshot.queryParamMap.get('experienceId');
         const conversationId = this.route.snapshot.queryParamMap.get('conversationId');
         const guideId = this.route.snapshot.queryParamMap.get('guideId');
-        let target: Conversation | undefined;
-        if (conversationId) {
-          target = this.conversations.find(c => c.id === +conversationId);
+
+        if (experienceId) {
+          const existing = this.conversations.find(
+            c => c.experience_id === +experienceId || c.experience === +experienceId
+          );
+          if (existing) {
+            this.selectConversation(existing);
+          } else {
+            // Create a new conversation anchored to this experience
+            this.messagingService.startConversationForExperience(+experienceId).subscribe({
+              next: (conv) => {
+                this.conversations.unshift(conv);
+                this.selectConversation(conv);
+              },
+              error: () => { this.messageError = 'Could not start conversation.'; }
+            });
+          }
+        } else if (conversationId) {
+          const target = this.conversations.find(c => c.id === +conversationId);
+          if (target) this.selectConversation(target);
         } else if (guideId) {
-          target = this.conversations.find(c => c.guide === +guideId);
-        }
-        if (target) {
-          this.selectConversation(target);
+          const target = this.conversations.find(c => c.guide === +guideId);
+          if (target) {
+            this.selectConversation(target);
+          }
         } else if (this.conversations.length > 0) {
           this.selectConversation(this.conversations[0]);
         }
-        this.loading = false;
       },
       error: () => { this.loading = false; }
     });
@@ -72,10 +109,17 @@ export class ClientMessagesComponent implements OnInit {
 
   selectConversation(conversation: Conversation): void {
     this.selectedConversation = conversation;
-    console.log('Loading conversation ID:', conversation.id, 'Type:', typeof conversation.id);
+    conversation.is_unread = false;
+    this.messages = [];
     this.messagingService.getConversation(conversation.id).subscribe({
-      next: (full) => { this.messages = full.messages ?? []; },
-      error: (err) => console.error('Failed to load conversation:', conversation.id, err)
+      next: (full) => {
+        this.messages = full.messages ?? [];
+        // Merge any extra fields from the detail response
+        const idx = this.conversations.findIndex(c => c.id === full.id);
+        if (idx !== -1) this.conversations[idx] = { ...this.conversations[idx], ...full };
+        this.selectedConversation = { ...conversation, ...full };
+      },
+      error: (err) => console.error('Failed to load conversation:', err)
     });
   }
 
@@ -85,43 +129,52 @@ export class ClientMessagesComponent implements OnInit {
     this.newMessage = '';
     this.sendingMessage = true;
     this.messageError = '';
+
     this.messagingService.sendMessage(this.selectedConversation.id, text).subscribe({
       next: (msg) => {
-        this.messages.push(msg);
+        this.messages = [...this.messages, msg];
         if (this.selectedConversation) {
           this.selectedConversation.last_message = text;
         }
         this.sendingMessage = false;
       },
-      error: (err) => {
+      error: () => {
         this.messageError = 'Failed to send message. Please try again.';
         this.newMessage = text;
         this.sendingMessage = false;
-        console.error('Failed to send message:', err);
       }
     });
   }
 
+  bookExperience(): void {
+    if (!this.selectedConversation?.experience_id) return;
+    const encId = this.idEncrypt.encryptId(this.selectedConversation.experience_id);
+    this.router.navigate(['/landing/experience', encId]);
+  }
+
+  viewReservation(): void {
+    this.router.navigate(['/client/reservations']);
+  }
+
+  get contextStatus(): string {
+    const conv = this.selectedConversation;
+    if (!conv) return '';
+    if (conv.booking) return conv.status;
+    return 'Pre-inquiry';
+  }
+
   get filteredConversations(): Conversation[] {
     let result = this.conversations;
-
-    // Filter by active tab
-    if (this.activeFilter === 'Unread') {
-      result = result.filter(c => c.is_unread);
-    } else if (this.activeFilter === 'Archived') {
-      result = result.filter(c => c.is_archived);
-    }
-
-    // Filter by search query
+    if (this.activeFilter === 'Unread') result = result.filter(c => c.is_unread);
+    else if (this.activeFilter === 'Archived') result = result.filter(c => c.is_archived);
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       result = result.filter(c =>
+        (c.experience_title || '').toLowerCase().includes(q) ||
         (c.guide_name || '').toLowerCase().includes(q) ||
-        c.status.toLowerCase().includes(q) ||
         (c.last_message || '').toLowerCase().includes(q)
       );
     }
-
     return result;
   }
 
