@@ -386,22 +386,25 @@
     border-radius: 50%;
   }
 
-  .avatar-initials {
+  .avatar-default {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: #0b0b0b;
-    color: #fff;
+    background: #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 48px;
-    font-weight: 700;
-    letter-spacing: -1px;
+    overflow: hidden;
 
-    @media (max-width: 768px) { font-size: 40px; }
-    @media (max-width: 480px) { font-size: 32px; }
-    @media (max-width: 320px) { font-size: 24px; }
+    i {
+      font-size: 56px;
+      color: #9ca3af;
+      margin-top: 16px;
+
+      @media (max-width: 768px) { font-size: 46px; margin-top: 12px; }
+      @media (max-width: 480px) { font-size: 36px; margin-top: 10px; }
+      @media (max-width: 320px) { font-size: 28px; margin-top: 8px; }
+    }
   }
 
   .avatar-edit-btn {

@@ -17,8 +17,8 @@
         <div class="profile-header-left">
           <div class="profile-avatar">
             <img *ngIf="avatarPreview" [src]="avatarPreview" alt="Profile photo" (error)="avatarPreview = null" />
-            <div *ngIf="!avatarPreview" class="avatar-initials">
-              {{ (userName || 'U').charAt(0).toUpperCase() }}
+            <div *ngIf="!avatarPreview" class="avatar-default">
+              <i class="fas fa-user"></i>
             </div>
             <input
               type="file"

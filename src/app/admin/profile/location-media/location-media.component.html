@@ -71,9 +71,8 @@
       <div class="cover-image" *ngIf="coverImageUrl">
         <img [src]="coverImageUrl" alt="Cover" />
       </div>
-      <div class="cover-image cover-placeholder" *ngIf="!coverImageUrl">
-        <i class="fas fa-image"></i>
-        <span>No cover image</span>
+      <div class="cover-image" *ngIf="!coverImageUrl">
+        <img src="assets/images/profil/bg.png" alt="Default cover" />
       </div>
       <input type="file" id="coverUpload" accept="image/*" style="display:none;" (change)="onCoverSelected($event)" />
       <button class="btn-upload" type="button" (click)="triggerCoverUpload()" [disabled]="coverUploading">
