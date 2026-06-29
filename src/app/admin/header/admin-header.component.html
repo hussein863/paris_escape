@@ -1,6 +1,13 @@
 <header class="admin-header" style="background: white; height: 70px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 2rem;">
   <div style="flex: 1;"></div>
   <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <a class="notif-bell-btn" routerLink="/admin/messages" aria-label="Messages">
+        <i class="fas fa-bell"></i>
+        <span class="notif-count" *ngIf="unreadMessages > 0">
+          {{ unreadMessages > 9 ? '9+' : unreadMessages }}
+        </span>
+      </a>
+
       <div class="user-profile" (click)="toggleDropdown()">
         <!-- Avatar: image if available, else initials -->
         <div class="avatar-wrapper">

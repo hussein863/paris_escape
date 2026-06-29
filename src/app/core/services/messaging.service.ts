@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Conversation, Message, PaginatedResponse } from '../models';
 
@@ -30,5 +31,11 @@ export class MessagingService {
   /** Start a conversation with a guide (no specific experience). */
   startConversationWithGuide(guideId: number): Observable<Conversation> {
     return this.http.post<Conversation>(`${this.api}/conversations/`, { guide: guideId });
+  }
+
+  getUnreadCount(): Observable<number> {
+    return this.http.get<{ count: number }>(`${this.api}/conversations/unread-count/`).pipe(
+      map(r => r.count)
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,7 +6,8 @@ import { ClientHeaderComponent } from '../client-header/client-header.component'
 import { MessagingService } from '../../../core/services/messaging.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { IdEncryptService } from '../../../core/services/id-encrypt.service';
-import { Conversation, Message } from '../../../core/models';
+import { BookingService } from '../../../core/services/booking.service';
+import { Conversation, Message, Booking } from '../../../core/models';
 
 @Component({
   selector: 'app-client-messages',
@@ -15,7 +16,7 @@ import { Conversation, Message } from '../../../core/models';
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.scss'
 })
-export class ClientMessagesComponent implements OnInit, AfterViewChecked {
+export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesArea') messagesArea!: ElementRef;
 
   searchQuery = '';
@@ -29,6 +30,9 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
   messageError = '';
   currentUserAvatar = '';
   currentUserName = '';
+  activeBooking: Booking | null = null;
+
+  private pollInterval: any;
 
   constructor(
     private messagingService: MessagingService,
@@ -36,10 +40,15 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
     private router: Router,
     private auth: AuthService,
     private idEncrypt: IdEncryptService,
+    private bookingService: BookingService,
   ) {}
 
   ngAfterViewChecked(): void {
     this.scrollToBottom();
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.pollInterval);
   }
 
   private scrollToBottom(): void {
@@ -70,6 +79,14 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
         const experienceId = this.route.snapshot.queryParamMap.get('experienceId');
         const conversationId = this.route.snapshot.queryParamMap.get('conversationId');
         const guideId = this.route.snapshot.queryParamMap.get('guideId');
+        const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
+
+        if (bookingId) {
+          this.bookingService.get(+bookingId).subscribe({
+            next: (booking) => { this.activeBooking = booking; },
+            error: () => {}
+          });
+        }
 
         if (experienceId) {
           const existing = this.conversations.find(
@@ -78,7 +95,6 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
           if (existing) {
             this.selectConversation(existing);
           } else {
-            // Create a new conversation anchored to this experience
             this.messagingService.startConversationForExperience(+experienceId).subscribe({
               next: (conv) => {
                 this.conversations.unshift(conv);
@@ -98,8 +114,32 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
         } else if (this.conversations.length > 0) {
           this.selectConversation(this.conversations[0]);
         }
+
+        // Start polling for real-time updates
+        this.pollInterval = setInterval(() => this.silentRefresh(), 10000);
       },
       error: () => { this.loading = false; }
+    });
+  }
+
+  private silentRefresh(): void {
+    this.messagingService.listConversations().subscribe({
+      next: (res) => {
+        this.conversations = res.results;
+        if (this.selectedConversation) {
+          // Refresh messages for the active conversation
+          this.messagingService.getConversation(this.selectedConversation.id).subscribe({
+            next: (full) => {
+              const newCount = (full.messages ?? []).length;
+              if (newCount !== this.messages.length) {
+                this.messages = full.messages ?? [];
+              }
+            },
+            error: () => {}
+          });
+        }
+      },
+      error: () => {}
     });
   }
 
@@ -114,7 +154,6 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
     this.messagingService.getConversation(conversation.id).subscribe({
       next: (full) => {
         this.messages = full.messages ?? [];
-        // Merge any extra fields from the detail response
         const idx = this.conversations.findIndex(c => c.id === full.id);
         if (idx !== -1) this.conversations[idx] = { ...this.conversations[idx], ...full };
         this.selectedConversation = { ...conversation, ...full };
@@ -159,7 +198,7 @@ export class ClientMessagesComponent implements OnInit, AfterViewChecked {
   get contextStatus(): string {
     const conv = this.selectedConversation;
     if (!conv) return '';
-    if (conv.booking) return conv.status;
+    if (this.activeBooking) return this.activeBooking.status;
     return 'Pre-inquiry';
   }
 

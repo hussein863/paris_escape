@@ -19,6 +19,7 @@
     <a class="nav-item" routerLink="/admin/messages" routerLinkActive="active">
       <i class="nav-icon fas fa-message"></i>
       <span class="nav-label">Messages</span>
+      <span class="nav-badge" *ngIf="unreadMessages > 0">{{ unreadMessages > 9 ? '9+' : unreadMessages }}</span>
     </a>
     <a class="nav-item" routerLink="/admin/reservations" routerLinkActive="active">
       <i class="nav-icon fas fa-calendar-check"></i>

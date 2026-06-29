@@ -1,9 +1,10 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { MessagingService } from '../../../core/services/messaging.service';
 
 @Component({
   selector: 'app-client-header',
@@ -12,24 +13,41 @@ import { NotificationService } from '../../../core/services/notification.service
   templateUrl: './client-header.component.html',
   styleUrl: './client-header.component.scss'
 })
-export class ClientHeaderComponent implements OnInit {
+export class ClientHeaderComponent implements OnInit, OnDestroy {
   searchQuery = '';
   dropdownOpen = false;
+  unreadMessages = 0;
+  private msgPollInterval: any;
 
   constructor(
     public auth: AuthService,
     public notifications: NotificationService,
-    private router: Router
+    private router: Router,
+    private messaging: MessagingService,
   ) {}
 
   ngOnInit(): void {
     this.notifications.loadNotifications();
+    this.loadUnreadCount();
+    this.msgPollInterval = setInterval(() => this.loadUnreadCount(), 30000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.msgPollInterval);
+  }
+
+  private loadUnreadCount(): void {
+    this.messaging.getUnreadCount().subscribe({
+      next: (count) => { this.unreadMessages = count; },
+      error: () => {}
+    });
   }
 
   get userName(): string { return this.auth.user()?.name ?? 'Traveler'; }
   get userRole(): string { return this.auth.user()?.role ?? 'Customer'; }
   get userAvatar(): string | null { return this.auth.user()?.avatar_url ?? null; }
-  get hasNotifications(): boolean { return this.notifications.unreadCount() > 0; }
+  get hasNotifications(): boolean { return this.notifications.unreadCount() > 0 || this.unreadMessages > 0; }
+  get totalUnread(): number { return this.notifications.unreadCount() + this.unreadMessages; }
 
   get initials(): string {
     return (this.auth.user()?.name ?? 'U')

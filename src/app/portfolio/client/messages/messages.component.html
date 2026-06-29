@@ -138,31 +138,43 @@
           </div>
           <div class="context-exp-info">
             <span class="context-exp-title">
-              {{ selectedConversation.experience_title || 'Experience Inquiry' }}
+              {{ selectedConversation.experience_title || activeBooking?.experience_title || 'Experience Inquiry' }}
             </span>
-            <span class="context-exp-meta">
-              <ng-container *ngIf="selectedConversation.experience_price">
-                €{{ selectedConversation.experience_price }}/person
-              </ng-container>
-              <ng-container *ngIf="selectedConversation.experience_duration">
-                &nbsp;·&nbsp;{{ selectedConversation.experience_duration }}
-              </ng-container>
-            </span>
+            <!-- When coming from a reservation, show booking details -->
+            <ng-container *ngIf="activeBooking; else priceMetaTemplate">
+              <span class="context-exp-meta booking-ref">
+                <i class="fas fa-hashtag"></i> {{ activeBooking.booking_ref }}
+              </span>
+              <span class="context-exp-meta">
+                <i class="fas fa-calendar"></i> {{ activeBooking.date | date:'d MMM yyyy' }}
+                &nbsp;·&nbsp;<i class="fas fa-clock"></i> {{ activeBooking.time }}
+              </span>
+            </ng-container>
+            <ng-template #priceMetaTemplate>
+              <span class="context-exp-meta">
+                <ng-container *ngIf="selectedConversation.experience_price">
+                  €{{ selectedConversation.experience_price }}/person
+                </ng-container>
+                <ng-container *ngIf="selectedConversation.experience_duration">
+                  &nbsp;·&nbsp;{{ selectedConversation.experience_duration }}
+                </ng-container>
+              </span>
+            </ng-template>
           </div>
         </div>
         <div class="context-card-right">
           <span class="context-status-pill"
-            [class.confirmed]="selectedConversation.booking"
-            [class.inquiry]="!selectedConversation.booking"
+            [class.confirmed]="activeBooking"
+            [class.inquiry]="!activeBooking"
           >{{ contextStatus }}</span>
           <button
-            *ngIf="!selectedConversation.booking && selectedConversation.experience_id"
+            *ngIf="!activeBooking && selectedConversation.experience_id"
             class="btn context-btn"
             type="button"
             (click)="bookExperience()"
           >Book Now</button>
           <button
-            *ngIf="selectedConversation.booking"
+            *ngIf="activeBooking"
             class="btn context-btn outline"
             type="button"
             (click)="viewReservation()"

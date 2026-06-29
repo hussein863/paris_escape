@@ -11,9 +11,11 @@
   </div>
 
   <div class="header-actions">
-    <button class="notification-btn">
+    <button class="notification-btn" routerLink="/client/messages">
       <i class="fas fa-bell"></i>
-      <span class="notification-badge" *ngIf="hasNotifications"></span>
+      <span class="notification-badge" *ngIf="hasNotifications">
+        {{ totalUnread > 9 ? '9+' : totalUnread }}
+      </span>
     </button>
 
     <div class="user-profile" (click)="toggleDropdown()">
@@ -49,6 +51,9 @@
         </button>
         <button class="dropdown-item" routerLink="/client/messages">
           <i class="fas fa-message"></i> Messages
+          <span class="msg-count-badge" *ngIf="unreadMessages > 0">
+            {{ unreadMessages > 9 ? '9+' : unreadMessages }}
+          </span>
         </button>
         <button class="dropdown-item" (click)="goToSettings()">
           <i class="fas fa-gear"></i> Settings

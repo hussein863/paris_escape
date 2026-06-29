@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -41,7 +41,7 @@ interface Conversation {
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss']
 })
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
   isSidebarOpen = false;
   contactQuota = { used: 0, total: 50 };
   searchQuery = '';
@@ -53,11 +53,49 @@ export class MessagesComponent implements OnInit {
   bookingInfo: any = null;
   loading = false;
   openMenuId: number | null = null;
+  private pollInterval: any;
 
   constructor(private messagingService: MessagingService) {}
 
   ngOnInit(): void {
     this.loadConversations();
+    this.pollInterval = setInterval(() => this.silentRefresh(), 10000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.pollInterval);
+  }
+
+  private silentRefresh(): void {
+    this.messagingService.listConversations().subscribe({
+      next: (res) => {
+        const selectedId = this.selectedConversation?.id;
+        this.conversations = res.results.map((c: ApiConversation) => ({
+          id: c.id,
+          customerId: c.customer,
+          name: c.customer_name || `Customer #${c.customer}`,
+          avatar: c.customer_avatar || 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
+          guide_name: c.guide_name,
+          guide_avatar: c.guide_avatar,
+          lastMessage: c.last_message,
+          timestamp: new Date(c.last_message_at).toLocaleDateString(),
+          status: c.status as any,
+          tourName: c.experience_title || '',
+          tourImage: c.experience_image || '',
+          experiencePrice: c.experience_price,
+          experienceDuration: c.experience_duration,
+          experienceId: c.experience_id,
+          unread: c.is_unread || false,
+          flagged: c.is_flagged || false,
+          archived: c.is_archived || false
+        }));
+        if (selectedId) {
+          const updated = this.conversations.find(c => c.id === selectedId);
+          if (updated) this.selectedConversation = { ...this.selectedConversation!, ...updated };
+        }
+      },
+      error: () => {}
+    });
   }
 
   loadConversations(): void {

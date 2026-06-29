@@ -1,7 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { MessagingService } from '../../core/services/messaging.service';
 
 @Component({
   selector: 'app-admin-header',
@@ -10,10 +11,32 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './admin-header.component.html',
   styleUrl: './admin-header.component.scss'
 })
-export class AdminHeaderComponent {
+export class AdminHeaderComponent implements OnInit, OnDestroy {
   dropdownOpen = false;
+  unreadMessages = 0;
+  private msgPollInterval: any;
 
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router,
+    private messaging: MessagingService,
+  ) {}
+
+  ngOnInit(): void {
+    this.loadUnreadCount();
+    this.msgPollInterval = setInterval(() => this.loadUnreadCount(), 30000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.msgPollInterval);
+  }
+
+  private loadUnreadCount(): void {
+    this.messaging.getUnreadCount().subscribe({
+      next: (count) => { this.unreadMessages = count; },
+      error: () => {}
+    });
+  }
 
   get userName(): string { return this.auth.user()?.name ?? 'Guide'; }
   get userAvatar(): string | null { return this.auth.user()?.avatar_url ?? null; }

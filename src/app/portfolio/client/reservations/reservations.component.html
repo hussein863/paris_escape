@@ -83,7 +83,7 @@
 
           <div class="card-actions">
             <a class="btn primary" [routerLink]="['/landing/experience', encryptedExperienceId(reservation.experience)]">View Experience</a>
-            <a class="btn outline" *ngIf="reservation.guide_name" [routerLink]="['/client/messages']" [queryParams]="{ guideId: reservation.guide }">
+            <a class="btn outline" *ngIf="reservation.guide_name" [routerLink]="['/client/messages']" [queryParams]="{ experienceId: reservation.experience, bookingId: reservation.id }">
               <i class="fas fa-comment-dots"></i> Message Guide
             </a>
             <button
