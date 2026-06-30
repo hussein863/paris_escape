@@ -27,15 +27,22 @@
       *ngFor="let filter of filters"
       class="filter-btn"
       [class.active]="activeFilter === filter.toLowerCase()"
+      [class.filter-btn--empty]="countFor(filter) === 0 && filter !== 'All'"
       (click)="setFilter(filter)">
       {{ filter }}
+      <span class="filter-count" *ngIf="filter !== 'All'">{{ countFor(filter) }}</span>
     </button>
   </div>
 
   <div class="reviews-list">
     <div class="review-card" *ngFor="let review of filteredReviews">
       <div class="review-layout">
-        <img [src]="review.avatar || 'assets/images/avatar-placeholder.png'" [alt]="review.author" class="reviewer-avatar" />
+        <img *ngIf="review.avatar; else avatarInitials"
+             [src]="review.avatar" [alt]="review.author" class="reviewer-avatar"
+             (error)="$any($event.target).style.display='none'" />
+        <ng-template #avatarInitials>
+          <div class="reviewer-avatar reviewer-avatar--initials">{{ getInitials(review.author) }}</div>
+        </ng-template>
 
         <div class="review-content-wrapper">
           <div class="review-header">

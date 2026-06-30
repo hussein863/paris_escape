@@ -106,14 +106,29 @@ export class AvailabilityPricingComponent implements OnInit {
 
   saveSocial(): void {
     this.savingSocial = true;
+    let website = this.website.trim();
+    if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+      website = 'https://' + website;
+      this.website = website;
+    }
     this.guideService.patch({
       instagram: this.instagram, show_instagram: this.showInstagram,
       tiktok: this.tiktok, show_tiktok: this.showTiktok,
       youtube: this.youtube, show_youtube: this.showYoutube,
-      website: this.website, show_website: this.showWebsite,
+      website, show_website: this.showWebsite,
     }).subscribe({
       next: () => { this.savingSocial = false; this.showToast('Social links saved!'); },
-      error: () => { this.savingSocial = false; this.showToast('Failed to save social links.', 'error'); },
+      error: (err) => {
+        this.savingSocial = false;
+        const errors = err?.error;
+        if (errors && typeof errors === 'object') {
+          const field = Object.keys(errors)[0];
+          const msg = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+          this.showToast(`${field}: ${msg}`, 'error');
+        } else {
+          this.showToast('Failed to save social links.', 'error');
+        }
+      },
     });
   }
 

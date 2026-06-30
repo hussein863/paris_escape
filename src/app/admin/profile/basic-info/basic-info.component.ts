@@ -39,6 +39,23 @@ export class BasicInfoComponent implements OnInit {
 
   languageLevels = ['Native', 'Fluent', 'Conversational', 'Basic'];
 
+  commonLanguages = [
+    'English', 'French', 'Spanish', 'Arabic', 'Mandarin Chinese',
+    'Portuguese', 'German', 'Italian', 'Japanese', 'Russian',
+    'Korean', 'Hindi', 'Turkish', 'Dutch', 'Polish',
+    'Swedish', 'Greek', 'Hebrew', 'Thai', 'Vietnamese',
+    'Romanian', 'Ukrainian', 'Czech', 'Danish', 'Finnish',
+    'Hungarian', 'Norwegian', 'Persian', 'Urdu', 'Catalan',
+  ];
+
+  getLanguageOptions(currentName: string): string[] {
+    const list = [...this.commonLanguages];
+    if (currentName && !list.includes(currentName)) {
+      list.unshift(currentName);
+    }
+    return list;
+  }
+
   saving = false;
   toast: { message: string; type: 'success' | 'error' } | null = null;
   private toastTimer: any;

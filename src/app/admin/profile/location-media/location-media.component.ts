@@ -1,6 +1,7 @@
 import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { GuideProfileService } from '../../../core/services/guide-profile.service';
 
 interface MeetingPointRow {
@@ -43,7 +44,17 @@ export class LocationMediaComponent implements OnInit {
     this.toastTimer = setTimeout(() => { this.toast = null; }, 3500);
   }
 
-  constructor(private guideService: GuideProfileService) {}
+  constructor(
+    private guideService: GuideProfileService,
+    private sanitizer: DomSanitizer,
+  ) {}
+
+  get mapEmbedUrl(): SafeResourceUrl | null {
+    const q = [this.neighborhood, this.baseCity].filter(s => s?.trim()).join(', ');
+    if (!q) return null;
+    const url = `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed&z=14`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
 
   ngOnInit(): void {
     this.guideService.profile$.subscribe(p => {
@@ -149,7 +160,4 @@ export class LocationMediaComponent implements OnInit {
     });
   }
 
-  downloadQRCode(): void {
-    // QR code download — placeholder for future implementation
-  }
 }

@@ -20,14 +20,15 @@
     <label>Languages</label>
     <div class="languages-list">
       <div class="language-item" *ngFor="let language of languages; let i = index">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Language"
-          [(ngModel)]="language.name"
-          (blur)="saveLanguage(language)"
-        />
-        <select class="form-control form-select" [(ngModel)]="language.level" (change)="saveLanguage(language)">
+        <select class="form-control form-select lang-name-select"
+                [(ngModel)]="language.name"
+                (change)="saveLanguage(language)">
+          <option value="" disabled>Select language</option>
+          <option *ngFor="let lang of getLanguageOptions(language.name)" [value]="lang">{{ lang }}</option>
+        </select>
+        <select class="form-control form-select lang-level-select"
+                [(ngModel)]="language.level"
+                (change)="saveLanguage(language)">
           <option *ngFor="let level of languageLevels" [value]="level">{{ level }}</option>
         </select>
         <button class="btn-icon btn-remove" type="button" (click)="removeLanguage(language, i)">
@@ -46,18 +47,24 @@
     <div class="specialties-chips">
       <span class="chip" *ngFor="let specialty of specialties; let i = index">
         {{ specialty.name }}
-        <button class="chip-remove" type="button" (click)="removeSpecialty(specialty, i)"></button>
+        <button class="chip-remove" type="button" (click)="removeSpecialty(specialty, i)">
+          <i class="fas fa-times"></i>
+        </button>
       </span>
     </div>
     <div *ngIf="showSpecialtyInput" class="specialty-input-row">
       <input
         type="text"
-        class="form-control"
-        placeholder="Specialty name"
+        class="form-control specialty-input"
+        placeholder="e.g. Street Art, Gastronomy, Architecture…"
         [(ngModel)]="newSpecialtyName"
         (keyup.enter)="confirmAddSpecialty()"
+        autofocus
       />
-      <button class="btn-add" type="button" (click)="confirmAddSpecialty()">Add</button>
+      <div class="specialty-actions">
+        <button class="btn btn-primary btn-sm" type="button" (click)="confirmAddSpecialty()">Add</button>
+        <button class="btn btn-secondary btn-sm" type="button" (click)="showSpecialtyInput = false">Cancel</button>
+      </div>
     </div>
     <button class="btn-add" type="button" (click)="showAddSpecialty()" *ngIf="!showSpecialtyInput">
       <i class="fas fa-plus"></i>
