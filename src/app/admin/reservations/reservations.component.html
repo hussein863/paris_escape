@@ -2,401 +2,550 @@
 
 <div class="app-shell" [class.sidebar-open]="isSidebarOpen">
   <button type="button" class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
-    <span></span>
-    <span></span>
-    <span></span>
+    <span></span><span></span><span></span>
   </button>
-
   <app-sidebar class="sidebar" [class.open]="isSidebarOpen"></app-sidebar>
-  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()" aria-label="Close menu"></div>
+  <div class="backdrop" *ngIf="isSidebarOpen" (click)="closeSidebar()"></div>
 
   <main class="app-main">
     <section class="reservations-page">
+
+      <!-- ── Page Header ── -->
       <header class="page-header">
-    <h1 class="page-title" style="width: 255px;">Reservations and Calendar</h1>
+        <h1 class="page-title">Reservations</h1>
+        <div class="header-actions">
+          <button class="hdr-btn" (click)="openBlockDaysModal()" type="button">
+            <i class="fas fa-ban"></i> Block Days
+          </button>
+          <button class="hdr-btn" (click)="openAddBookingModal()" type="button">
+            <i class="fas fa-plus"></i> Add Booking
+          </button>
+          <button class="hdr-btn" (click)="connectCalendar()" type="button">
+            <i class="fa-brands fa-google"></i> Sync Calendar
+          </button>
+          <button class="hdr-btn hdr-btn--primary" (click)="exportCSV()" type="button">
+            <i class="fas fa-download"></i> Export CSV
+          </button>
+        </div>
+      </header>
 
-    <div class="header-actions">
-      <button class="btn-secondary" (click)="openBlockDaysModal()" type="button">
-       <p style="    margin-top: 2px;"> <i class="fas fa-ban"></i>
-        Block Days</p>
-        Off
-      </button>
-      <button class="btn-secondary" (click)="openAddBookingModal()" type="button">
-        <p style="    margin-top: 2px;"><i class="fas fa-plus"></i>
-        Add Manual </p>
-        Booking
-      </button>
-      <button class="btn-secondary" (click)="connectCalendar()" type="button">
-        <p style="    margin-top: 2px;"><i class="fa-brands fa-google"></i>
-        Connect </p>
-        Calendar
-      </button>
-      <button class="btn-primary" (click)="exportCSV()" type="button">
-        <p style="    margin-top: 2px;"><i class="fas fa-download"></i>
-        Export </p>
-        CSV
-      </button>
-    </div>
-  </header>
-
-  <div class="view-tabs">
-    <button
-      class="tab"
-      [class.active]="selectedView === 'calendar'"
-      (click)="setView('calendar')">
-      Calendar
-    </button>
-    <button
-      class="tab"
-      [class.active]="selectedView === 'list'"
-      (click)="setView('list')" style="border: 1px solid rgba(209, 213, 219, 1); border-radius: 60px;">
-      List
-    </button>
-    <button
-      class="tab"
-      [class.active]="selectedView === 'settings'"
-      (click)="setView('settings')" style="border: 1px solid rgba(209, 213, 219, 1); border-radius: 60px;">
-      Settings
-    </button>
-  </div>
-
-  <div class="calendar-container" *ngIf="selectedView === 'calendar'">
-    <div class="calendar-controls">
-      <div class="month-navigation">
-        <button class="nav-btn" (click)="previousMonth()">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <h2 class="current-month">{{ currentMonth }}</h2>
-        <button class="nav-btn" (click)="nextMonth()">
-          <i class="fas fa-chevron-right"></i>
+      <!-- ── Pending Urgent Banner ── -->
+      <div class="pending-banner" *ngIf="pendingCount > 0 && !loading">
+        <div class="pending-banner-left">
+          <i class="fas fa-clock"></i>
+          <div>
+            <strong>{{ pendingCount }} booking{{ pendingCount > 1 ? 's' : '' }} need{{ pendingCount === 1 ? 's' : '' }} your confirmation</strong>
+            <span>Respond quickly to improve your acceptance rate</span>
+          </div>
+        </div>
+        <button class="pending-banner-cta" (click)="selectedView = 'list'; selectedStatus = 'Pending'" type="button">
+          Review Now <i class="fas fa-arrow-right"></i>
         </button>
       </div>
 
-      <div class="calendar-filters">
-        <select class="filter-select">
-          <option>All Experiences</option>
-          <option>Montmartre Walking Tour</option>
-          <option>Seine Photography Walk</option>
-        </select>
-        <button class="view-toggle">Week View</button>
-      </div>
-    </div>
-
-    <div class="calendar-grid">
-      <div class="calendar-header">
-        <div class="day-label">Mon</div>
-        <div class="day-label">Tue</div>
-        <div class="day-label">Wed</div>
-        <div class="day-label">Thu</div>
-        <div class="day-label">Fri</div>
-        <div class="day-label">Sat</div>
-        <div class="day-label">Sun</div>
-      </div>
-
-      <div class="calendar-body">
-        <div
-          *ngFor="let day of calendarDays"
-          class="calendar-day"
-          [class.other-month]="!day.isCurrentMonth"
-          [class.today]="day.isToday"
-          [class.blocked]="day.isBlocked">
-          <span class="day-number">{{ day.day }}</span>
-
-          <div class="day-bookings">
-            <div *ngIf="day.isBlocked" class="blocked-badge">
-              <i class="fas fa-ban"></i> Blocked
-            </div>
-            <div
-              *ngFor="let booking of day.bookings"
-              class="booking-badge"
-              [class.confirmed]="booking.status.toLowerCase() === 'confirmed'"
-              [class.pending]="booking.status.toLowerCase() === 'pending'"
-              [class.cancelled]="booking.status.toLowerCase() === 'cancelled'"
-              (click)="openReservationModal(booking.booking)"
-              style="cursor: pointer;">
-              <span class="booking-time">{{ booking.time }}</span>
-              <span class="booking-status">{{ booking.status }}</span>
-            </div>
-            <div *ngIf="day.isToday" class="today-indicator">Today</div>
+      <!-- ── Stats Bar ── -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--blue"><i class="fas fa-calendar-alt"></i></div>
+          <div class="stat-body">
+            <div class="stat-value">{{ allBookings.length }}</div>
+            <div class="stat-label">Total Bookings</div>
+          </div>
+        </div>
+        <div class="stat-card" [class.stat-card--urgent]="pendingCount > 0">
+          <div class="stat-icon stat-icon--amber"><i class="fas fa-clock"></i></div>
+          <div class="stat-body">
+            <div class="stat-value">{{ pendingCount }}</div>
+            <div class="stat-label">Pending Review</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--green"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-body">
+            <div class="stat-value">{{ upcomingCount }}</div>
+            <div class="stat-label">Upcoming</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon--purple"><i class="fas fa-euro-sign"></i></div>
+          <div class="stat-body">
+            <div class="stat-value">€{{ totalRevenue | number:'1.0-0' }}</div>
+            <div class="stat-label">Confirmed Revenue</div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="calendar-legend">
-      <div class="legend-item">
-        <span class="legend-dot confirmed"></span>
-        <span class="legend-label">Confirmed</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot pending"></span>
-        <span class="legend-label">Pending</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot cancelled"></span>
-        <span class="legend-label">Cancelled</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot blocked"></span>
-        <span class="legend-label">Blocked</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="list-view" *ngIf="selectedView === 'list'">
-    <div class="list-controls">
-      <div class="search-bar">
-        <i class="fas fa-search"></i>
-        <input
-          type="text"
-          placeholder="Search by customer or experience..."
-          [(ngModel)]="searchQuery">
-      </div>
-
-      <div class="filter-buttons">
-        <button
-          class="filter-btn"
-          [class.active]="selectedStatus === 'all'"
-          (click)="selectedStatus = 'all'">
-          All ({{ allBookings.length }})
+      <!-- ── View Tabs ── -->
+      <div class="view-tabs">
+        <button class="tab" [class.active]="selectedView === 'list'" (click)="setView('list')">
+          <i class="fas fa-list-ul"></i> List
         </button>
-        <button
-          class="filter-btn"
-          [class.active]="selectedStatus === 'Pending'"
-          (click)="selectedStatus = 'Pending'">
-          Pending ({{ pendingCount }})
+        <button class="tab" [class.active]="selectedView === 'calendar'" (click)="setView('calendar')">
+          <i class="fas fa-calendar-days"></i> Calendar
         </button>
-        <button
-          class="filter-btn"
-          [class.active]="selectedStatus === 'Confirmed'"
-          (click)="selectedStatus = 'Confirmed'">
-          Confirmed ({{ confirmedCount }})
+        <button class="tab" [class.active]="selectedView === 'settings'" (click)="setView('settings')">
+          <i class="fas fa-sliders"></i> Settings
         </button>
       </div>
-    </div>
 
-    <div class="bookings-table">
-      <div class="table-header">
-        <div class="col-date">Date</div>
-        <div class="col-customer">Customer</div>
-        <div class="col-experience">Experience</div>
-        <div class="col-status">Status</div>
-        <div class="col-actions">Actions</div>
-      </div>
+      <!-- ══════════════════════════════════ LIST VIEW ══════════════════════════════════ -->
+      <div class="list-view" *ngIf="selectedView === 'list'">
 
-      <div *ngIf="loading" class="loading">Loading bookings...</div>
+        <div class="list-controls">
+          <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search by ref, guest, or experience…" [(ngModel)]="searchQuery">
+            <button *ngIf="searchQuery" class="search-clear" (click)="searchQuery = ''" type="button">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="status-tabs">
+            <button class="stab" [class.active]="selectedStatus === 'all'" (click)="selectedStatus = 'all'">
+              All <span class="stab-count">{{ allBookings.length }}</span>
+            </button>
+            <button class="stab stab--pending" [class.active]="selectedStatus === 'Pending'" (click)="selectedStatus = 'Pending'">
+              Pending <span class="stab-count">{{ pendingCount }}</span>
+            </button>
+            <button class="stab stab--confirmed" [class.active]="selectedStatus === 'Confirmed'" (click)="selectedStatus = 'Confirmed'">
+              Confirmed <span class="stab-count">{{ confirmedCount }}</span>
+            </button>
+            <button class="stab stab--cancelled" [class.active]="selectedStatus === 'Cancelled'" (click)="selectedStatus = 'Cancelled'">
+              Cancelled <span class="stab-count">{{ cancelledCount }}</span>
+            </button>
+          </div>
+        </div>
 
-      <div *ngIf="!loading && filteredBookings.length === 0" class="empty">
-        No bookings found
-      </div>
+        <div class="bookings-table">
+          <div class="table-header">
+            <div class="col-ref">Booking Ref</div>
+            <div class="col-datetime">Date & Time</div>
+            <div class="col-customer">Guest</div>
+            <div class="col-experience">Experience</div>
+            <div class="col-guests">Guests</div>
+            <div class="col-amount">Amount</div>
+            <div class="col-status">Status</div>
+            <div class="col-act"></div>
+          </div>
 
-      <div *ngFor="let booking of filteredBookings" class="table-row">
-        <div class="col-date">{{ booking.date | date: 'MMM dd, yyyy' }}</div>
-        <div class="col-customer">{{ booking.customer_name || 'Customer #' + booking.customer }}</div>
-        <div class="col-experience">{{ booking.experience_title || 'Experience #' + booking.experience }}</div>
-        <div class="col-status">
-          <span class="badge" [ngClass]="booking.status.toLowerCase()">
-            {{ booking.status }}
-          </span>
-        </div>
-        <div class="col-actions">
-          <button
-            *ngIf="booking.status === 'Pending'"
-            class="btn-action confirm"
-            (click)="confirmBooking(booking)"
-            [disabled]="actionInProgress">
-            <i class="fas fa-check"></i> Confirm
-          </button>
-          <button
-            *ngIf="booking.status !== 'Cancelled' && booking.status !== 'Disputed'"
-            class="btn-action cancel"
-            (click)="cancelBooking(booking)"
-            [disabled]="actionInProgress">
-            <i class="fas fa-times"></i> Cancel
-          </button>
-          <button
-            *ngIf="booking.status === 'Confirmed'"
-            class="btn-action dispute"
-            (click)="disputeBooking(booking)"
-            [disabled]="actionInProgress">
-            <i class="fas fa-exclamation"></i> Dispute
-          </button>
-          <button
-            class="btn-action message"
-            title="Message customer">
-            <i class="fas fa-message"></i> Message
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+          <div class="table-empty" *ngIf="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading reservations…</p>
+          </div>
 
-  <div class="settings-view" *ngIf="selectedView === 'settings'">
-    <p class="placeholder"></p>
-  </div>
+          <div class="table-empty" *ngIf="!loading && filteredBookings.length === 0">
+            <i class="fas fa-calendar-xmark"></i>
+            <p>No bookings found</p>
+            <span *ngIf="searchQuery || selectedStatus !== 'all'">Try clearing your filters</span>
+          </div>
 
-  <!-- Block Days Modal -->
-  <div class="modal-overlay" *ngIf="showBlockDaysModal" (click)="closeBlockDaysModal()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2><i class="fas fa-ban"></i> Block Days</h2>
-        <button class="modal-close" (click)="closeBlockDaysModal()" type="button">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Start Date</label>
-          <input type="date" [(ngModel)]="blockDaysForm.startDate" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>End Date</label>
-          <input type="date" [(ngModel)]="blockDaysForm.endDate" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Reason (Optional)</label>
-          <input type="text" [(ngModel)]="blockDaysForm.reason" placeholder="e.g., Personal time off" class="form-input">
-        </div>
-        <div class="feedback" *ngIf="feedbackMessage" [class.success]="feedbackType === 'success'" [class.error]="feedbackType === 'error'">
-          {{ feedbackMessage }}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeBlockDaysModal()" type="button">Cancel</button>
-        <button class="btn btn-primary" (click)="submitBlockDays()" [disabled]="actionInProgress" type="button">
-          {{ actionInProgress ? 'Blocking...' : 'Block Days' }}
-        </button>
-      </div>
-    </div>
-  </div>
+          <div
+            *ngFor="let booking of filteredBookings"
+            class="table-row"
+            [class.row--pending]="booking.status === 'Pending'"
+            (click)="openDetailPanel(booking)">
 
-  <!-- Add Manual Booking Modal -->
-  <div class="modal-overlay" *ngIf="showAddBookingModal" (click)="closeAddBookingModal()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2><i class="fas fa-plus"></i> Add Manual Booking</h2>
-        <button class="modal-close" (click)="closeAddBookingModal()" type="button">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Guest Name *</label>
-          <input type="text" [(ngModel)]="addBookingForm.guestName" placeholder="Enter guest name" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Date *</label>
-          <input type="date" [(ngModel)]="addBookingForm.date" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Time *</label>
-          <input type="time" [(ngModel)]="addBookingForm.time" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Number of Guests</label>
-          <input type="number" [(ngModel)]="addBookingForm.guests" min="1" max="20" class="form-input">
-        </div>
-        <div class="feedback" *ngIf="feedbackMessage" [class.success]="feedbackType === 'success'" [class.error]="feedbackType === 'error'">
-          {{ feedbackMessage }}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeAddBookingModal()" type="button">Cancel</button>
-        <button class="btn btn-primary" (click)="submitAddBooking()" [disabled]="actionInProgress" type="button">
-          {{ actionInProgress ? 'Adding...' : 'Add Booking' }}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Reservation Details Modal -->
-  <div class="modal-overlay" *ngIf="showReservationModal && selectedReservation" (click)="closeReservationModal()">
-    <div class="modal modal-lg" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2><i class="fas fa-calendar-check"></i> Reservation Details</h2>
-        <button class="modal-close" (click)="closeReservationModal()" type="button">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="reservation-grid">
-          <!-- Booking Info -->
-          <div class="reservation-section">
-            <h3>Booking Information</h3>
-            <div class="info-row">
-              <span class="label">Booking ID:</span>
-              <span class="value">{{ selectedReservation.booking_ref }}</span>
+            <div class="col-ref">
+              <span class="ref-code">{{ booking.booking_ref || '#' + booking.id }}</span>
             </div>
-            <div class="info-row">
-              <span class="label">Status:</span>
-              <span class="value" [class]="'status-' + selectedReservation.status.toLowerCase()">
-                {{ selectedReservation.status }}
+
+            <div class="col-datetime">
+              <span class="dt-date">{{ booking.date | date:'MMM d, yyyy' }}</span>
+              <span class="dt-time">{{ booking.time?.slice(0, 5) }}</span>
+            </div>
+
+            <div class="col-customer">
+              <div class="customer-chip">
+                <div class="avatar-sm">{{ initials(booking.customer_name) }}</div>
+                <span class="customer-name">{{ booking.customer_name || 'Guest #' + booking.customer }}</span>
+              </div>
+            </div>
+
+            <div class="col-experience">
+              <span class="exp-title">{{ booking.experience_title || 'Experience #' + booking.experience }}</span>
+            </div>
+
+            <div class="col-guests">
+              <span>{{ booking.adults || 0 }} adult<ng-container *ngIf="(booking.adults || 0) !== 1">s</ng-container></span>
+              <span *ngIf="(booking.children || 0) > 0" class="guests-extra">+{{ booking.children }} child</span>
+            </div>
+
+            <div class="col-amount">
+              <span class="amount-val">€{{ booking.total_amount | number:'1.0-0' }}</span>
+            </div>
+
+            <div class="col-status">
+              <span class="status-pill" [class]="'status-pill--' + booking.status.toLowerCase()">
+                <i class="fas" [class]="getStatusIcon(booking.status)"></i>
+                {{ booking.status }}
               </span>
             </div>
-            <div class="info-row">
-              <span class="label">Date:</span>
-              <span class="value">{{ selectedReservation.date | date: 'MMM dd, yyyy' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Time:</span>
-              <span class="value">{{ selectedReservation.time }}</span>
-            </div>
-          </div>
 
-          <!-- Guest Info -->
-          <div class="reservation-section">
-            <h3>Guest Information</h3>
-            <div class="info-row">
-              <span class="label">Guest Name:</span>
-              <span class="value">{{ selectedReservation.customer_name || 'N/A' }}</span>
+            <div class="col-act" (click)="$event.stopPropagation()">
+              <button
+                *ngIf="booking.status === 'Pending'"
+                class="row-btn row-btn--confirm"
+                (click)="confirmBooking(booking)"
+                [disabled]="actionInProgress"
+                title="Confirm booking">
+                <i class="fas fa-check"></i> Confirm
+              </button>
+              <button
+                class="row-btn row-btn--view"
+                (click)="openDetailPanel(booking)"
+                title="View details">
+                <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
-            <div class="info-row">
-              <span class="label">Adults:</span>
-              <span class="value">{{ selectedReservation.adults }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Children:</span>
-              <span class="value">{{ selectedReservation.children }}</span>
-            </div>
-          </div>
 
-          <!-- Pricing Info -->
-          <div class="reservation-section">
-            <h3>Pricing</h3>
-            <div class="info-row">
-              <span class="label">Base Price:</span>
-              <span class="value">€ {{ selectedReservation.base_price }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Subtotal:</span>
-              <span class="value">€ {{ selectedReservation.subtotal }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Service Fee:</span>
-              <span class="value">€ {{ selectedReservation.service_fee }}</span>
-            </div>
-            <div class="info-row total">
-              <span class="label">Total Amount:</span>
-              <span class="value">€ {{ selectedReservation.total_amount }}</span>
-            </div>
-          </div>
-
-          <!-- Experience Info -->
-          <div class="reservation-section" *ngIf="selectedReservation.experience_title">
-            <h3>Experience</h3>
-            <div class="info-row">
-              <span class="label">Experience:</span>
-              <span class="value">{{ selectedReservation.experience_title }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Guide:</span>
-              <span class="value">{{ selectedReservation.guide_name || 'N/A' }}</span>
-            </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeReservationModal()" type="button">Close</button>
-        <button class="btn btn-primary" type="button">
-          <i class="fas fa-edit"></i> Edit Reservation
+
+      <!-- ══════════════════════════════════ CALENDAR VIEW ══════════════════════════════════ -->
+      <div class="calendar-container" *ngIf="selectedView === 'calendar'">
+        <div class="calendar-controls">
+          <div class="month-navigation">
+            <button class="nav-btn" (click)="previousMonth()"><i class="fas fa-chevron-left"></i></button>
+            <h2 class="current-month">{{ currentMonth }}</h2>
+            <button class="nav-btn" (click)="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="calendar-filters">
+            <button class="hdr-btn" (click)="openBlockDaysModal()" type="button">
+              <i class="fas fa-ban"></i> Block Days
+            </button>
+          </div>
+        </div>
+
+        <div class="calendar-grid">
+          <div class="calendar-header">
+            <div class="day-label">Mon</div>
+            <div class="day-label">Tue</div>
+            <div class="day-label">Wed</div>
+            <div class="day-label">Thu</div>
+            <div class="day-label">Fri</div>
+            <div class="day-label">Sat</div>
+            <div class="day-label">Sun</div>
+          </div>
+          <div class="calendar-body">
+            <div
+              *ngFor="let day of calendarDays"
+              class="calendar-day"
+              [class.other-month]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.blocked]="day.isBlocked">
+              <span class="day-number">{{ day.day }}</span>
+              <div class="day-bookings">
+                <div *ngIf="day.isBlocked" class="blocked-badge">
+                  <i class="fas fa-ban"></i> Blocked
+                </div>
+                <div
+                  *ngFor="let b of day.bookings"
+                  class="booking-badge"
+                  [class]="'booking-badge booking-badge--' + b.status.toLowerCase()"
+                  (click)="openDetailPanel(b.booking); $event.stopPropagation()">
+                  <span class="badge-time">{{ b.time }}</span>
+                  <span class="badge-name">{{ b.name || b.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calendar-legend">
+          <div class="legend-item"><span class="legend-dot legend-dot--confirmed"></span> Confirmed</div>
+          <div class="legend-item"><span class="legend-dot legend-dot--pending"></span> Pending</div>
+          <div class="legend-item"><span class="legend-dot legend-dot--cancelled"></span> Cancelled</div>
+          <div class="legend-item"><span class="legend-dot legend-dot--blocked"></span> Blocked</div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════ SETTINGS VIEW ══════════════════════════════════ -->
+      <div class="settings-view" *ngIf="selectedView === 'settings'">
+        <div class="settings-section">
+          <h3><i class="fas fa-calendar-check"></i> Experience Availability</h3>
+          <p class="settings-note">Configure recurring availability, time slots, and minimum notice for each experience from the experience editor.</p>
+          <button class="hdr-btn hdr-btn--primary" (click)="goToExperiences()" type="button">
+            <i class="fas fa-arrow-right"></i> Go to Experience Settings
+          </button>
+        </div>
+        <div class="settings-section">
+          <h3><i class="fas fa-ban"></i> Blocked Days</h3>
+          <p class="settings-note">Block out dates when you are unavailable. Blocked days prevent new bookings from being accepted on those dates.</p>
+          <button class="hdr-btn" (click)="openBlockDaysModal()" type="button">
+            <i class="fas fa-ban"></i> Block Days
+          </button>
+        </div>
+        <div class="settings-section settings-section--muted">
+          <h3><i class="fa-brands fa-google"></i> Google Calendar Sync <span class="coming-soon-pill">Coming Soon</span></h3>
+          <p class="settings-note">Automatically sync confirmed bookings to your Google Calendar and prevent double-booking by reflecting your personal schedule.</p>
+        </div>
+        <div class="settings-section settings-section--muted">
+          <h3><i class="fas fa-bolt"></i> Auto-Confirm <span class="coming-soon-pill">Coming Soon</span></h3>
+          <p class="settings-note">Automatically confirm bookings that meet your criteria — saving you time and improving guest experience with instant confirmation.</p>
+        </div>
+      </div>
+
+      <!-- ── Block Days Modal ── -->
+      <div class="modal-overlay" *ngIf="showBlockDaysModal" (click)="closeBlockDaysModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2><i class="fas fa-ban"></i> Block Days</h2>
+            <button class="modal-close" (click)="closeBlockDaysModal()" type="button">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="date" [(ngModel)]="blockDaysForm.startDate" class="form-input">
+            </div>
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="date" [(ngModel)]="blockDaysForm.endDate" class="form-input">
+            </div>
+            <div class="form-group">
+              <label>Reason <span class="label-opt">(optional)</span></label>
+              <input type="text" [(ngModel)]="blockDaysForm.reason" placeholder="e.g. Personal time off" class="form-input">
+            </div>
+            <div class="modal-feedback" *ngIf="feedbackMessage"
+                 [class.is-success]="feedbackType === 'success'"
+                 [class.is-error]="feedbackType === 'error'">
+              {{ feedbackMessage }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" (click)="closeBlockDaysModal()" type="button">Cancel</button>
+            <button class="btn btn-primary" (click)="submitBlockDays()" [disabled]="actionInProgress" type="button">
+              {{ actionInProgress ? 'Blocking…' : 'Block Days' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Add Manual Booking Modal ── -->
+      <div class="modal-overlay" *ngIf="showAddBookingModal" (click)="closeAddBookingModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2><i class="fas fa-plus"></i> Add Manual Booking</h2>
+            <button class="modal-close" (click)="closeAddBookingModal()" type="button">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Guest Name *</label>
+              <input type="text" [(ngModel)]="addBookingForm.guestName" placeholder="Enter guest name" class="form-input">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" [(ngModel)]="addBookingForm.date" class="form-input">
+              </div>
+              <div class="form-group">
+                <label>Time *</label>
+                <input type="time" [(ngModel)]="addBookingForm.time" class="form-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Number of Guests</label>
+              <input type="number" [(ngModel)]="addBookingForm.guests" min="1" max="30" class="form-input">
+            </div>
+            <div class="modal-feedback" *ngIf="feedbackMessage"
+                 [class.is-success]="feedbackType === 'success'"
+                 [class.is-error]="feedbackType === 'error'">
+              {{ feedbackMessage }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" (click)="closeAddBookingModal()" type="button">Cancel</button>
+            <button class="btn btn-primary" (click)="submitAddBooking()" [disabled]="actionInProgress" type="button">
+              {{ actionInProgress ? 'Adding…' : 'Add Booking' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════ DETAIL PANEL ══════════════════════════════════ -->
+
+<div class="panel-overlay" [class.visible]="detailPanelOpen" (click)="closeDetailPanel()"></div>
+
+<aside class="detail-panel" [class.open]="detailPanelOpen">
+  <ng-container *ngIf="detailBooking">
+
+    <!-- Panel Header -->
+    <div class="panel-hd">
+      <div class="panel-hd-top">
+        <span class="panel-ref">{{ detailBooking.booking_ref }}</span>
+        <button class="panel-close-btn" (click)="closeDetailPanel()" type="button">
+          <i class="fas fa-times"></i>
         </button>
       </div>
+      <div class="panel-hd-meta">
+        <span class="status-pill" [class]="'status-pill--' + detailBooking.status.toLowerCase()">
+          <i class="fas" [class]="getStatusIcon(detailBooking.status)"></i>
+          {{ detailBooking.status }}
+        </span>
+        <span class="panel-booked-on">Booked {{ detailBooking.created_date | date:'MMM d, yyyy' }}</span>
+      </div>
     </div>
-  </div>
-</section>
-  </main>
+
+    <!-- Status Timeline -->
+    <div class="status-timeline" *ngIf="detailBooking.status !== 'Cancelled' && detailBooking.status !== 'Disputed'">
+      <div class="step" [class]="'step--' + getStepState(1, detailBooking)">
+        <div class="step-dot"><i *ngIf="getStepState(1, detailBooking) === 'done'" class="fas fa-check"></i></div>
+        <span class="step-label">Pending</span>
+        <div class="step-line"></div>
+      </div>
+      <div class="step" [class]="'step--' + getStepState(2, detailBooking)">
+        <div class="step-dot"><i *ngIf="getStepState(2, detailBooking) === 'done'" class="fas fa-check"></i></div>
+        <span class="step-label">Confirmed</span>
+        <div class="step-line"></div>
+      </div>
+      <div class="step step--last" [class]="'step--' + getStepState(3, detailBooking)">
+        <div class="step-dot"><i *ngIf="getStepState(3, detailBooking) === 'done'" class="fas fa-check"></i></div>
+        <span class="step-label">Tour Day</span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="panel-loading" *ngIf="detailLoading">
+      <i class="fas fa-spinner fa-spin"></i> Loading details…
+    </div>
+
+    <!-- Panel Body -->
+    <div class="panel-body" *ngIf="!detailLoading">
+
+      <!-- Experience -->
+      <div class="panel-section">
+        <h4 class="panel-section-label">
+          <i class="fas fa-map-marker-alt"></i> Experience
+        </h4>
+        <div class="pi-row">
+          <span class="pi-label">Title</span>
+          <span class="pi-value pi-value--bold">{{ detailBooking.experience_title || 'Experience #' + detailBooking.experience }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Date</span>
+          <span class="pi-value">{{ detailBooking.date | date:'EEEE, MMM d, yyyy' }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Time</span>
+          <span class="pi-value">{{ detailBooking.time?.slice(0, 5) }}</span>
+        </div>
+      </div>
+
+      <!-- Guest -->
+      <div class="panel-section">
+        <h4 class="panel-section-label">
+          <i class="fas fa-user"></i> Guest
+        </h4>
+        <div class="pi-row">
+          <span class="pi-label">Name</span>
+          <span class="pi-value pi-value--bold">
+            <ng-container *ngIf="detailBooking.detail">
+              {{ detailBooking.detail.first_name }} {{ detailBooking.detail.last_name }}
+            </ng-container>
+            <ng-container *ngIf="!detailBooking.detail">
+              {{ detailBooking.customer_name || 'N/A' }}
+            </ng-container>
+          </span>
+        </div>
+        <div class="pi-row" *ngIf="detailBooking.detail?.email || detailBooking.customer_email">
+          <span class="pi-label">Email</span>
+          <a class="pi-value pi-value--link" [href]="'mailto:' + (detailBooking.detail?.email || detailBooking.customer_email)">
+            {{ detailBooking.detail?.email || detailBooking.customer_email }}
+          </a>
+        </div>
+        <div class="pi-row" *ngIf="detailBooking.detail?.phone_number">
+          <span class="pi-label">Phone</span>
+          <span class="pi-value">{{ detailBooking.detail?.phone_code }} {{ detailBooking.detail?.phone_number }}</span>
+        </div>
+        <div class="pi-row" *ngIf="detailBooking.detail?.country">
+          <span class="pi-label">Country</span>
+          <span class="pi-value">{{ detailBooking.detail?.country }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Participants</span>
+          <span class="pi-value">
+            {{ detailBooking.adults }} adult<ng-container *ngIf="detailBooking.adults !== 1">s</ng-container><ng-container *ngIf="(detailBooking.children || 0) > 0">, {{ detailBooking.children }} child<ng-container *ngIf="detailBooking.children !== 1">ren</ng-container></ng-container>
+          </span>
+        </div>
+        <div class="pi-row pi-row--note" *ngIf="detailBooking.detail?.special_requests && detailBooking.detail?.special_requests !== 'Manual booking'">
+          <span class="pi-label">Requests</span>
+          <span class="pi-value pi-value--note">{{ detailBooking.detail?.special_requests }}</span>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="panel-section">
+        <h4 class="panel-section-label">
+          <i class="fas fa-receipt"></i> Pricing
+        </h4>
+        <div class="pi-row">
+          <span class="pi-label">Base price</span>
+          <span class="pi-value">€{{ detailBooking.base_price }}</span>
+        </div>
+        <div class="pi-row" *ngIf="+detailBooking.addons_total > 0">
+          <span class="pi-label">Add-ons</span>
+          <span class="pi-value">€{{ detailBooking.addons_total }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Subtotal</span>
+          <span class="pi-value">€{{ detailBooking.subtotal }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Service fee</span>
+          <span class="pi-value">€{{ detailBooking.service_fee }}</span>
+        </div>
+        <div class="pi-row pi-row--total">
+          <span class="pi-label">Total</span>
+          <span class="pi-value">€{{ detailBooking.total_amount }}</span>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="panel-section panel-section--meta">
+        <div class="pi-row" *ngIf="detailBooking.cancellation_deadline">
+          <span class="pi-label">Cancel by</span>
+          <span class="pi-value">{{ detailBooking.cancellation_deadline | date:'MMM d, yyyy · h:mm a' }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Booking ID</span>
+          <span class="pi-value pi-value--mono">{{ detailBooking.id }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Panel Footer -->
+    <div class="panel-footer">
+      <button
+        *ngIf="detailBooking.status === 'Pending'"
+        class="pfooter-btn pfooter-btn--confirm"
+        (click)="confirmBooking(detailBooking)"
+        [disabled]="actionInProgress">
+        <i class="fas fa-check"></i>
+        {{ actionInProgress ? 'Confirming…' : 'Confirm Booking' }}
+      </button>
+      <button
+        class="pfooter-btn pfooter-btn--message"
+        (click)="messageCustomer(detailBooking)">
+        <i class="fas fa-comment-dots"></i> Message Guest
+      </button>
+      <button
+        *ngIf="detailBooking.status !== 'Cancelled' && detailBooking.status !== 'Disputed'"
+        class="pfooter-btn pfooter-btn--cancel"
+        (click)="cancelBooking(detailBooking)"
+        [disabled]="actionInProgress">
+        <i class="fas fa-times"></i> Cancel Booking
+      </button>
+    </div>
+
+  </ng-container>
+</aside>
+
+<!-- ── Toast ── -->
+<div class="toast" *ngIf="toast" [class.toast--error]="toast.type === 'error'">
+  <i class="fas" [class.fa-check-circle]="toast.type === 'success'" [class.fa-exclamation-circle]="toast.type === 'error'"></i>
+  {{ toast.message }}
 </div>

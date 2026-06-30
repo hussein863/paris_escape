@@ -181,6 +181,7 @@ export interface Booking {
   experience_image?: string;
   customer: number;
   customer_name?: string;
+  customer_email?: string;
   guide: number;
   guide_name?: string;
   guide_avatar?: string;
