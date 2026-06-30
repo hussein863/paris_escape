@@ -123,8 +123,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
+  background: #0f172a;
+  border: 1px solid #0f172a;
   border-radius: 12px;
   padding: 14px 20px;
   margin-bottom: 20px;
@@ -139,7 +139,7 @@
 
   & > i {
     font-size: 20px;
-    color: #d97706;
+    color: rgba(255,255,255,0.6);
     flex-shrink: 0;
   }
 
@@ -147,13 +147,13 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: #92400e;
+    color: #fff;
     margin-bottom: 2px;
   }
 
   span {
     font-size: 12px;
-    color: #a16207;
+    color: rgba(255,255,255,0.5);
   }
 }
 
@@ -162,8 +162,8 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: #d97706;
-  color: #fff;
+  background: #fff;
+  color: #0f172a;
   border: none;
   border-radius: 8px;
   font-size: 13px;
@@ -173,7 +173,7 @@
   font-family: inherit;
   transition: background 0.15s;
 
-  &:hover { background: #b45309; }
+  &:hover { background: #f3f4f6; }
 }
 
 // ── Stats Bar ──
@@ -198,8 +198,7 @@
   &:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
   &--urgent {
-    border-color: #fcd34d;
-    background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+    border-color: #d1d5db;
   }
 }
 
@@ -211,13 +210,11 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: #f3f4f6;
 
-  i { font-size: 18px; }
+  i { font-size: 18px; color: #374151; }
 
-  &--blue { background: #eff6ff; i { color: #2563eb; } }
-  &--amber { background: #fef3c7; i { color: #d97706; } }
-  &--green { background: #f0fdf4; i { color: #16a34a; } }
-  &--purple { background: #faf5ff; i { color: #7c3aed; } }
+  &--blue, &--amber, &--green, &--purple { background: #f3f4f6; i { color: #374151; } }
 }
 
 .stat-body { flex: 1; min-width: 0; }
@@ -366,9 +363,7 @@
     font-weight: 600;
   }
 
-  &--pending.active { color: #92400e; }
-  &--confirmed.active { color: #065f46; }
-  &--cancelled.active { color: #991b1b; }
+  &--pending.active, &--confirmed.active, &--cancelled.active { color: #0f172a; }
 }
 
 .stab-count {
@@ -416,7 +411,7 @@
   &:hover { background: #f8fafc; }
 
   &--pending {
-    border-left: 3px solid #f59e0b;
+    border-left: 3px solid #d1d5db;
     padding-left: 17px;
   }
 }
@@ -544,13 +539,14 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
+  border: 1px solid transparent;
 
   i { font-size: 10px; }
 
-  &--pending   { background: #fef3c7; color: #92400e; }
-  &--confirmed { background: #d1fae5; color: #065f46; }
-  &--cancelled { background: #fee2e2; color: #991b1b; }
-  &--disputed  { background: #ffedd5; color: #9a3412; }
+  &--pending   { background: #f9fafb; color: #374151; border-color: #e5e7eb; }
+  &--confirmed { background: rgba(220,252,231,1); color: #166534; border-color: #bbf7d0; }
+  &--cancelled { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
+  &--disputed  { background: #f3f4f6; color: #6b7280; border-color: #e5e7eb; }
 }
 
 // Row action buttons
@@ -578,11 +574,11 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--confirm {
-    background: #d1fae5;
-    color: #065f46;
-    border-color: #a7f3d0;
+    background: #111;
+    color: #fff;
+    border-color: #111;
 
-    &:hover:not(:disabled) { background: #a7f3d0; }
+    &:hover:not(:disabled) { background: #000; }
   }
 
   &--view {
@@ -693,13 +689,14 @@
   }
 
   &.today {
-    background: #eff6ff;
-    border-color: #bfdbfe;
+    background: #f9fafb;
+    border-color: #0f172a;
+    border-width: 2px;
   }
 
   &.blocked {
-    background: #fef2f2;
-    border-color: #fecaca;
+    background: #f3f4f6;
+    border-color: #d1d5db;
   }
 }
 
@@ -721,8 +718,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #fee2e2;
-  color: #991b1b;
+  background: #e5e7eb;
+  color: #374151;
   padding: 3px 7px;
   border-radius: 4px;
   font-size: 11px;
@@ -744,10 +741,10 @@
   .badge-time { display: block; font-weight: 700; font-size: 10px; margin-bottom: 1px; }
   .badge-name { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
 
-  &--confirmed { background: #d1fae5; color: #065f46; }
-  &--pending   { background: #fef3c7; color: #92400e; }
-  &--cancelled { background: #fee2e2; color: #991b1b; }
-  &--disputed  { background: #ffedd5; color: #9a3412; }
+  &--confirmed { background: rgba(220,252,231,1); color: #166534; }
+  &--pending   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+  &--cancelled { background: #e5e7eb; color: #6b7280; }
+  &--disputed  { background: #e5e7eb; color: #6b7280; }
 }
 
 .calendar-legend {
@@ -770,10 +767,10 @@
   height: 12px;
   border-radius: 3px;
 
-  &--confirmed { background: #d1fae5; border: 1px solid #a7f3d0; }
-  &--pending   { background: #fef3c7; border: 1px solid #fde68a; }
-  &--cancelled { background: #fee2e2; border: 1px solid #fca5a5; }
-  &--blocked   { background: #f1f5f9; border: 1px solid #e2e8f0; }
+  &--confirmed { background: rgba(220,252,231,1); border: 1px solid #a7f3d0; }
+  &--pending   { background: #f3f4f6; border: 1px solid #e5e7eb; }
+  &--cancelled { background: #e5e7eb; border: 1px solid #d1d5db; }
+  &--blocked   { background: #0f172a; border: 1px solid #0f172a; }
 }
 
 // ══════════════════════════════════ SETTINGS VIEW ══════════════════════════════════
@@ -1121,14 +1118,14 @@
   &--last .step-line { display: none; }
 
   &--done {
-    .step-dot { background: #10b981; border-color: #10b981; }
-    .step-line { background: #10b981; }
-    .step-label { color: #059669; }
+    .step-dot { background: #0f172a; border-color: #0f172a; }
+    .step-line { background: #0f172a; }
+    .step-label { color: #0f172a; }
   }
 
   &--active {
-    .step-dot { background: #fff; border-color: #3b82f6; box-shadow: 0 0 0 4px #dbeafe; }
-    .step-label { color: #2563eb; font-weight: 700; }
+    .step-dot { background: #fff; border-color: #0f172a; box-shadow: 0 0 0 4px rgba(15,23,42,0.1); }
+    .step-label { color: #0f172a; font-weight: 700; }
   }
 
   &--idle {
@@ -1268,17 +1265,17 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--confirm {
-    background: #059669;
+    background: #0f172a;
     color: #fff;
-    border-color: #059669;
-    &:hover:not(:disabled) { background: #047857; }
+    border-color: #0f172a;
+    &:hover:not(:disabled) { background: #1e293b; }
   }
 
   &--message {
-    background: #f0f9ff;
-    color: #0369a1;
-    border-color: #bae6fd;
-    &:hover { background: #e0f2fe; }
+    background: #f9fafb;
+    color: #374151;
+    border-color: #e5e7eb;
+    &:hover { background: #f3f4f6; }
   }
 
   &--cancel {
@@ -1390,7 +1387,7 @@
     margin: 0 16px 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 
-    &--pending { border-left: 4px solid #f59e0b !important; }
+    &--pending { border-left: 4px solid #d1d5db !important; }
   }
 
   .bookings-table { padding: 10px 0; }

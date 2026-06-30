@@ -286,6 +286,33 @@ export interface Message {
   read: boolean;
 }
 
+// ─── Plans & Subscriptions ────────────────────────────────────────────────────
+export interface Plan {
+  id: number;
+  name: string;
+  slug: 'free' | 'pro' | 'business';
+  tagline: string;
+  price_monthly: number;
+  price_yearly: number;
+  commission_rate: number;
+  max_experiences: number | null;
+  features: string[];
+  is_active: boolean;
+  is_popular: boolean;
+  ordering: number;
+}
+
+export interface Subscription {
+  id: number;
+  guide: number;
+  plan: Plan | null;
+  billing_cycle: 'month' | 'year';
+  status: 'Active' | 'Paused' | 'Cancelled';
+  start_date: string;
+  renewal_date: string;
+  end_date: string | null;
+}
+
 // ─── Payments ─────────────────────────────────────────────────────────────────
 export interface Payment {
   id: number;

@@ -22,10 +22,10 @@
       <ng-container *ngIf="!loading">
       <!-- Header -->
       <header class="page-header">
-        <h1 class="page-title">Payments and subscription</h1>
+        <h1 class="page-title">Payments &amp; Subscription</h1>
         <div class="header-badges">
-          <button class="plan-badge">Pro Plan</button>
-          <button class="renewal-text">Renews {{ renewalDate }}</button>
+          <span class="plan-badge">{{ currentPlan }}</span>
+          <span class="renewal-text">Renews {{ renewalDate }}</span>
         </div>
       </header>
 
@@ -108,35 +108,76 @@
         </div>
       </div>
 
-      <!-- Plan Management -->
-      <div class="card">
+      <!-- Plans -->
+      <div class="card plans-card">
         <div class="card-header-row">
-          <h2 class="card-title">Plan Management</h2>
-          <a href="#" class="link-text">Feature comparison</a>
+          <div>
+            <h2 class="card-title">Choose a Plan</h2>
+            <p class="card-subtitle">All plans include access to the Paris Escape guide platform.</p>
+          </div>
+          <!-- Billing cycle toggle -->
+          <div class="cycle-toggle">
+            <span [class.cycle-active]="selectedBillingCycle === 'month'" (click)="selectedBillingCycle = 'month'">Monthly</span>
+            <button class="toggle-switch" [class.on]="selectedBillingCycle === 'year'" (click)="toggleBillingCycle()" aria-label="Toggle billing cycle">
+              <span class="toggle-knob"></span>
+            </button>
+            <span [class.cycle-active]="selectedBillingCycle === 'year'" (click)="selectedBillingCycle = 'year'">
+              Yearly <span class="save-badge" *ngIf="selectedBillingCycle === 'year'">Save up to 25%</span>
+            </span>
+          </div>
         </div>
 
-        <div class="plan-actions">
-          <button class="btn-primary" (click)="upgradePlan()" style="height: 46px; justify-content: center; font-weight: 400;">
-            <i class="fas fa-arrow-up"></i>
-            Upgrade Plan
-          </button>
-          <button class="btn-outline" (click)="downgradePlan()" style="height: 46px; justify-content: center; font-weight: 400;">
-            <i class="fas fa-arrow-down"></i>
-            Downgrade
-          </button>
-          <button class="btn-outline" (click)="pausePlan()" style="height: 46px; justify-content: center; font-weight: 400;">
-            <i class="fas fa-pause"></i>
-            Pause
-          </button>
-          <button class="btn-outline danger" (click)="cancelPlan()" style="height: 46px; justify-content: center; font-weight: 400;">
-            <i class="fas fa-times"></i>
-            Cancel at Period End
-          </button>
+        <div class="plans-grid" *ngIf="allPlans.length > 0; else noPlans">
+          <div class="plan-card" *ngFor="let plan of allPlans"
+               [class.plan-card--popular]="plan.is_popular"
+               [class.plan-card--current]="isCurrentPlan(plan)">
+
+            <div class="plan-popular-badge" *ngIf="plan.is_popular">Most Popular</div>
+
+            <div class="plan-header">
+              <h3 class="plan-name">{{ plan.name }}</h3>
+              <p class="plan-tagline">{{ plan.tagline }}</p>
+            </div>
+
+            <div class="plan-price">
+              <span class="price-amount">€{{ planPrice$(plan) }}</span>
+              <span class="price-period">/{{ selectedBillingCycle }}</span>
+            </div>
+
+            <div class="plan-saving" *ngIf="selectedBillingCycle === 'year' && yearlySaving(plan) > 0">
+              Save {{ yearlySaving(plan) }}% vs monthly
+            </div>
+            <div class="plan-saving invisible" *ngIf="!(selectedBillingCycle === 'year' && yearlySaving(plan) > 0)">&nbsp;</div>
+
+            <div class="plan-commission">
+              <i class="fas fa-percent"></i>
+              {{ plan.commission_rate }}% commission per booking
+            </div>
+
+            <ul class="plan-features">
+              <li *ngFor="let feature of plan.features">
+                <i class="fas fa-check"></i>
+                {{ feature }}
+              </li>
+            </ul>
+
+            <button class="plan-cta"
+                    [class.plan-cta--current]="isCurrentPlan(plan)"
+                    [class.plan-cta--popular]="plan.is_popular && !isCurrentPlan(plan)"
+                    (click)="isCurrentPlan(plan) ? pausePlan() : upgradePlan()"
+                    [disabled]="isCurrentPlan(plan)">
+              {{ isCurrentPlan(plan) ? 'Current Plan' : (plan.slug === 'free' ? 'Downgrade' : 'Upgrade') }}
+            </button>
+          </div>
         </div>
+
+        <ng-template #noPlans>
+          <div class="plans-empty">Plans are loading...</div>
+        </ng-template>
 
         <div class="info-banner">
           <i class="fas fa-info-circle"></i>
-          <span>Plan changes are prorated. You'll be charged the difference immediately for upgrades or receive credit for downgrades.</span>
+          <span>Plan changes are prorated. Upgrades are charged immediately, downgrades receive credit.</span>
         </div>
       </div>
 

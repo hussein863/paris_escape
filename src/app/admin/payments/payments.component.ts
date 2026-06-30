@@ -9,7 +9,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PaymentService } from '../../core/services/payment.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Payment } from '../../core/models';
+import { Payment, Plan, Subscription } from '../../core/models';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -52,6 +52,11 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
+
+  // Plans
+  allPlans: Plan[] = [];
+  activeSubscription: Subscription | null = null;
+  selectedBillingCycle: 'month' | 'year' = 'month';
 
   // Account data — defaults kept so page looks good with empty data
   currentPlan = 'Pro Plan';
@@ -130,9 +135,10 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
     forkJoin({
       payments: this.paymentService.listPayments().pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] as Payment[] }))),
       payouts:  this.paymentService.listPayouts().pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] as any[] }))),
-      billing:  this.paymentService.getBillingInfo().pipe(catchError(() => of([] as any[]))),
-      subs:     this.paymentService.getSubscriptions().pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] as any[] })))
-    }).subscribe(({ payments, payouts, billing, subs }) => {
+      billing:  this.paymentService.getBillingInfo().pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] as any[] }))),
+      subs:     this.paymentService.getSubscriptions().pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] as Subscription[] }))),
+      plans:    this.paymentService.getPlans().pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] as Plan[] }))),
+    }).subscribe(({ payments, payouts, billing, subs, plans }) => {
 
       // ── Payments / Invoices ──────────────────────────────────────────────────
       if (payments.results.length > 0) {
@@ -206,7 +212,7 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       // ── Billing info ─────────────────────────────────────────────────────────
-      const billingList = Array.isArray(billing) ? billing : (billing as any)?.results ?? [];
+      const billingList = billing.results ?? [];
       if (billingList.length > 0) {
         const b = billingList[0];
         if (b.legal_name)    this.legalName    = b.legal_name;
@@ -216,15 +222,21 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
         if (b.invoice_email) this.invoiceEmail = b.invoice_email;
       }
 
+      // ── Plans ────────────────────────────────────────────────────────────────
+      this.allPlans = plans.results;
+
       // ── Subscriptions ────────────────────────────────────────────────────────
       if (subs.results.length > 0) {
         const sub = subs.results[0];
-        if (sub.plan)           this.currentPlan      = sub.plan;
-        if (sub.price != null)  this.planPrice        = Number(sub.price);
-        if (sub.cycle)          this.billingCycle     = sub.cycle;
-        if (sub.renewal_date)   this.renewalDate      = sub.renewal_date;
-        if (sub.next_invoice_amount != null) this.nextInvoiceAmount = Number(sub.next_invoice_amount);
-        if (sub.next_invoice_date)           this.nextInvoiceDate   = sub.next_invoice_date;
+        this.activeSubscription = sub;
+        if (sub.plan) {
+          this.currentPlan      = sub.plan.name;
+          this.planPrice        = Number(sub.billing_cycle === 'year' ? sub.plan.price_yearly : sub.plan.price_monthly);
+          this.billingCycle     = sub.billing_cycle;
+          this.nextInvoiceAmount = this.planPrice;
+        }
+        if (sub.renewal_date) this.renewalDate = new Date(sub.renewal_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        if (sub.renewal_date) this.nextInvoiceDate = this.renewalDate;
       }
 
       this.loading = false;
@@ -403,6 +415,24 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   closeSidebar() {
     this.isSidebarOpen = false;
+  }
+
+  isCurrentPlan(plan: Plan): boolean {
+    return this.activeSubscription?.plan?.slug === plan.slug;
+  }
+
+  planPrice$(plan: Plan): number {
+    return Number(this.selectedBillingCycle === 'year' ? plan.price_yearly : plan.price_monthly);
+  }
+
+  yearlySaving(plan: Plan): number {
+    const monthly = Number(plan.price_monthly) * 12;
+    const yearly = Number(plan.price_yearly);
+    return monthly > 0 ? Math.round(((monthly - yearly) / monthly) * 100) : 0;
+  }
+
+  toggleBillingCycle(): void {
+    this.selectedBillingCycle = this.selectedBillingCycle === 'month' ? 'year' : 'month';
   }
 
   updateCard() { this.router.navigate(['/admin/settings']); }
