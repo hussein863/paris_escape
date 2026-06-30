@@ -23,6 +23,8 @@ export class LocationMediaComponent implements OnInit {
 
   baseCity = 'Paris';
   neighborhood = '';
+  pickupOptions = '';
+  accessibility = '';
 
   meetingPoints: MeetingPointRow[] = [];
   showAddMeetingPoint = false;
@@ -61,6 +63,8 @@ export class LocationMediaComponent implements OnInit {
       if (!p) return;
       this.baseCity = p.base_city;
       this.neighborhood = p.neighborhood;
+      this.pickupOptions = p.pickup_options ?? '';
+      this.accessibility = p.accessibility ?? '';
       this.coverImageUrl = p.cover_image_url;
       this.meetingPoints = p.meeting_points.map(mp => ({ ...mp }));
       this.galleryPhotos = [...p.gallery_photos];
@@ -69,7 +73,12 @@ export class LocationMediaComponent implements OnInit {
 
   saveLocation(): void {
     this.locationSaving = true;
-    this.guideService.patch({ base_city: this.baseCity, neighborhood: this.neighborhood }).subscribe({
+    this.guideService.patch({
+      base_city: this.baseCity,
+      neighborhood: this.neighborhood,
+      pickup_options: this.pickupOptions,
+      accessibility: this.accessibility,
+    }).subscribe({
       next: () => { this.locationSaving = false; this.showToast('Location saved!'); },
       error: () => { this.locationSaving = false; this.showToast('Failed to save location.', 'error'); },
     });

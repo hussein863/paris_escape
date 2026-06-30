@@ -107,8 +107,13 @@ export class PoliciesVerificationComponent implements OnInit {
       return;
     }
     this.submitting = true;
-    this.guideService.patch({ unique_description: this.uniqueDescription }).subscribe({
-      next: () => { this.submitting = false; this.showToast('Submitted for review! We\'ll get back to you shortly.'); },
+    this.http.post(`${environment.apiUrl}/users/guide-profile/submit-original/`, {
+      unique_description: this.uniqueDescription,
+    }).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.showToast('Application submitted! We\'ll review it and get back to you shortly.');
+      },
       error: () => { this.submitting = false; this.showToast('Submission failed. Please try again.', 'error'); },
     });
   }

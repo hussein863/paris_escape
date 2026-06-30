@@ -5,7 +5,8 @@
     <div class="guides-grid">
       <div class="guide-card" *ngFor="let guide of guides" [routerLink]="['/landing/profil', guide.encryptedId]" style="cursor:pointer">
         <div class="card-image">
-          <img [src]="guide.image" [alt]="guide.name" />
+          <img *ngIf="guide.image" [src]="guide.image" [alt]="guide.name" />
+          <div *ngIf="!guide.image" class="card-initials">{{ getInitials(guide.name) }}</div>
         </div>
         
         <div class="card-content">

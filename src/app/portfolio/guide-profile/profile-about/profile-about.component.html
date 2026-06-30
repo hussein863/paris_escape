@@ -26,6 +26,27 @@
     </div>
   </div>
 
+  <!-- Pickup & Accessibility -->
+  <div class="about-logistics">
+    <h3>Logistics</h3>
+    <div class="logistics-grid">
+      <div class="logistics-item">
+        <i class="fas fa-car"></i>
+        <div>
+          <strong>Pickup Options</strong>
+          <p>{{ guide.pickupOptions || '—' }}</p>
+        </div>
+      </div>
+      <div class="logistics-item">
+        <i class="fas fa-wheelchair"></i>
+        <div>
+          <strong>Accessibility</strong>
+          <p>{{ guide.accessibility || '—' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Group & Pricing Info -->
   <div class="about-meta" *ngIf="guide.minGroupSize || guide.maxGroupSize || guide.childPricing">
     <h3>Group & Pricing</h3>

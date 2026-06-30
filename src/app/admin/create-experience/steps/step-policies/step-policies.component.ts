@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
+import { GuideProfileService } from '../../../../core/services/guide-profile.service';
 
 @Component({
   selector: 'app-step-policies',
@@ -13,11 +14,16 @@ import { ExperienceWizardService } from '../../../../core/services/experience-wi
 export class StepPoliciesComponent implements OnInit {
   @Output() dataChange = new EventEmitter<any>();
 
-  constructor(private wizardService: ExperienceWizardService) {}
+  constructor(
+    private wizardService: ExperienceWizardService,
+    private guideProfile: GuideProfileService,
+  ) {}
 
   ngOnInit(): void {
     const saved = this.wizardService.getStepState('policies');
-    if (saved) Object.assign(this.formData, saved);
+    if (saved) { Object.assign(this.formData, saved); return; }
+    const profile = this.guideProfile.snapshot;
+    if (profile?.safety_notes) this.formData.safetyNotes = profile.safety_notes;
   }
 
   saveToApi(): Promise<void> {

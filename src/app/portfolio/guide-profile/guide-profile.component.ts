@@ -309,7 +309,7 @@ export class GuideProfileComponent implements OnInit {
       id: g.id,
       encryptedId: this.idEncrypt.encryptId(g.id),
       name: user.name ?? 'Guide',
-      image: user.avatar_url ?? user.avatar ?? 'assets/images/card_image/person/jean-pierre.png',
+      image: user.avatar_url ?? user.avatar ?? '',
       languages: (g.languages ?? []).map((l: any) => l.name).join(', '),
       rating: parseFloat(g.rating ?? 0),
       reviewCount: g.review_count ?? 0,

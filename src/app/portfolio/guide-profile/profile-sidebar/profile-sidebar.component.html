@@ -8,9 +8,41 @@
       {{ messageSending ? 'Opening messages...' : 'Message Guide' }}
     </button>
 
-    <p class="response-time" *ngIf="guide.responseTime">
-      Typical response: {{ guide.responseTime }}
+    <p class="response-time">
+      <i class="fas fa-clock"></i>
+      Typical response: <strong>{{ guide.responseTime || '—' }}</strong>
     </p>
+  </div>
+
+  <!-- Business Card -->
+  <div class="sidebar-card biz-card" *ngIf="guide.publicEmail || guide.publicPhone || guide.companyName || guide.instagram || guide.website">
+    <h3>Contact Info</h3>
+    <div class="biz-rows">
+      <div class="biz-row" *ngIf="guide.companyName">
+        <i class="fas fa-building"></i>
+        <span>{{ guide.companyName }}</span>
+      </div>
+      <a class="biz-row" *ngIf="guide.publicEmail" [href]="'mailto:' + guide.publicEmail">
+        <i class="fas fa-envelope"></i>
+        <span>{{ guide.publicEmail }}</span>
+      </a>
+      <a class="biz-row" *ngIf="guide.publicPhone" [href]="'tel:' + guide.publicPhone">
+        <i class="fas fa-phone"></i>
+        <span>{{ guide.publicPhone }}</span>
+      </a>
+      <a class="biz-row social" *ngIf="guide.instagram" [href]="'https://instagram.com/' + guide.instagram.replace('@','')" target="_blank" rel="noopener">
+        <i class="fab fa-instagram"></i>
+        <span>{{ guide.instagram }}</span>
+      </a>
+      <a class="biz-row social" *ngIf="guide.tiktok" [href]="'https://tiktok.com/' + guide.tiktok.replace('@','')" target="_blank" rel="noopener">
+        <i class="fab fa-tiktok"></i>
+        <span>{{ guide.tiktok }}</span>
+      </a>
+      <a class="biz-row social" *ngIf="guide.website" [href]="guide.website" target="_blank" rel="noopener">
+        <i class="fas fa-globe"></i>
+        <span>{{ guide.website }}</span>
+      </a>
+    </div>
   </div>
 
   <!-- Trust & Safety Section -->

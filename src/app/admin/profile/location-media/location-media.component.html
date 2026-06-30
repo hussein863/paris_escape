@@ -14,6 +14,20 @@
     </div>
 
     <div class="form-group">
+      <label for="pickupOptions">Pickup Options</label>
+      <textarea id="pickupOptions" class="form-control" rows="2"
+        placeholder="e.g. Hotel pickup available within Paris centre (€10 extra)"
+        [(ngModel)]="pickupOptions"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="accessibility">Accessibility</label>
+      <textarea id="accessibility" class="form-control" rows="2"
+        placeholder="e.g. Wheelchair accessible, stroller-friendly, elevator access"
+        [(ngModel)]="accessibility"></textarea>
+    </div>
+
+    <div class="form-group">
       <label>Home Area Pin</label>
       <div class="map-embed" *ngIf="mapEmbedUrl">
         <iframe

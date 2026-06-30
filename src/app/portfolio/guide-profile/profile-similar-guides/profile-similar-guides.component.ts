@@ -12,4 +12,9 @@ import { SimilarGuide } from '../guide-profile.component';
 })
 export class ProfileSimilarGuidesComponent {
   @Input() guides: SimilarGuide[] = [];
+
+  getInitials(name: string): string {
+    const parts = name.trim().split(' ');
+    return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase();
+  }
 }

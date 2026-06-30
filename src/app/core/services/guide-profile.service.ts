@@ -26,6 +26,8 @@ export interface GuideProfile {
   // Location
   base_city: string;
   neighborhood: string;
+  pickup_options: string;
+  accessibility: string;
   // Social
   instagram: string;
   show_instagram: boolean;
@@ -66,6 +68,10 @@ export class GuideProfileService {
   readonly profile$ = this._profile$.asObservable();
 
   constructor(private http: HttpClient) {}
+
+  get snapshot(): GuideProfile | null {
+    return this._profile$.getValue();
+  }
 
   load(): Observable<GuideProfile> {
     return this.http.get<GuideProfile>(`${this.api}/guide-profile/`).pipe(

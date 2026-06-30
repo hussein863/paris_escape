@@ -2,6 +2,7 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
+import { GuideProfileService } from '../../../../core/services/guide-profile.service';
 
 @Component({
   selector: 'app-step-pricing',
@@ -13,11 +14,23 @@ import { ExperienceWizardService } from '../../../../core/services/experience-wi
 export class StepPricingComponent implements OnInit {
   @Output() dataChange = new EventEmitter<any>();
 
-  constructor(private wizardService: ExperienceWizardService) {}
+  constructor(
+    private wizardService: ExperienceWizardService,
+    private guideProfile: GuideProfileService,
+  ) {}
 
   ngOnInit(): void {
     const saved = this.wizardService.getStepState('pricing');
-    if (saved) Object.assign(this.formData, saved);
+    if (saved) {
+      Object.assign(this.formData, saved);
+      return;
+    }
+    // Prefill from guide profile defaults (only when creating, not editing)
+    const profile = this.guideProfile.snapshot;
+    if (profile) {
+      if (profile.base_rate > 0) this.formData.basePrice = profile.base_rate;
+      if (profile.default_currency) this.formData.currency = profile.default_currency;
+    }
   }
 
   saveToApi(): Promise<void> {
