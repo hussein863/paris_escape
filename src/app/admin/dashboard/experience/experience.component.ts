@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -33,7 +33,7 @@ export class ExperienceComponent implements OnInit {
   }
 
   private loadExperiences(): void {
-    this.experienceService.list().subscribe({
+    this.experienceService.list({ mine: true }).subscribe({
       next: (res) => {
         this.experiences = res.results.slice(0, 5);
         this.expLoading = false;

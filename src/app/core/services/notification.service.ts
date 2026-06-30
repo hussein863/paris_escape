@@ -4,8 +4,10 @@ import { environment } from '../../../environments/environment';
 
 export interface Notification {
   id: number;
-  type: 'booking' | 'message' | 'review' | 'system';
+  type: 'new_message' | 'booking_new' | 'booking_confirmed' | 'booking_cancelled' | 'new_review' | 'system';
   title: string;
+  body: string;
+  link: string;
   read: boolean;
   created_at: string;
 }
@@ -24,7 +26,6 @@ export class NotificationService {
         this.unreadCount.set(res.results.filter(n => !n.read).length);
       },
       error: () => {
-        // Notifications endpoint not available, set empty
         this.notifications.set([]);
         this.unreadCount.set(0);
       }
@@ -34,9 +35,19 @@ export class NotificationService {
   markAsRead(id: number): void {
     this.http.patch(`${environment.apiUrl}/users/notifications/${id}/`, { read: true }).subscribe({
       next: () => {
-        const notif = this.notifications().find(n => n.id === id);
-        if (notif) notif.read = true;
+        this.notifications.update(list =>
+          list.map(n => n.id === id ? { ...n, read: true } : n)
+        );
         this.unreadCount.set(this.notifications().filter(n => !n.read).length);
+      }
+    });
+  }
+
+  markAllRead(): void {
+    this.http.post(`${environment.apiUrl}/users/notifications/mark-all-read/`, {}).subscribe({
+      next: () => {
+        this.notifications.update(list => list.map(n => ({ ...n, read: true })));
+        this.unreadCount.set(0);
       }
     });
   }

@@ -75,7 +75,7 @@ export class ExperiencesComponent implements OnInit {
 
   loadExperiences(): void {
     this.loading = true;
-    this.experienceService.list({}).subscribe({
+    this.experienceService.list({ mine: true }).subscribe({
       next: (res) => {
         this.experiences = res.results;
         // Build unique category list from actual experiences

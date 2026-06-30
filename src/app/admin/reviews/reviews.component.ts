@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -19,11 +19,11 @@ export class ReviewsComponent implements OnInit {
   isSidebarOpen = false;
   loading = true;
 
-  // ─── Raw data ───────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Raw data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   allReviews: Review[] = [];
   experiences: { id: number; title: string }[] = [];
 
-  // ─── Filters ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   searchQuery = '';
   filterRating = 0;          // 0 = all
   filterExperience = 0;      // 0 = all
@@ -31,7 +31,7 @@ export class ReviewsComponent implements OnInit {
   filterPill = 'all';        // 'all' | 'photos' | 'not_replied' | 'last30'
   sortBy = 'newest';
 
-  // ─── Inline reply state ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Inline reply state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   replyingToId: number | null = null;
   replyDraft = '';
   replySaving = false;
@@ -60,14 +60,14 @@ export class ReviewsComponent implements OnInit {
       this.loading = false;
     }
 
-    this.experienceService.list().subscribe({
+    this.experienceService.list({ mine: true }).subscribe({
       next: (res) => {
         this.experiences = res.results.map(e => ({ id: e.id, title: e.title }));
       }
     });
   }
 
-  // ─── Computed / filtered list ────────────────────────────────────────────────
+  // â”€â”€â”€ Computed / filtered list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   get filteredReviews(): Review[] {
     let list = [...this.allReviews];
 
@@ -108,7 +108,7 @@ export class ReviewsComponent implements OnInit {
     return list;
   }
 
-  // ─── Statistics (computed from real data) ────────────────────────────────────
+  // â”€â”€â”€ Statistics (computed from real data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   get totalReviews(): number { return this.allReviews.length; }
 
   get overallRating(): number {
@@ -133,7 +133,7 @@ export class ReviewsComponent implements OnInit {
   filledStars(rating: number): number[] { return Array(Math.round(rating)).fill(0); }
   emptyStars(rating: number): number[] { return Array(5 - Math.round(rating)).fill(0); }
 
-  // ─── Reply actions ────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Reply actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   startReply(reviewId: number): void {
     this.replyingToId = reviewId;
     this.replyDraft = '';
@@ -178,7 +178,7 @@ export class ReviewsComponent implements OnInit {
     });
   }
 
-  // ─── Other actions ────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Other actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   getInitial(review: Review): string {
     return ((review as any).customer_name as string)?.charAt(0)?.toUpperCase() || '?';
   }

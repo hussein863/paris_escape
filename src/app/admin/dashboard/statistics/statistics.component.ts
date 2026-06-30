@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -65,7 +65,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   private loadExperienceStats(): void {
-    this.experienceService.list().subscribe({
+    this.experienceService.list({ mine: true }).subscribe({
       next: (res) => {
         // Sum views across all guide's experiences
         const total = res.results.reduce((acc, e) => acc + (e.views ?? 0), 0);

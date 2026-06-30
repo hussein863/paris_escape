@@ -11,12 +11,53 @@
   </div>
 
   <div class="header-actions">
-    <button class="notification-btn" routerLink="/client/messages">
-      <i class="fas fa-bell"></i>
-      <span class="notification-badge" *ngIf="hasNotifications">
-        {{ totalUnread > 9 ? '9+' : totalUnread }}
-      </span>
-    </button>
+
+    <!-- Notification bell -->
+    <div class="notif-btn-wrap">
+      <button class="notification-btn" (click)="toggleNotifDropdown()" type="button">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" *ngIf="totalUnread > 0">
+          {{ totalUnread > 9 ? '9+' : totalUnread }}
+        </span>
+      </button>
+
+      <!-- Notification dropdown -->
+      <div class="notif-dropdown" *ngIf="notifDropdownOpen" (click)="$event.stopPropagation()">
+        <div class="notif-dropdown-header">
+          <span>Notifications</span>
+          <button type="button" class="notif-mark-all" (click)="notifications.markAllRead()" *ngIf="notifications.unreadCount() > 0">
+            Mark all read
+          </button>
+        </div>
+
+        <div class="notif-list">
+          <ng-container *ngIf="notifications.notifications().length > 0; else emptyNotif">
+            <div
+              *ngFor="let n of notifications.notifications()"
+              class="notif-item"
+              [class.unread]="!n.read"
+              (click)="onNotifClick(n)"
+            >
+              <div class="notif-icon-wrap">
+                <i class="fas" [class]="notifIcon(n.type)"></i>
+              </div>
+              <div class="notif-body">
+                <p class="notif-title">{{ n.title }}</p>
+                <p class="notif-text" *ngIf="n.body">{{ n.body }}</p>
+                <span class="notif-time">{{ n.created_at | date:'d MMM, HH:mm' }}</span>
+              </div>
+              <span class="notif-dot" *ngIf="!n.read"></span>
+            </div>
+          </ng-container>
+          <ng-template #emptyNotif>
+            <div class="notif-empty">
+              <i class="fas fa-bell-slash"></i>
+              <p>No notifications yet</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
 
     <div class="user-profile" (click)="toggleDropdown()">
       <!-- Avatar: image if available, else initials -->

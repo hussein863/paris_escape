@@ -16,8 +16,10 @@ import { MessagingService } from '../../../core/services/messaging.service';
 export class ClientHeaderComponent implements OnInit, OnDestroy {
   searchQuery = '';
   dropdownOpen = false;
+  notifDropdownOpen = false;
   unreadMessages = 0;
   private msgPollInterval: any;
+  private notifPollInterval: any;
 
   constructor(
     public auth: AuthService,
@@ -30,10 +32,12 @@ export class ClientHeaderComponent implements OnInit, OnDestroy {
     this.notifications.loadNotifications();
     this.loadUnreadCount();
     this.msgPollInterval = setInterval(() => this.loadUnreadCount(), 30000);
+    this.notifPollInterval = setInterval(() => this.notifications.loadNotifications(), 30000);
   }
 
   ngOnDestroy(): void {
     clearInterval(this.msgPollInterval);
+    clearInterval(this.notifPollInterval);
   }
 
   private loadUnreadCount(): void {
@@ -66,7 +70,33 @@ export class ClientHeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleDropdown(): void { this.dropdownOpen = !this.dropdownOpen; }
+  toggleDropdown(): void {
+    this.dropdownOpen = !this.dropdownOpen;
+    if (this.dropdownOpen) this.notifDropdownOpen = false;
+  }
+
+  toggleNotifDropdown(): void {
+    this.notifDropdownOpen = !this.notifDropdownOpen;
+    if (this.notifDropdownOpen) this.dropdownOpen = false;
+  }
+
+  onNotifClick(notif: any): void {
+    if (!notif.read) this.notifications.markAsRead(notif.id);
+    this.notifDropdownOpen = false;
+    if (notif.link) this.router.navigate([notif.link]);
+  }
+
+  notifIcon(type: string): string {
+    const icons: Record<string, string> = {
+      new_message: 'fa-message',
+      booking_new: 'fa-calendar-plus',
+      booking_confirmed: 'fa-calendar-check',
+      booking_cancelled: 'fa-calendar-xmark',
+      new_review: 'fa-star',
+      system: 'fa-bell',
+    };
+    return icons[type] ?? 'fa-bell';
+  }
 
   goToSettings(): void { this.dropdownOpen = false; this.router.navigate(['/client/settings']); }
 
@@ -79,8 +109,7 @@ export class ClientHeaderComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
-    if (!target.closest('.user-profile')) {
-      this.dropdownOpen = false;
-    }
+    if (!target.closest('.user-profile')) this.dropdownOpen = false;
+    if (!target.closest('.notif-btn-wrap')) this.notifDropdownOpen = false;
   }
 }
