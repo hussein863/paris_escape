@@ -113,7 +113,6 @@ export class SettingsComponent implements OnInit {
 
   // ─── Privacy ────────────────────────────────────────────────────────────────
   privacySettings: any = {
-    profile_visible_to_guides: true,
     show_reviews_publicly: true,
     share_data_for_analytics: false,
     allow_review_usage: true,

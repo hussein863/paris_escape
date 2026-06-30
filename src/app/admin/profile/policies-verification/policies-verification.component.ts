@@ -28,8 +28,6 @@ export class PoliciesVerificationComponent implements OnInit {
 
   saving = false;
   submitting = false;
-  showDeactivateConfirm = false;
-  deactivating = false;
   toast: { message: string; type: 'success' | 'error' } | null = null;
   private toastTimer: any;
 
@@ -78,27 +76,6 @@ export class PoliciesVerificationComponent implements OnInit {
   copyProfileUrl(): void {
     if (!this.isBrowser) return;
     navigator.clipboard.writeText(this.profileUrl).catch(() => {});
-  }
-
-  confirmDeactivate(): void {
-    this.showDeactivateConfirm = true;
-  }
-
-  cancelDeactivate(): void {
-    this.showDeactivateConfirm = false;
-  }
-
-  doDeactivate(): void {
-    this.deactivating = true;
-    this.http.delete(`${environment.apiUrl}/users/delete_account/`).subscribe({
-      next: () => {
-        this.auth.logout();
-      },
-      error: () => {
-        this.deactivating = false;
-        this.showDeactivateConfirm = false;
-      },
-    });
   }
 
   submitForReview(): void {

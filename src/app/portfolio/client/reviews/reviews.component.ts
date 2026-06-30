@@ -45,7 +45,7 @@ export class ClientReviewsComponent implements OnInit {
 
   private loadReviews(): void {
     this.loading = true;
-    this.reviewService.list().subscribe({
+    this.reviewService.list({ mine: true }).subscribe({
       next: (res) => {
         this.reviews = res.results;
         this.buildStats(res.results);

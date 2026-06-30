@@ -31,7 +31,7 @@
       <a class="nav-item" routerLink="/client/messages" routerLinkActive="active" (click)="closeSidebar()">
         <i class="nav-icon fas fa-message"></i>
         <span class="nav-label">Messages</span>
-        <span class="badge">3</span>
+        <span class="badge" *ngIf="unreadMessages > 0">{{ unreadMessages > 9 ? '9+' : unreadMessages }}</span>
       </a>
       <a class="nav-item" routerLink="/client/favorites" routerLinkActive="active" (click)="closeSidebar()">
         <i class="nav-icon fas fa-heart"></i>

@@ -50,7 +50,7 @@
     <h3>Trust & Safety</h3>
 
     <div class="trust-items">
-      <div class="trust-item">
+      <div class="trust-item" *ngIf="guide.isVerified">
         <i class="fas fa-shield-alt"></i>
         <div class="trust-content">
           <span class="trust-title">Verified Guide</span>
@@ -58,7 +58,7 @@
         </div>
       </div>
 
-      <div class="trust-item">
+      <div class="trust-item" *ngIf="guide.isVerified">
         <i class="fa-solid fa-certificate"></i>
         <div class="trust-content">
           <span class="trust-title">Licensed & Insured</span>
@@ -73,6 +73,8 @@
           <span class="trust-desc">Free cancellation up to {{ guide.cancellationWindow || '24 hours before' }}</span>
         </div>
       </div>
+
+      <p class="trust-empty" *ngIf="!guide.isVerified">This guide hasn't completed identity verification yet.</p>
     </div>
 
     <button class="report-btn" (click)="reportClicked.emit()">

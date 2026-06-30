@@ -28,8 +28,10 @@ export class ClientComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    const search = this.route.snapshot.queryParamMap.get('search');
-    if (search) this.activeFilters = { search };
+    this.route.queryParamMap.subscribe(params => {
+      const search = params.get('search');
+      this.activeFilters = search ? { ...this.activeFilters, search } : { ...this.activeFilters, search: undefined };
+    });
   }
 
   onFiltersChanged(filters: ExperienceFilters): void {

@@ -10,11 +10,12 @@ export class ReviewService {
 
   constructor(private http: HttpClient) {}
 
-  list(params?: { experience?: number; guide?: number; page?: number }): Observable<PaginatedResponse<Review>> {
+  list(params?: { experience?: number; guide?: number; page?: number; mine?: boolean }): Observable<PaginatedResponse<Review>> {
     let httpParams = new HttpParams();
     if (params?.experience) httpParams = httpParams.set('experience', params.experience.toString());
     if (params?.guide)      httpParams = httpParams.set('guide', params.guide.toString());
     if (params?.page)       httpParams = httpParams.set('page', params.page.toString());
+    if (params?.mine)       httpParams = httpParams.set('mine', '1');
     return this.http.get<PaginatedResponse<Review>>(`${this.api}/`, { params: httpParams });
   }
 

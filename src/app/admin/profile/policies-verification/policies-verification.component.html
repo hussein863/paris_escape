@@ -117,30 +117,6 @@
     </div>
   </div>
 
-  <!-- Danger Zone -->
-  <div class="section-card section-full danger-zone">
-    <h2 class="section-title danger-title">Danger Zone</h2>
-
-    <div class="danger-content" *ngIf="!showDeactivateConfirm">
-      <div class="danger-info">
-        <strong>Deactivate Profile</strong>
-        <p>Your profile will be hidden from public view</p>
-      </div>
-      <button class="btn btn-danger" type="button" (click)="confirmDeactivate()">Deactivate</button>
-    </div>
-
-    <div class="danger-confirm" *ngIf="showDeactivateConfirm">
-      <p><strong>Are you sure?</strong> This will deactivate your account and log you out.</p>
-      <div class="danger-confirm-actions">
-        <button class="btn btn-secondary" type="button" (click)="cancelDeactivate()" [disabled]="deactivating">
-          Cancel
-        </button>
-        <button class="btn btn-danger" type="button" (click)="doDeactivate()" [disabled]="deactivating">
-          {{ deactivating ? 'Deactivating…' : 'Yes, Deactivate' }}
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="toast-container" *ngIf="toast" [class]="'toast toast-' + toast.type">

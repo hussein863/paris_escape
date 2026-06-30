@@ -338,18 +338,8 @@
         <div class="toggle-list">
           <div class="toggle-item">
             <div class="toggle-info">
-              <div class="toggle-title">Visible to Guides</div>
-              <div class="toggle-desc">Guides can see your profile when you contact them or book</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" [(ngModel)]="privacySettings.profile_visible_to_guides">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="toggle-item">
-            <div class="toggle-info">
               <div class="toggle-title">Public Reviews</div>
-              <div class="toggle-desc">Your reviews appear publicly with your name</div>
+              <div class="toggle-desc">Your reviews appear publicly with your name. When off, your reviews are shown as "Anonymous".</div>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" [(ngModel)]="privacySettings.show_reviews_publicly">
