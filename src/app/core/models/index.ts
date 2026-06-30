@@ -98,6 +98,7 @@ export interface Experience {
   views: number;
   bookings: number;
   rating: number;
+  review_count: number;
   created_date: string;
   updated_date: string;
   published_date: string | null;
@@ -230,9 +231,12 @@ export interface Review {
   id: number;
   booking: number;
   experience: number;
+  experience_title?: string;
+  experience_image?: string | null;
   guide: number;
   customer: number;
   customer_name: string;
+  customer_avatar?: string | null;
   rating: number;
   content: string;
   language: string;

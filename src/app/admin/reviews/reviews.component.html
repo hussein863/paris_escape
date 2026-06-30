@@ -161,6 +161,13 @@
               </div>
             </div>
 
+            <!-- Experience chip -->
+            <div class="exp-chip" *ngIf="review.experience_title">
+              <img *ngIf="review.experience_image" [src]="review.experience_image" class="exp-chip-img" alt="">
+              <i *ngIf="!review.experience_image" class="fas fa-map-marked-alt exp-chip-icon"></i>
+              <span class="exp-chip-title">{{ review.experience_title }}</span>
+            </div>
+
             <!-- Review content -->
             <div class="review-content">
               <p class="review-text">{{ review.content }}</p>

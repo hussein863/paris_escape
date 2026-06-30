@@ -318,15 +318,18 @@ export class ExperienceDetailComponent implements OnInit {
         this.reviewsData = {
           reviews: res.results.map(r => ({
             author: (r as any).customer_name || 'Anonymous',
-            avatar: '',
+            avatar: (r as any).customer_avatar || '',
             rating: r.rating,
             date: new Date(r.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
             comment: r.content,
+            photos: r.photos || [],
             reply: r.reply ? { content: (r.reply as any).content, date: (r.reply as any).date } : null,
           })),
           averageRating: Number(exp.rating),
           totalReviews: res.count
         };
+        // Update experience header with real review count for this experience
+        this.experienceData = { ...this.experienceData, reviewsCount: res.count };
       }
     });
   }

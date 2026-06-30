@@ -841,26 +841,65 @@
 }
 
 .btn-edit-reply {
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 6px;
-  font-family: Inter;
-  font-weight: 400;
-  font-style: Regular;
+  font-family: Inter, sans-serif;
   font-size: 12px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  text-align: center;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: rgba(75, 85, 99, 1);
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+
+  i { font-size: 11px; }
+
+  &:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
 }
 
-.btn-edit-reply:hover {
+// Experience chip per review
+.exp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px 5px 5px;
   background: #f9fafb;
-  border-color: #d1d5db;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.exp-chip-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.exp-chip-icon {
+  font-size: 14px;
+  color: #6b7280;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.exp-chip-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fa-circle-question{

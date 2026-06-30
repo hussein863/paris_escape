@@ -7,6 +7,7 @@ interface Review {
   rating: number;
   date: string;
   comment: string;
+  photos?: string[];
   reply?: { content: string; date: string } | null;
 }
 
@@ -32,6 +33,15 @@ export class ReviewsSectionComponent {
 
   setFilter(filter: string): void {
     this.activeFilter = filter.toLowerCase();
+  }
+
+  get filteredReviews(): Review[] {
+    switch (this.activeFilter) {
+      case '5 stars':    return this.reviews.filter(r => r.rating === 5);
+      case '4 stars':    return this.reviews.filter(r => r.rating === 4);
+      case 'with photos': return this.reviews.filter(r => (r.photos?.length ?? 0) > 0);
+      default:           return this.reviews;
+    }
   }
 
   getStars(rating: number): number[] {

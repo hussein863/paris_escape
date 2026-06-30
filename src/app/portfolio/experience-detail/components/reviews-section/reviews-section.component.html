@@ -33,7 +33,7 @@
   </div>
 
   <div class="reviews-list">
-    <div class="review-card" *ngFor="let review of reviews">
+    <div class="review-card" *ngFor="let review of filteredReviews">
       <div class="review-layout">
         <img [src]="review.avatar || 'assets/images/avatar-placeholder.png'" [alt]="review.author" class="reviewer-avatar" />
 

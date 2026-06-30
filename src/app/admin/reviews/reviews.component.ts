@@ -81,10 +81,12 @@ export class ReviewsComponent implements OnInit {
     }
 
     // Rating
-    if (this.filterRating > 0) list = list.filter(r => r.rating === this.filterRating);
+    const ratingNum = Number(this.filterRating);
+    if (ratingNum > 0) list = list.filter(r => r.rating === ratingNum);
 
     // Experience
-    if (this.filterExperience > 0) list = list.filter(r => r.experience === this.filterExperience);
+    const expNum = Number(this.filterExperience);
+    if (expNum > 0) list = list.filter(r => r.experience === expNum);
 
     // Reply status
     if (this.filterReply === 'replied')     list = list.filter(r => !!r.reply);
