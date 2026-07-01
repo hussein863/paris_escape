@@ -2,7 +2,6 @@ import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -40,7 +39,7 @@ export const PHONE_COUNTRIES: PhoneCountry[] = [
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClientHeaderComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })

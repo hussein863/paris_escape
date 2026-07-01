@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { ReviewService } from '../../../core/services/review.service';
 import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Review } from '../../../core/models';
@@ -10,7 +9,7 @@ import { Review } from '../../../core/models';
 @Component({
   selector: 'app-client-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ClientHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './reviews.component.html',
   styleUrl: './reviews.component.scss'
 })

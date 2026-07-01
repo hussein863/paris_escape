@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { BookingService } from '../../../core/services/booking.service';
 import { ReviewService } from '../../../core/services/review.service';
 import { IdEncryptService } from '../../../core/services/id-encrypt.service';
@@ -13,7 +12,7 @@ type ReservationTab = 'upcoming' | 'past' | 'cancelled' | 'disputes';
 @Component({
   selector: 'app-client-reservations',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ClientHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.scss'
 })

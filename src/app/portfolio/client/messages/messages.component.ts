@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked }
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { MessagingService } from '../../../core/services/messaging.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { IdEncryptService } from '../../../core/services/id-encrypt.service';
@@ -12,7 +11,7 @@ import { Conversation, Message, Booking } from '../../../core/models';
 @Component({
   selector: 'app-client-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClientHeaderComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.scss'
 })

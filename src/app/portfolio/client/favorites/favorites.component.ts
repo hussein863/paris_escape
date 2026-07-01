@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ClientHeaderComponent } from '../client-header/client-header.component';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { ExperienceService } from '../../../core/services/experience.service';
 import { IdEncryptService } from '../../../core/services/id-encrypt.service';
@@ -11,7 +10,7 @@ import { Favorite, Experience } from '../../../core/models';
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ClientHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './favorites.component.html',
   styleUrls: ['./favorites.component.scss']
 })
