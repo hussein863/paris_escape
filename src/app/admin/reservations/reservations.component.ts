@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { BookingService } from '../../core/services/booking.service';
+import { PlanFeaturesService } from '../../core/services/plan-features.service';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 import { Booking } from '../../core/models';
 import { environment } from '../../../environments/environment';
 
@@ -44,14 +46,25 @@ export class ReservationsComponent implements OnInit {
   feedbackMessage = '';
   feedbackType: 'success' | 'error' = 'success';
 
+  maxBookings: number | null = null;
+  get bookingsExceeded(): boolean {
+    return this.maxBookings !== null && this.allBookings.length >= this.maxBookings;
+  }
+
   constructor(
     private bookingService: BookingService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private planFeatures: PlanFeaturesService,
+    private idEncrypt: IdEncryptService,
   ) {}
 
   ngOnInit(): void {
     this.loadBookings();
+    this.planFeatures.load().subscribe({
+      next: (f) => { this.maxBookings = f.max_bookings; },
+      error: () => {}
+    });
   }
 
   @HostListener('document:keydown.escape')
@@ -180,6 +193,14 @@ export class ReservationsComponent implements OnInit {
 
   messageCustomer(booking: Booking): void {
     this.router.navigate(['/admin/messages'], { queryParams: { bookingId: booking.id } });
+  }
+
+  openExperience(experienceId: number): void {
+    window.open(`/landing/experience/${this.idEncrypt.encryptId(experienceId)}`, '_blank');
+  }
+
+  openGuideProfile(guideId: number): void {
+    window.open(`/landing/profil/${this.idEncrypt.encryptId(guideId)}`, '_blank');
   }
 
   goToExperiences(): void {

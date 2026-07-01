@@ -149,17 +149,16 @@
         min-width: 83px;
 
         &.verified {
-            background: white;
-            color: #000000;
-            border: 1px solid #e0e0e0;
+            background: #1d4ed8;
+            color: #ffffff;
+            border: none;
             line-height: 100%;
             text-align: center;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            gap: 5px;
 
-
-            i {
-                color: #22c55e;
-                margin-right: 4px;
-            }
+            i { color: #fff; font-size: 12px; margin-right: 2px; }
         }
 
         &.originals {

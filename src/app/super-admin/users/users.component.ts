@@ -1,24 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'Customer' | 'Guide' | 'Business' | 'Admin';
-  status: 'Active' | 'Suspended' | 'KYC Pending';
-  registrationDate: string;
-  avatar: string;
-}
-
-interface UserTransaction {
-  id: string;
-  type: string;
-  amount: string;
-  date: string;
-  status: string;
-}
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { IdEncryptService } from '../../core/services/id-encrypt.service';
 
 @Component({
   selector: 'app-users',
@@ -27,64 +12,84 @@ interface UserTransaction {
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss'
 })
-export class UsersComponent {
-  users: User[] = [
-    { id: '001', name: 'Marie Dubois', email: 'marie.d@paris.com', role: 'Guide', status: 'Active', registrationDate: '2024-01-15', avatar: 'MD' },
-    { id: '002', name: 'Jean Martin', email: 'jean.m@paris.com', role: 'Customer', status: 'Active', registrationDate: '2024-02-20', avatar: 'JM' },
-    { id: '003', name: 'Sophie Laurent', email: 'sophie.l@paris.com', role: 'Guide', status: 'KYC Pending', registrationDate: '2024-03-10', avatar: 'SL' },
-    { id: '004', name: 'Pierre Blanc', email: 'pierre.b@paris.com', role: 'Customer', status: 'Suspended', registrationDate: '2023-11-05', avatar: 'PB' },
-    { id: '005', name: 'Emma Rousseau', email: 'emma.r@paris.com', role: 'Business', status: 'Active', registrationDate: '2024-01-28', avatar: 'ER' }
-  ];
-
-  filteredUsers: User[] = [...this.users];
-  selectedUser: User | null = null;
-  isPanelOpen = false;
+export class UsersComponent implements OnInit {
+  users: any[] = [];
+  loading = true;
 
   filterRole = '';
   filterStatus = '';
-  filterKYC = '';
-  searchQuery = '';
+  search = '';
 
-  userTransactions: UserTransaction[] = [
-    { id: 'TXN001', type: 'Booking Payment', amount: '€120', date: '2024-01-15', status: 'Completed' },
-    { id: 'TXN002', type: 'Commission', amount: '€24', date: '2024-01-16', status: 'Completed' },
-    { id: 'TXN003', type: 'Refund', amount: '-€50', date: '2024-01-20', status: 'Processed' }
-  ];
+  selectedUser: any = null;
+  userStats: any = null;
+  panelOpen = false;
+  statsLoading = false;
 
-  notes: string = '';
+  roleOptions = ['Customer', 'Guide', 'Business', 'Admin'];
+  statusOptions = ['Active', 'Suspended', 'KYC Pending'];
 
-  applyFilters(): void {
-    this.filteredUsers = this.users.filter(user => {
-      const matchesRole = !this.filterRole || user.role === this.filterRole;
-      const matchesStatus = !this.filterStatus || user.status === this.filterStatus;
-      const matchesSearch = !this.searchQuery ||
-        user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(this.searchQuery.toLowerCase());
-      return matchesRole && matchesStatus && matchesSearch;
+  constructor(private http: HttpClient, private idEncrypt: IdEncryptService) {}
+
+  ngOnInit(): void { this.load(); }
+
+  load(): void {
+    this.loading = true;
+    const params: any = {};
+    if (this.filterRole)   params['role']   = this.filterRole;
+    if (this.filterStatus) params['status'] = this.filterStatus;
+    if (this.search)       params['search'] = this.search;
+
+    this.http.get<any>(`${environment.apiUrl}/superadmin/users/`, { params }).subscribe({
+      next: (res) => { this.users = res.results ?? res; this.loading = false; },
+      error: () => { this.loading = false; }
     });
   }
 
-  viewUser(user: User): void {
-    this.selectedUser = user;
-    this.isPanelOpen = true;
+  openPanel(user: any): void {
+    this.selectedUser = { ...user };
+    this.userStats = null;
+    this.panelOpen = true;
+    this.statsLoading = true;
+
+    this.http.get<any>(`${environment.apiUrl}/superadmin/users/${user.id}/stats/`).subscribe({
+      next: (res) => { this.userStats = res; this.statsLoading = false; },
+      error: () => { this.statsLoading = false; }
+    });
   }
 
   closePanel(): void {
-    this.isPanelOpen = false;
+    this.panelOpen = false;
     this.selectedUser = null;
+    this.userStats = null;
   }
 
-  suspendUser(): void {
-    if (this.selectedUser) {
-      this.selectedUser.status = this.selectedUser.status === 'Suspended' ? 'Active' : 'Suspended';
-    }
+  toggleSuspend(): void {
+    if (!this.selectedUser) return;
+    const newStatus = this.selectedUser.status === 'Suspended' ? 'Active' : 'Suspended';
+    this.http.patch<any>(`${environment.apiUrl}/superadmin/users/${this.selectedUser.id}/`, { status: newStatus })
+      .subscribe({
+        next: (res) => {
+          this.selectedUser.status = res.status;
+          const u = this.users.find(x => x.id === res.id);
+          if (u) u.status = res.status;
+        }
+      });
   }
 
-  exportCSV(): void {
-    alert('Exporting users to CSV...');
+  initials(name: string): string {
+    const parts = (name || '').trim().split(' ');
+    return parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : (name || '?').substring(0, 2).toUpperCase();
   }
 
-  addAdmin(): void {
-    alert('Add new admin dialog...');
+  openGuideProfile(user: any): void {
+    if (!user.guide_profile_id) return;
+    const enc = this.idEncrypt.encryptId(user.guide_profile_id);
+    window.open(`/landing/profil/${enc}`, '_blank');
+  }
+
+  formatCurrency(value: number): string {
+    return '€' + value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   }
 }

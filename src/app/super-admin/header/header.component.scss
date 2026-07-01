@@ -1,0 +1,140 @@
+.sa-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  gap: 1rem;
+  z-index: 200;
+}
+
+.header-logo {
+  height: 36px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.header-badge {
+  background: #000;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.spacer { flex: 1; }
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+
+  &:hover { background: #f9fafb; }
+}
+
+.avatar-wrap { flex-shrink: 0; }
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e5e7eb;
+  display: block;
+
+  &.small { width: 34px; height: 34px; }
+}
+
+.user-initials {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+
+  &.small { width: 34px; height: 34px; font-size: 12px; }
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.chevron {
+  font-size: 11px;
+  color: #6b7280;
+  transition: transform 0.2s;
+
+  &.open { transform: rotate(180deg); }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 300;
+  overflow: hidden;
+}
+
+.dropdown-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #f9f9f9;
+}
+
+.d-name { font-weight: 600; font-size: 14px; color: #1a1a1a; }
+.d-role { font-size: 12px; color: #6b7280; }
+
+.divider { border: none; border-top: 1px solid #f0f0f0; margin: 0; }
+
+.d-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  i { width: 16px; color: #6b7280; }
+
+  &:hover { background: #f9f9f9; }
+
+  &.logout {
+    color: #dc2626;
+    i { color: #dc2626; }
+    &:hover { background: #fef2f2; }
+  }
+}

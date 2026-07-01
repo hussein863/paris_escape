@@ -19,7 +19,6 @@ import { ExperienceFilters } from '../filters-sidebar/filters-sidebar.component'
 export class ExperiencesGridComponent implements OnInit, OnChanges {
   @Input() filters: ExperienceFilters = {};
   @Output() totalChanged = new EventEmitter<number>();
-  viewMode: 'grid' | 'circle' | 'list' = 'circle';
   selectedSort = 'relevance';
   currentPage = 1;
   itemsPerPage = 9;
@@ -153,7 +152,6 @@ export class ExperiencesGridComponent implements OnInit, OnChanges {
   get totalPages(): number { return Math.ceil(this.totalCount / this.itemsPerPage); }
   get pageNumbers(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i + 1); }
 
-  setViewMode(mode: 'grid' | 'circle' | 'list'): void { this.viewMode = mode; }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
@@ -168,5 +166,36 @@ export class ExperiencesGridComponent implements OnInit, OnChanges {
 
   getDuration(exp: Experience): string {
     return `${exp.duration_value} ${exp.duration_unit}`;
+  }
+
+  // ── Sponsorship CTA ──────────────────────────────────────────────────────
+
+  sponsorPanelOpen = false;
+  sponsoredExperience: Experience | null = null;
+  sponsorFeature: 'search' | 'listing' = 'search';
+  sponsorDays = 7;
+  readonly sponsorPrices: Record<string, number> = { search: 2, listing: 3 };
+
+  isOwnExperience(exp: Experience): boolean {
+    const user = this.auth.user();
+    if (!user?.guide_profile) return false;
+    return exp.guide === user.guide_profile.id;
+  }
+
+  openSponsorPanel(exp: Experience, event: Event): void {
+    event.stopPropagation();
+    this.sponsoredExperience = exp;
+    this.sponsorFeature = 'search';
+    this.sponsorDays = 7;
+    this.sponsorPanelOpen = true;
+  }
+
+  closeSponsorPanel(): void {
+    this.sponsorPanelOpen = false;
+    this.sponsoredExperience = null;
+  }
+
+  get sponsorTotal(): number {
+    return this.sponsorPrices[this.sponsorFeature] * this.sponsorDays;
   }
 }

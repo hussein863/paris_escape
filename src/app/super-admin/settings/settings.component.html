@@ -1,0 +1,67 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>System Settings</h1>
+      <p>Platform-wide configuration and controls</p>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+    <nav class="settings-nav">
+      <button
+        *ngFor="let s of sections"
+        class="settings-nav-item"
+        [class.active]="activeSection === s.id"
+        (click)="activeSection = s.id">
+        <i class="fas fa-{{ s.icon }}"></i>
+        {{ s.label }}
+      </button>
+    </nav>
+
+    <div class="settings-body">
+      <div *ngIf="activeSection === 'general'">
+        <h2>General Settings</h2>
+        <div class="setting-group">
+          <label>Platform Name</label>
+          <input type="text" class="setting-input" value="Paris Escape">
+        </div>
+        <div class="setting-group">
+          <label>Support Email</label>
+          <input type="email" class="setting-input" value="support@parisescape.com">
+        </div>
+        <div class="setting-group">
+          <label>Maintenance Mode</label>
+          <label class="toggle">
+            <input type="checkbox"> <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div *ngIf="activeSection === 'fees'">
+        <h2>Fees & Commission</h2>
+        <div class="setting-group">
+          <label>Default Service Fee (%)</label>
+          <input type="number" class="setting-input" value="5">
+        </div>
+        <div class="setting-group">
+          <label>Default Commission Rate (%)</label>
+          <input type="number" class="setting-input" value="15">
+        </div>
+      </div>
+
+      <div *ngIf="activeSection === 'emails'">
+        <h2>Email Templates</h2>
+        <p class="muted">Email template management coming soon.</p>
+      </div>
+
+      <div *ngIf="activeSection === 'security'">
+        <h2>Security</h2>
+        <p class="muted">Security settings coming soon.</p>
+      </div>
+
+      <div class="settings-actions" *ngIf="activeSection !== 'emails' && activeSection !== 'security'">
+        <button class="btn-save">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>

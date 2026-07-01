@@ -1,77 +1,95 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
-interface KPICard {
-  title: string;
-  value: string;
-  change: string;
-  isPositive: boolean;
-  icon: string;
-}
-
-interface Alert {
-  type: 'critical' | 'warning' | 'info';
-  message: string;
-  action: string;
-}
-
-interface Activity {
-  icon: string;
-  description: string;
-  timestamp: string;
-  link: string;
-}
+import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  searchQuery = '';
+  loading = true;
+  stats: any = null;
 
-  kpis: KPICard[] = [
-    { title: 'Total Revenue', value: '€124,590', change: '+12.5%', isPositive: true, icon: 'euro-sign' },
-    { title: 'Total Bookings', value: '1,432', change: '+8.2%', isPositive: true, icon: 'calendar-check' },
-    { title: 'Active Experiences', value: '89', change: '+5', isPositive: true, icon: 'star' },
-    { title: 'New Users', value: '234', change: '-2.1%', isPositive: false, icon: 'user' }
+  kpis: { title: string; value: string | number; sub: string; icon: string; color: string }[] = [];
+
+  pendingActions: { label: string; count: number; route: string; urgent: boolean }[] = [];
+
+  quickLinks = [
+    { label: 'Users',        icon: 'users',          route: '/super-admin/users' },
+    { label: 'KYC Queue',    icon: 'id-card',         route: '/super-admin/kyc' },
+    { label: 'Experiences',  icon: 'map',             route: '/super-admin/experiences' },
+    { label: 'Bookings',     icon: 'calendar-check',  route: '/super-admin/bookings' },
+    { label: 'Reports',      icon: 'flag',            route: '/super-admin/reports' },
+    { label: 'Financials',   icon: 'chart-line',      route: '/super-admin/financials' },
   ];
 
-  alerts: Alert[] = [
-    { type: 'critical', message: '3 failed payments require attention', action: 'Review' },
-    { type: 'warning', message: '12 KYC verifications pending', action: 'Review' },
-    { type: 'warning', message: '5 open disputes awaiting response', action: 'Review' },
-    { type: 'info', message: '8 experiences pending approval', action: 'Review' }
-  ];
-
-  quickActions = [
-    { title: 'Users', icon: 'users', route: '/super-admin/users', count: '1,234' },
-    { title: 'Experiences', icon: 'star', route: '/super-admin/business', count: '89' },
-    { title: 'Bookings', icon: 'calendar-alt', route: '/super-admin/business', count: '432' },
-    { title: 'Payments', icon: 'credit-card', route: '/super-admin/business', count: '567' },
-    { title: 'Disputes', icon: 'exclamation-circle', route: '/super-admin/business', count: '5' },
-    { title: 'Settings', icon: 'cog', route: '/super-admin/system', count: '' }
-  ];
-
-  recentActivities: Activity[] = [
-    { icon: 'check-circle', description: 'Experience "Paris Night Tour" approved', timestamp: '2 min ago', link: '#' },
-    { icon: 'user', description: 'New guide registered: Marie Dubois', timestamp: '15 min ago', link: '#' },
-    { icon: 'dollar-sign', description: 'Payment of €250 processed', timestamp: '1 hour ago', link: '#' },
-    { icon: 'file-alt', description: 'Booking #4532 confirmed', timestamp: '2 hours ago', link: '#' },
-    { icon: 'star', description: 'New review posted (5 stars)', timestamp: '3 hours ago', link: '#' }
-  ];
-
-  chartFilter = '30d';
-  chartFilters = ['7d', '30d', '90d'];
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    // Initialize chart data
+    this.http.get<any>(`${environment.apiUrl}/superadmin/stats/`).subscribe({
+      next: (data) => {
+        this.stats = data;
+        this.buildKpis(data);
+        this.buildPendingActions(data);
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
   }
 
-  setChartFilter(filter: string): void {
-    this.chartFilter = filter;
+  private buildKpis(d: any): void {
+    this.kpis = [
+      {
+        title: 'Total Users',
+        value: d.users.total,
+        sub: `${d.users.guides} guides · ${d.users.travelers} travelers`,
+        icon: 'users',
+        color: '#6366f1',
+      },
+      {
+        title: 'New Users This Month',
+        value: d.users.new_this_month,
+        sub: 'registered this month',
+        icon: 'user-plus',
+        color: '#10b981',
+      },
+      {
+        title: 'Active Experiences',
+        value: d.experiences.active,
+        sub: `${d.experiences.pending_review} awaiting review`,
+        icon: 'map',
+        color: '#f59e0b',
+      },
+      {
+        title: 'Bookings This Month',
+        value: d.bookings.this_month,
+        sub: `${d.bookings.total} total · ${d.bookings.disputed} disputed`,
+        icon: 'calendar-check',
+        color: '#3b82f6',
+      },
+      {
+        title: 'Revenue This Month',
+        value: '€' + Number(d.revenue_this_month).toLocaleString('fr-FR', { minimumFractionDigits: 0 }),
+        sub: 'from confirmed bookings',
+        icon: 'euro-sign',
+        color: '#000000',
+      },
+    ];
+  }
+
+  private buildPendingActions(d: any): void {
+    const pa = d.pending_actions;
+    this.pendingActions = [
+      { label: 'KYC verifications pending',      count: pa.kyc,         route: '/super-admin/kyc',         urgent: pa.kyc > 0 },
+      { label: 'Experiences awaiting approval',  count: pa.experiences, route: '/super-admin/experiences',  urgent: pa.experiences > 0 },
+      { label: 'Unreviewed reports',             count: pa.reports,     route: '/super-admin/reports',      urgent: pa.reports > 5 },
+      { label: 'Open disputes',                  count: pa.disputes,    route: '/super-admin/bookings',     urgent: pa.disputes > 0 },
+      { label: 'Open support tickets',           count: pa.tickets,     route: '/super-admin/support',      urgent: false },
+    ].filter(a => a.count > 0);
   }
 }

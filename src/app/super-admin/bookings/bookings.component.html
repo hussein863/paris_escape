@@ -1,0 +1,312 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>All Bookings</h1>
+      <p>Monitor bookings across the platform and manage disputes</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="search" (ngModelChange)="load()"
+        placeholder="Search ref, traveler, guide, experience…" class="search-input">
+    </div>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="load()" class="filter-select">
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="data-table" *ngIf="filtered.length; else empty">
+      <thead>
+        <tr>
+          <th>Ref</th>
+          <th>Experience</th>
+          <th>Guide</th>
+          <th>Traveler</th>
+          <th>Date</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of filtered" [class.disputed]="b.status === 'Disputed'"
+          (click)="openPanel(b)" class="clickable-row">
+
+          <!-- Ref -->
+          <td class="bold mono">{{ b.booking_ref }}</td>
+
+          <!-- Experience thumbnail + title + link -->
+          <td>
+            <div class="exp-cell">
+              <div class="exp-thumb" (click)="openExperience(b.experience_id); $event.stopPropagation()"
+                [class.has-img]="b.experience_thumbnail"
+                [title]="'Open ' + b.experience_title">
+                <img *ngIf="b.experience_thumbnail" [src]="b.experience_thumbnail" alt="" />
+                <i *ngIf="!b.experience_thumbnail" class="fas fa-map"></i>
+                <div class="exp-thumb-overlay"><i class="fas fa-external-link-alt"></i></div>
+              </div>
+              <span class="exp-title">{{ b.experience_title }}</span>
+            </div>
+          </td>
+
+          <!-- Guide avatar + name + link -->
+          <td>
+            <div class="person-cell"
+              (click)="openGuideProfile(b.guide_profile_id); $event.stopPropagation()"
+              [class.clickable]="b.guide_profile_id"
+              [title]="b.guide_name">
+              <div class="mini-avatar">
+                <img *ngIf="b.guide_avatar" [src]="b.guide_avatar" alt="" />
+                <span *ngIf="!b.guide_avatar">{{ initials(b.guide_name) }}</span>
+              </div>
+              <span class="person-name">{{ b.guide_name }}</span>
+              <i class="fas fa-external-link-alt link-icon" *ngIf="b.guide_profile_id"></i>
+            </div>
+          </td>
+
+          <!-- Traveler -->
+          <td class="muted">{{ b.customer_name }}</td>
+
+          <!-- Date -->
+          <td class="muted">{{ b.date | date:'d MMM y' }}</td>
+
+          <!-- Total -->
+          <td class="bold">{{ formatCurrency(b.total_amount) }}</td>
+
+          <!-- Status -->
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-confirmed':  b.status === 'Confirmed',
+              'badge-pending':    b.status === 'Pending',
+              'badge-cancelled':  b.status === 'Cancelled',
+              'badge-disputed':   b.status === 'Disputed'
+            }">{{ b.status }}</span>
+          </td>
+
+          <td>
+            <i class="fas fa-chevron-right row-arrow muted"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <div class="empty-state">
+        <i class="fas fa-calendar-check"></i>
+        <p>No bookings match your filters</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="panel-backdrop" *ngIf="panelOpen" (click)="closePanel()"></div>
+
+  <!-- Booking detail panel -->
+  <div class="booking-panel" [class.open]="panelOpen">
+    <div class="panel-header">
+      <div>
+        <h2>Booking details</h2>
+        <span class="mono muted" *ngIf="panel && !panel.error">{{ panel.booking_ref }}</span>
+      </div>
+      <button class="panel-close" (click)="closePanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="loading-state" *ngIf="panelLoading">
+        <i class="fas fa-circle-notch fa-spin"></i> Loading…
+      </div>
+
+      <div class="empty-state" *ngIf="panel?.error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Could not load booking details.</p>
+      </div>
+
+      <ng-container *ngIf="panel && !panel.error && !panelLoading">
+
+        <!-- Status + dates -->
+        <div class="detail-section">
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="badge" [ngClass]="{
+              'badge-confirmed':  panel.status === 'Confirmed',
+              'badge-pending':    panel.status === 'Pending',
+              'badge-cancelled':  panel.status === 'Cancelled',
+              'badge-disputed':   panel.status === 'Disputed'
+            }">{{ panel.status }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Tour date</span>
+            <span class="bold">{{ panel.date | date:'d MMMM y' }} at {{ panel.time }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Timezone</span>
+            <span class="muted">{{ panel.time_zone }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Booked on</span>
+            <span class="muted">{{ panel.created_date | date:'d MMM y, HH:mm' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="panel.cancellation_deadline">
+            <span class="detail-label">Cancel by</span>
+            <span class="muted">{{ panel.cancellation_deadline | date:'d MMM y, HH:mm' }}</span>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="panel-section-title">Experience</div>
+        <div class="exp-panel-card">
+          <div class="exp-panel-thumb"
+            [class.has-img]="panel.experience?.thumbnail"
+            (click)="openExperience(panel.experience?.id)">
+            <img *ngIf="panel.experience?.thumbnail" [src]="panel.experience.thumbnail" alt="" />
+            <i *ngIf="!panel.experience?.thumbnail" class="fas fa-map"></i>
+            <div class="exp-thumb-overlay"><i class="fas fa-external-link-alt"></i></div>
+          </div>
+          <div class="exp-panel-info">
+            <div class="bold">{{ panel.experience?.title }}</div>
+            <div class="muted">{{ panel.experience?.category }}</div>
+            <div class="muted" *ngIf="panel.experience?.duration">{{ panel.experience.duration }}</div>
+          </div>
+        </div>
+
+        <!-- Guide -->
+        <div class="panel-section-title">Guide</div>
+        <div class="person-panel-card"
+          (click)="openGuideProfile(panel.guide?.profile_id)"
+          [class.clickable]="panel.guide?.profile_id">
+          <div class="person-avatar">
+            <img *ngIf="panel.guide?.avatar" [src]="panel.guide.avatar" alt="" />
+            <span *ngIf="!panel.guide?.avatar">{{ initials(panel.guide?.name) }}</span>
+          </div>
+          <div class="person-info">
+            <div class="bold">{{ panel.guide?.name }}</div>
+            <div class="muted">{{ panel.guide?.email }}</div>
+          </div>
+          <i class="fas fa-external-link-alt link-icon" *ngIf="panel.guide?.profile_id"></i>
+        </div>
+
+        <!-- Traveler -->
+        <div class="panel-section-title">Traveler</div>
+        <div class="person-panel-card">
+          <div class="person-avatar">
+            <img *ngIf="panel.customer?.avatar" [src]="panel.customer.avatar" alt="" />
+            <span *ngIf="!panel.customer?.avatar">{{ initials(panel.customer?.name) }}</span>
+          </div>
+          <div class="person-info">
+            <div class="bold">{{ panel.customer?.name }}</div>
+            <div class="muted">{{ panel.customer?.email }}</div>
+          </div>
+        </div>
+
+        <!-- Traveler form details -->
+        <div class="detail-section" *ngIf="panel.traveler?.first_name">
+          <div class="detail-row">
+            <span class="detail-label">Full name</span>
+            <span>{{ panel.traveler.first_name }} {{ panel.traveler.last_name }}</span>
+          </div>
+          <div class="detail-row" *ngIf="panel.traveler.phone">
+            <span class="detail-label">Phone</span>
+            <span class="muted">{{ panel.traveler.phone }}</span>
+          </div>
+          <div class="detail-row" *ngIf="panel.traveler.country">
+            <span class="detail-label">Country</span>
+            <span class="muted">{{ panel.traveler.country }}</span>
+          </div>
+          <div class="detail-row special-req" *ngIf="panel.traveler.special_requests">
+            <span class="detail-label">Notes</span>
+            <span class="muted">{{ panel.traveler.special_requests }}</span>
+          </div>
+        </div>
+
+        <!-- Participants -->
+        <div class="panel-section-title">Participants</div>
+        <div class="detail-section">
+          <div class="detail-row">
+            <span class="detail-label">Adults</span>
+            <span class="bold">{{ panel.adults }}</span>
+          </div>
+          <div class="detail-row" *ngIf="panel.children > 0">
+            <span class="detail-label">Children</span>
+            <span>{{ panel.children }}</span>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="panel-section-title">Pricing</div>
+        <div class="price-breakdown">
+          <div class="price-row">
+            <span>Base price</span>
+            <span>{{ formatCurrency(panel.base_price) }}</span>
+          </div>
+          <div class="price-row" *ngIf="panel.addons_total > 0">
+            <span>Add-ons</span>
+            <span>{{ formatCurrency(panel.addons_total) }}</span>
+          </div>
+          <div class="price-row" *ngIf="panel.service_fee > 0">
+            <span>Service fee</span>
+            <span>{{ formatCurrency(panel.service_fee) }}</span>
+          </div>
+          <div class="price-row" *ngIf="panel.taxes > 0">
+            <span>Taxes</span>
+            <span>{{ formatCurrency(panel.taxes) }}</span>
+          </div>
+          <div class="price-row total-row">
+            <span>Total</span>
+            <span>{{ formatCurrency(panel.total_amount) }}</span>
+          </div>
+        </div>
+
+        <!-- Add-ons -->
+        <ng-container *ngIf="panel.addons?.length > 0">
+          <div class="panel-section-title">Add-ons</div>
+          <div class="addons-list">
+            <div class="addon-item" *ngFor="let a of panel.addons">
+              <span>{{ a.name }}</span>
+              <span class="muted">×{{ a.quantity }}</span>
+              <span class="bold">{{ formatCurrency(a.price * a.quantity) }}</span>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Payment -->
+        <ng-container *ngIf="panel.payment">
+          <div class="panel-section-title">Payment</div>
+          <div class="detail-section">
+            <div class="detail-row">
+              <span class="detail-label">Invoice</span>
+              <span class="mono">{{ panel.payment.invoice_number }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Amount</span>
+              <span class="bold">{{ formatCurrency(panel.payment.amount) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status</span>
+              <span class="badge" [ngClass]="{
+                'badge-paid':    panel.payment.status === 'Paid' || panel.payment.status === 'Completed',
+                'badge-pending': panel.payment.status === 'Pending',
+                'badge-refused': panel.payment.status === 'Failed'
+              }">{{ panel.payment.status }}</span>
+            </div>
+            <div class="detail-row" *ngIf="panel.payment.method">
+              <span class="detail-label">Method</span>
+              <span class="muted">{{ panel.payment.method }}</span>
+            </div>
+            <div class="detail-row" *ngIf="panel.payment.date">
+              <span class="detail-label">Paid on</span>
+              <span class="muted">{{ panel.payment.date | date:'d MMM y, HH:mm' }}</span>
+            </div>
+          </div>
+        </ng-container>
+
+      </ng-container>
+    </div>
+  </div>
+</div>

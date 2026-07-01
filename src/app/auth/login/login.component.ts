@@ -33,7 +33,9 @@ export class LoginComponent {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         if (returnUrl) {
           this.router.navigateByUrl(returnUrl);
-        } else if (user.role === 'Guide' || user.role === 'Admin') {
+        } else if (user.role === 'Admin') {
+          this.router.navigate(['/super-admin/dashboard']);
+        } else if (user.role === 'Guide') {
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.router.navigate(['/client/home']);

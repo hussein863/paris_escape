@@ -1,15 +1,17 @@
-.super-admin-layout {
+.sa-shell {
   display: flex;
+  padding-top: 70px;
   min-height: 100vh;
   background: #f8f9fa;
 }
 
-.super-admin-content {
+.sa-content {
   flex: 1;
-  margin-left: 260px;
-  transition: margin-left 0.3s ease;
+  margin-left: 220px;
+  min-height: calc(100vh - 70px);
+  transition: margin-left 0.25s ease;
 
   @media (max-width: 1024px) {
-    margin-left: 0;
+    margin-left: 68px;
   }
 }

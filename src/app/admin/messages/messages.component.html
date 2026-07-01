@@ -21,20 +21,24 @@
         <button class="btn-add" type="button" (click)="loadConversations()" title="Refresh messages" [disabled]="loading">
           <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
         </button>
-        <button class="btn-add" type="button" (click)="openAddContact()">
-          <i class="fas fa-plus"></i>
-        </button>
       </div>
     </div>
 
     <!-- Contact Quota -->
-    <div class="contact-quota">
+    <div class="contact-quota" [class.quota-exceeded]="quotaExceeded">
       <div class="quota-info">
         <span class="quota-label">Contact Quota</span>
-        <span class="quota-count">{{ contactQuota.used }} / {{ contactQuota.total }} used</span>
+        <span class="quota-count" [class.quota-count-exceeded]="quotaExceeded">
+          {{ contactQuota.used }} / {{ maxContacts !== null ? maxContacts : '∞' }} used
+        </span>
       </div>
       <div class="quota-bar">
-        <div class="quota-progress" [style.width.%]="quotaPercentage"></div>
+        <div class="quota-progress" [class.quota-progress-exceeded]="quotaExceeded"
+          [style.width.%]="maxContacts ? (contactQuota.used / maxContacts * 100) : 0"></div>
+      </div>
+      <div class="quota-limit-notice" *ngIf="quotaExceeded">
+        <i class="fas fa-lock"></i>
+        Contact limit reached. <strong>Upgrade your plan</strong> to receive new conversations.
       </div>
     </div>
 
@@ -52,7 +56,7 @@
     <!-- Filter Tabs -->
     <div class="filter-tabs">
       <button
-        *ngFor="let filter of ['All', 'Unread', 'Archived', 'Flagged']"
+        *ngFor="let filter of ['All', 'Unread', 'Archived']"
         [class.active]="activeFilter === filter"
         (click)="setFilter(filter)"
         type="button"
@@ -62,30 +66,41 @@
     </div>
 
     <!-- Conversations List -->
-    <div class="conversations-list">
-      <div
-        *ngFor="let conversation of filteredConversations"
-        class="conversation-item"
-        [class.active]="selectedConversation?.id === conversation.id"
-        [class.unread]="conversation.unread"
-        (click)="selectConversation(conversation)"
-      >
-        <img [src]="conversation.avatar" [alt]="conversation.name" class="conversation-avatar" />
-        <div class="conversation-content">
-          <div class="conversation-header">
-            <span class="conversation-name" [class.unread-text]="conversation.unread">
-              {{ conversation.name }}
-            </span>
-            <span class="conversation-time">{{ conversation.timestamp }}</span>
+    <div class="conversations-list-wrapper" [class.quota-blurred]="quotaExceeded">
+      <div class="conversations-list">
+        <div
+          *ngFor="let conversation of filteredConversations; let i = index"
+          class="conversation-item"
+          [class.active]="selectedConversation?.id === conversation.id"
+          [class.unread]="conversation.unread"
+          [class.blurred-row]="quotaExceeded && i >= (maxContacts ?? 9999)"
+          (click)="!quotaExceeded || i < (maxContacts ?? 9999) ? selectConversation(conversation) : null"
+        >
+          <img [src]="conversation.avatar" [alt]="conversation.name" class="conversation-avatar" />
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-name" [class.unread-text]="conversation.unread">
+                {{ conversation.name }}
+              </span>
+              <span class="conversation-time">{{ conversation.timestamp }}</span>
+            </div>
+            <div class="conversation-meta">
+              <span class="status-badge" [class]="'status-' + conversation.status.toLowerCase()">
+                {{ conversation.status }}
+              </span>
+              <span *ngIf="conversation.tourName" class="tour-name">{{ conversation.tourName }}</span>
+            </div>
+            <p class="conversation-preview">{{ conversation.lastMessage }}</p>
           </div>
-          <div class="conversation-meta">
-            <span class="status-badge" [class]="'status-' + conversation.status.toLowerCase()">
-              {{ conversation.status }}
-            </span>
-            <span *ngIf="conversation.tourName" class="tour-name">{{ conversation.tourName }}</span>
-          </div>
-          <p class="conversation-preview">{{ conversation.lastMessage }}</p>
         </div>
+      </div>
+
+      <!-- Upgrade overlay when quota exceeded -->
+      <div class="quota-upgrade-overlay" *ngIf="quotaExceeded">
+        <i class="fas fa-lock"></i>
+        <strong>Contact limit reached</strong>
+        <p>Upgrade your plan to unlock new conversations</p>
+        <button class="btn-upgrade" type="button">Upgrade Plan</button>
       </div>
     </div>
   </div>
@@ -105,9 +120,6 @@
         </div>
       </div>
       <div class="chat-header-actions">
-        <button class="btn-icon" type="button" (click)="openConversationInfo()">
-          <i class="fas fa-info"></i>
-        </button>
         <div class="more-menu-wrapper">
           <button class="btn-icon" type="button" (click)="toggleMoreMenu(selectedConversation!.id, $event)">
             <i class="fas fa-ellipsis-h"></i>
@@ -117,25 +129,21 @@
               <i class="fas fa-envelope"></i>
               {{ selectedConversation?.unread ? 'Mark as Read' : 'Mark as Unread' }}
             </button>
-            <button class="dropdown-item" (click)="toggleFlag(selectedConversation!, $event)">
-              <i class="fas fa-flag"></i>
-              {{ isFlagged(selectedConversation!) ? 'Unflag' : 'Flag' }}
-            </button>
             <button class="dropdown-item" (click)="toggleArchive(selectedConversation!, $event)">
               <i class="fas fa-archive"></i>
               {{ isArchived(selectedConversation!) ? 'Unarchive' : 'Archive' }}
             </button>
             <hr>
-            <button class="dropdown-item danger" (click)="deleteConversation(selectedConversation!, $event)">
-              <i class="fas fa-trash"></i>
-              Delete
+            <button class="dropdown-item danger" (click)="openReportModal(selectedConversation!, $event)">
+              <i class="fas fa-exclamation-triangle"></i>
+              Report
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Experience Context Card -->
+    <!-- Experience / Booking Context Card -->
     <div class="booking-info-card" *ngIf="selectedConversation?.tourName || selectedConversation?.tourImage">
       <div class="booking-info-content">
         <img
@@ -154,19 +162,28 @@
             <ng-container *ngIf="selectedConversation?.experiencePrice">€{{ selectedConversation!.experiencePrice }}/person</ng-container>
             <ng-container *ngIf="selectedConversation?.experienceDuration"> · {{ selectedConversation!.experienceDuration }}</ng-container>
           </p>
-          <span class="booking-status">{{ selectedConversation?.status === 'Confirmed' ? 'Confirmed' : 'Pre-inquiry' }}</span>
+          <ng-container *ngIf="selectedConversation?.status === 'Confirmed' || selectedConversation?.status === 'Pending'">
+            <span class="booking-status booking-status--booked">
+              <i class="fas fa-calendar-check"></i>
+              {{ selectedConversation!.status }} Booking
+            </span>
+          </ng-container>
+          <ng-container *ngIf="selectedConversation?.status !== 'Confirmed' && selectedConversation?.status !== 'Pending'">
+            <span class="booking-status booking-status--inquiry">
+              <i class="fas fa-comment-dots"></i>
+              Inquiry
+            </span>
+          </ng-container>
         </div>
       </div>
-      <div class="booking-actions">
-        <button class="btn btn-outline-sm" type="button">View Reservation</button>
+      <div class="booking-actions" *ngIf="selectedConversation?.status === 'Confirmed' || selectedConversation?.status === 'Pending'">
+        <button class="btn btn-outline-sm" type="button" routerLink="/admin/reservations">View Reservation</button>
       </div>
     </div>
 
     <!-- Messages Area -->
     <div class="messages-area">
       <div *ngFor="let message of messages" class="message-wrapper">
-        <div class="message-date" *ngIf="message.id === 1">Dec 1, 2024</div>
-        <div class="message-date" *ngIf="message.id === 3">Today</div>
 
         <div class="message" [class.message-user]="message.sender === 'user'" [class.message-guide]="message.sender === 'guide'">
           <!-- Customer Avatar -->
@@ -206,13 +223,6 @@
           <i *ngIf="message.sender === 'guide'" class="fas fa-check-double"></i>
         </div>
 
-        <div *ngIf="message.id === 2" class="booking-confirmation">
-          <i class="fas fa-info-circle"></i>
-          <div>
-            <strong>Booking Confirmed</strong>
-            <p>Sophie Martin confirmed the booking for Montmartre Art Walk on Dec 3, 2024 at 10:00 AM</p>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -224,7 +234,6 @@
           <i class="fas fa-info-circle"></i>
         <span>Replying to this message will count as 1 contact toward your quota.</span>
         </div>
-        <a href="javascript:void(0)" (click)="openContactQuotaInfo()" style="margin-left: 32px;">Learn more about contact quotas</a>
       </div>
 
       <!-- Quick Actions -->
@@ -274,7 +283,6 @@
         <div class="footer-left">
           <i class="fas fa-shield-alt"></i>
           <span>Messages are monitored for safety.</span>
-          <a href="javascript:void(0)" (click)="openSafetyInfo()">Learn more</a>
         </div>
       </div>
     </div>
@@ -288,4 +296,40 @@
   </div>
 </div>
   </main>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-box-header">
+      <h2><i class="fas fa-exclamation-triangle"></i> Report Conversation</h2>
+      <button class="modal-box-close" (click)="closeReportModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-box-body">
+      <div class="form-group">
+        <label>Reason</label>
+        <select [(ngModel)]="reportReason" class="form-select">
+          <option value="">Select a reason…</option>
+          <option value="inappropriate">Inappropriate content</option>
+          <option value="scam">Scam or fraud</option>
+          <option value="safety">Safety concern</option>
+          <option value="misleading">Misleading information</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description <span class="label-opt">(optional)</span></label>
+        <textarea [(ngModel)]="reportDescription" placeholder="Provide additional details…" rows="3" class="form-textarea"></textarea>
+      </div>
+      <div class="modal-feedback" *ngIf="reportFeedback" [class.is-success]="reportFeedbackType === 'success'" [class.is-error]="reportFeedbackType === 'error'">
+        {{ reportFeedback }}
+      </div>
+    </div>
+    <div class="modal-box-footer">
+      <button class="btn btn-ghost" (click)="closeReportModal()" type="button">Cancel</button>
+      <button class="btn btn-danger" (click)="submitReport()" [disabled]="!reportReason || reportSubmitting" type="button">
+        {{ reportSubmitting ? 'Submitting…' : 'Submit Report' }}
+      </button>
+    </div>
+  </div>
 </div>

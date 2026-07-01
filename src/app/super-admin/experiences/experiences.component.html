@@ -1,0 +1,183 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>Experience Moderation</h1>
+      <p>Approve, refuse or activate experiences submitted by guides</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="search" placeholder="Search experiences…" class="search-input">
+    </div>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="load()" class="filter-select">
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="data-table" *ngIf="filtered.length; else empty">
+      <thead>
+        <tr>
+          <th>Experience</th>
+          <th>Guide</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of filtered">
+          <td>
+            <div class="exp-title-cell">
+              <span class="bold">{{ e.title }}</span>
+              <div class="guide-avatar-row" *ngIf="e.guide_name">
+                <div class="mini-avatar" (click)="openGuideProfile(e.guide_profile_id)" [class.clickable]="e.guide_profile_id">
+                  <img *ngIf="e.guide_avatar" [src]="e.guide_avatar" alt="" />
+                  <span *ngIf="!e.guide_avatar">{{ initials(e.guide_name) }}</span>
+                </div>
+                <span class="guide-name muted">{{ e.guide_name }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="muted">{{ e.guide_name }}</td>
+          <td>{{ e.category || '—' }}</td>
+          <td>€{{ e.base_price }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-active':      e.status === 'Active',
+              'badge-under-review': e.status === 'Under Review',
+              'badge-refused':     e.status === 'Refused',
+              'badge-paused':      e.status === 'Paused',
+              'badge-draft':       e.status === 'Draft'
+            }">{{ e.status }}</span>
+          </td>
+          <td class="muted">{{ e.created_date | date:'d MMM y' }}</td>
+          <td class="actions-cell">
+            <button class="btn-dismiss" (click)="openPanel(e)">View</button>
+            <button class="btn-approve" (click)="approve(e.id)" *ngIf="e.status === 'Under Review'">Approve</button>
+            <button class="btn-approve" (click)="activate(e.id)" *ngIf="e.status === 'Paused' || e.status === 'Refused'">Activate</button>
+            <button class="btn-refuse" (click)="refuse(e.id)" *ngIf="e.status === 'Under Review' || e.status === 'Active'">Refuse</button>
+            <button class="btn-warn" (click)="pause(e.id)" *ngIf="e.status === 'Active'">Pause</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <div class="empty-state">
+        <i class="fas fa-map"></i>
+        <p>No experiences match your filters</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="panel-backdrop" *ngIf="panelOpen" (click)="closePanel()"></div>
+
+  <!-- Experience detail panel -->
+  <div class="exp-panel" [class.open]="panelOpen">
+    <div class="panel-header">
+      <h2>Experience details</h2>
+      <button class="panel-close" (click)="closePanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="loading-state" *ngIf="panelLoading">
+        <i class="fas fa-circle-notch fa-spin"></i> Loading…
+      </div>
+
+      <ng-container *ngIf="panel && !panelLoading">
+
+        <!-- Title + status -->
+        <div class="exp-title">{{ panel.title }}</div>
+        <div class="exp-meta-row">
+          <span class="badge" [ngClass]="{
+            'badge-active':       panel.status === 'Active',
+            'badge-under-review': panel.status === 'Under Review',
+            'badge-refused':      panel.status === 'Refused',
+            'badge-paused':       panel.status === 'Paused',
+            'badge-draft':        panel.status === 'Draft'
+          }">{{ panel.status }}</span>
+          <span class="muted">{{ panel.category }}</span>
+          <span class="price-tag">€{{ panel.base_price }}</span>
+        </div>
+
+        <!-- Guide row — clickable avatar -->
+        <div class="guide-row" *ngIf="panel.guide_name">
+          <div class="guide-avatar-btn"
+            (click)="openGuideProfile(panel.guide_profile_id)"
+            [title]="'Open ' + panel.guide_name + ' profile'">
+            <div class="guide-avatar-circle">
+              <img *ngIf="panel.guide_avatar" [src]="panel.guide_avatar" alt="" />
+              <span *ngIf="!panel.guide_avatar">{{ initials(panel.guide_name) }}</span>
+            </div>
+            <span class="guide-row-name">{{ panel.guide_name }}</span>
+            <i class="fas fa-external-link-alt guide-link-icon"></i>
+          </div>
+        </div>
+
+        <!-- KPI tiles -->
+        <div class="exp-stats">
+          <div class="exp-stat">
+            <i class="fas fa-calendar-check"></i>
+            <div class="exp-stat-value">{{ panel.completed_bookings }}</div>
+            <div class="exp-stat-label">Completed bookings</div>
+          </div>
+          <div class="exp-stat">
+            <i class="fas fa-clock"></i>
+            <div class="exp-stat-value">{{ panel.pending_bookings }}</div>
+            <div class="exp-stat-label">Pending bookings</div>
+          </div>
+          <div class="exp-stat">
+            <i class="fas fa-star"></i>
+            <div class="exp-stat-value">
+              {{ panel.avg_rating > 0 ? panel.avg_rating : '—' }}
+            </div>
+            <div class="exp-stat-label">Avg rating ({{ panel.review_count }} reviews)</div>
+          </div>
+          <div class="exp-stat highlight">
+            <i class="fas fa-euro-sign"></i>
+            <div class="exp-stat-value">€{{ panel.base_price }}</div>
+            <div class="exp-stat-label">Base price</div>
+          </div>
+        </div>
+
+        <!-- CTAs -->
+        <div class="exp-actions">
+          <button class="btn-approve exp-btn" (click)="openExperience(panel.id)">
+            <i class="fas fa-external-link-alt"></i> View on site
+          </button>
+          <button class="btn-approve exp-btn"
+            *ngIf="panel.status === 'Under Review'"
+            (click)="approve(panel.id)">
+            <i class="fas fa-check"></i> Approve
+          </button>
+          <button class="btn-approve exp-btn"
+            *ngIf="panel.status === 'Paused' || panel.status === 'Refused'"
+            (click)="activate(panel.id)">
+            <i class="fas fa-play"></i> Activate
+          </button>
+          <button class="btn-refuse exp-btn"
+            *ngIf="panel.status === 'Under Review' || panel.status === 'Active'"
+            (click)="refuse(panel.id)">
+            <i class="fas fa-times"></i> Refuse
+          </button>
+          <button class="btn-warn exp-btn"
+            *ngIf="panel.status === 'Active'"
+            (click)="pause(panel.id)">
+            <i class="fas fa-pause"></i> Pause
+          </button>
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
+</div>

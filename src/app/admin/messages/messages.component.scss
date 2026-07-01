@@ -266,8 +266,73 @@
       height: 100%;
       background: #000;
       transition: width 0.3s;
+
+      &.quota-progress-exceeded { background: #dc2626; }
     }
   }
+
+  &.quota-exceeded { border-color: #fca5a5; background: #fff5f5; }
+
+  .quota-count-exceeded { color: #dc2626 !important; }
+
+  .quota-limit-notice {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #dc2626;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    strong { cursor: pointer; text-decoration: underline; }
+  }
+}
+
+/* Blur wrapper for conversations list */
+.conversations-list-wrapper {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.blurred-row {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.quota-upgrade-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(255,255,255,0.98) 60%, transparent);
+  padding: 32px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  z-index: 10;
+
+  i { font-size: 24px; color: #dc2626; }
+  strong { font-size: 14px; color: #111827; }
+  p { font-size: 12px; color: #6b7280; margin: 0; }
+}
+
+.btn-upgrade {
+  padding: 9px 20px;
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+
+  &:hover { background: #1f2937; }
 }
 
 .search-bar {
@@ -1536,4 +1601,129 @@
       font-size: 13px;
     }
   }
+}
+
+// ── Report modal ─────────────────────────────────────────────────────────────
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+
+  h3 {
+    margin: 0 0 18px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  select, textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #111827;
+    margin-bottom: 14px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.18s;
+
+    &:focus { border-color: #6b7280; }
+  }
+
+  textarea { resize: vertical; min-height: 90px; }
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.btn-cancel-modal {
+  padding: 9px 18px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.18s;
+
+  &:hover { background: #f3f4f6; }
+}
+
+.btn-danger {
+  padding: 9px 18px;
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+
+  &:hover:not(:disabled) { background: #1f2937; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.modal-feedback {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+
+  &.success { background: #f0fdf4; color: #166534; }
+  &.error   { background: #fef2f2; color: #991b1b; }
+}
+
+// ── Booking-info card status badges ──────────────────────────────────────────
+
+.booking-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.booking-status--booked {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.booking-status--inquiry {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
 }

@@ -1,0 +1,149 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>Support Tickets</h1>
+      <p>All support tickets from guides and travelers</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="search" placeholder="Search tickets…" class="search-input">
+    </div>
+    <select [(ngModel)]="filterStatus" class="filter-select">
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="data-table" *ngIf="filtered.length; else empty">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>User</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Opened</th>
+          <th>Last Update</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filtered" [class.row-resolved]="t.status === 'Resolved'">
+          <td class="bold">{{ t.title }}</td>
+          <td>
+            <span class="muted">{{ t.user_name }}</span>
+            <span class="muted small" *ngIf="t.user_email"> — {{ t.user_email }}</span>
+          </td>
+          <td>
+            <span class="priority-pill" [class]="'priority-' + t.priority?.toLowerCase()">{{ t.priority }}</span>
+          </td>
+          <td>
+            <span class="badge" [class]="'badge-' + t.status?.toLowerCase().replace(' ', '-')">{{ t.status }}</span>
+          </td>
+          <td class="muted">{{ t.opened_date | date:'d MMM y' }}</td>
+          <td class="muted">{{ t.last_update | date:'d MMM y' }}</td>
+          <td>
+            <button class="btn-dismiss" (click)="openPanel(t)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <div class="empty-state">
+        <i class="fas fa-headset"></i>
+        <p>No tickets match your filters</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Panel backdrop -->
+<div class="panel-backdrop" *ngIf="panelOpen" (click)="closePanel()"></div>
+
+<!-- Ticket detail panel -->
+<div class="ticket-detail-panel" [class.open]="panelOpen">
+  <div class="panel-header">
+    <h2>Ticket #{{ selectedTicket?.id }}</h2>
+    <button class="panel-close" (click)="closePanel()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="panel-body" *ngIf="selectedTicket">
+
+    <div class="loading-state" *ngIf="panelLoading">
+      <i class="fas fa-circle-notch fa-spin"></i> Loading…
+    </div>
+
+    <ng-container *ngIf="!panelLoading">
+
+      <!-- Ticket info -->
+      <div class="ticket-info-block">
+        <div class="t-row">
+          <span class="t-label">Title</span>
+          <span class="t-value bold">{{ selectedTicket.title }}</span>
+        </div>
+        <div class="t-row">
+          <span class="t-label">User</span>
+          <span class="t-value">{{ selectedTicket.user_name }} <span class="muted" *ngIf="selectedTicket.user_email">— {{ selectedTicket.user_email }}</span></span>
+        </div>
+        <div class="t-row">
+          <span class="t-label">Priority</span>
+          <span class="priority-pill" [class]="'priority-' + selectedTicket.priority?.toLowerCase()">{{ selectedTicket.priority }}</span>
+        </div>
+        <div class="t-row">
+          <span class="t-label">Opened</span>
+          <span class="t-value muted">{{ selectedTicket.opened_date | date:'d MMM y, HH:mm' }}</span>
+        </div>
+      </div>
+
+      <!-- Status change -->
+      <div class="status-change-row">
+        <label class="t-label">Status</label>
+        <select [(ngModel)]="newStatus" class="filter-select compact-select">
+          <option value="Open">Open</option>
+          <option value="Awaiting my reply">Awaiting reply</option>
+          <option value="Pending platform">Pending platform</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Dispute">Dispute</option>
+        </select>
+      </div>
+
+      <!-- Reply thread -->
+      <div class="section-title" style="margin-top:16px">Conversation</div>
+      <div class="thread">
+        <div class="thread-empty" *ngIf="!selectedTicket.replies || selectedTicket.replies.length === 0">
+          <i class="fas fa-comment-dots"></i>
+          <p>No replies yet.</p>
+        </div>
+        <div *ngFor="let reply of selectedTicket.replies" class="thread-msg" [class.thread-msg--admin]="reply.sender_type === 'Admin'">
+          <div class="thread-avatar">{{ (reply.sender_name || 'A').charAt(0).toUpperCase() }}</div>
+          <div class="thread-bubble">
+            <div class="thread-meta">
+              <strong>{{ reply.sender_type === 'Admin' ? 'Support Team' : reply.sender_name }}</strong>
+              <span class="thread-time">{{ formatDate(reply.created_at) }}</span>
+            </div>
+            <p>{{ reply.message }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reply form -->
+      <div class="reply-form">
+        <textarea [(ngModel)]="replyMessage" placeholder="Write a reply to the user…" rows="3" class="reply-textarea"></textarea>
+        <div class="reply-actions">
+          <button class="btn-dismiss" [disabled]="replying || (!replyMessage.trim() && newStatus === selectedTicket.status)" (click)="saveReply()">
+            <i class="fas fa-paper-plane"></i>
+            {{ replying ? 'Saving…' : 'Save & Send' }}
+          </button>
+        </div>
+        <p class="error-text" *ngIf="replyError">{{ replyError }}</p>
+      </div>
+
+    </ng-container>
+  </div>
+</div>

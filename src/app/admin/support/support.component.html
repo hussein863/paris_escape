@@ -21,30 +21,32 @@
       <!-- New Ticket Form -->
       <div class="new-ticket-form" *ngIf="showNewTicketForm">
         <h3>Submit a new support request</h3>
-        <div class="form-row">
-          <input
-            type="text"
-            class="field-input"
-            placeholder="Describe your issue..."
-            [(ngModel)]="newTitle">
-          <select class="filter-select" [(ngModel)]="newPriority">
-            <option value="Normal">Normal</option>
-            <option value="Urgent">Urgent</option>
-            <option value="Low">Low</option>
-          </select>
-          <button class="btn-submit" (click)="submitTicket()" [disabled]="submitting || !newTitle.trim()">
-            {{ submitting ? 'Submitting…' : 'Submit' }}
-          </button>
-          <button class="btn-cancel" (click)="showNewTicketForm = false">Cancel</button>
+        <div class="form-fields">
+          <textarea
+            class="field-textarea"
+            placeholder="Describe your issue in detail..."
+            [(ngModel)]="newTitle"
+            rows="4"></textarea>
+          <div class="form-row-inline">
+            <select class="filter-select" [(ngModel)]="newPriority">
+              <option value="Normal">Normal priority</option>
+              <option value="Urgent">Urgent</option>
+              <option value="Low">Low priority</option>
+            </select>
+            <button class="btn-submit" (click)="submitTicket()" [disabled]="submitting || !newTitle.trim()">
+              {{ submitting ? 'Submitting…' : 'Submit' }}
+            </button>
+            <button class="btn-cancel" (click)="showNewTicketForm = false">Cancel</button>
+          </div>
         </div>
         <p class="error-text" *ngIf="submitError">{{ submitError }}</p>
       </div>
 
       <!-- Summary Stats -->
       <div class="stats-row" *ngIf="!loading">
-        <div class="stat-pill open">{{ openCount }} Open</div>
-        <div class="stat-pill urgent" *ngIf="urgentCount > 0">{{ urgentCount }} Urgent</div>
-        <div class="stat-pill resolved">{{ resolvedCount }} Resolved</div>
+        <div class="stat-pill">{{ openCount }} Open</div>
+        <div class="stat-pill urgent-pill" *ngIf="urgentCount > 0">{{ urgentCount }} Urgent</div>
+        <div class="stat-pill resolved-pill">{{ resolvedCount }} Resolved</div>
       </div>
 
       <div class="support-tabs">
@@ -89,13 +91,16 @@
           No support tickets yet. Click "New Request" to create one.
         </div>
 
-        <div class="ticket-card" *ngFor="let ticket of filteredTickets">
+        <div class="ticket-card" *ngFor="let ticket of filteredTickets" (click)="openTicket(ticket)">
           <div class="ticket-header">
             <div class="ticket-meta">
               <span class="ticket-id">#SUP-{{ ticket.id }}</span>
               <span class="status-badge" [ngClass]="getStatusClass(ticket.status)">{{ ticket.status }}</span>
               <span class="priority-badge" [ngClass]="ticket.priority.toLowerCase()">{{ ticket.priority }}</span>
             </div>
+            <span class="replies-count" *ngIf="ticket.replies?.length">
+              <i class="fas fa-comment-dots"></i> {{ ticket.replies.length }}
+            </span>
           </div>
 
           <h3 class="ticket-title">{{ ticket.title }}</h3>
@@ -109,27 +114,6 @@
               <i class="fas fa-clock"></i>
               Updated {{ formatDate(ticket.last_update) }}
             </span>
-            <span class="info-item" *ngIf="ticket.booking">
-              <i class="fas fa-link"></i>
-              Booking #{{ ticket.booking }}
-            </span>
-            <span class="info-item" *ngIf="ticket.disputes.length > 0">
-              <i class="fas fa-gavel"></i>
-              {{ ticket.disputes.length }} dispute(s)
-            </span>
-          </div>
-
-          <div class="ticket-actions">
-            <button class="btn-secondary"
-              *ngIf="ticket.status !== 'Resolved'"
-              (click)="closeTicket(ticket)">
-              <i class="fas fa-check"></i> Close
-            </button>
-            <button class="btn-secondary"
-              *ngIf="ticket.status === 'Resolved'"
-              (click)="reopenTicket(ticket)">
-              <i class="fas fa-redo"></i> Reopen
-            </button>
           </div>
         </div>
       </div>
@@ -163,3 +147,59 @@
     </section>
   </main>
 </div>
+
+<!-- Ticket Detail Panel -->
+<div class="panel-overlay" [class.visible]="panelOpen" (click)="closePanel()"></div>
+<aside class="ticket-panel" [class.open]="panelOpen">
+  <ng-container *ngIf="selectedTicket">
+    <div class="panel-hd">
+      <div class="panel-hd-top">
+        <span class="ticket-id">#SUP-{{ selectedTicket.id }}</span>
+        <button class="panel-close-btn" (click)="closePanel()" type="button"><i class="fas fa-times"></i></button>
+      </div>
+      <h3 class="panel-title">{{ selectedTicket.title }}</h3>
+      <div class="panel-badges">
+        <span class="status-badge" [ngClass]="getStatusClass(selectedTicket.status)">{{ selectedTicket.status }}</span>
+        <span class="priority-badge" [ngClass]="selectedTicket.priority.toLowerCase()">{{ selectedTicket.priority }}</span>
+      </div>
+    </div>
+
+    <!-- Thread -->
+    <div class="thread">
+      <div class="thread-empty" *ngIf="!selectedTicket.replies || selectedTicket.replies.length === 0">
+        <i class="fas fa-comment-dots"></i>
+        <p>No replies yet. The support team will respond here.</p>
+      </div>
+      <div *ngFor="let reply of selectedTicket.replies" class="thread-msg" [class.thread-msg--admin]="reply.sender_type === 'Admin'">
+        <div class="thread-avatar">{{ (reply.sender_name || 'A').charAt(0).toUpperCase() }}</div>
+        <div class="thread-bubble">
+          <div class="thread-meta">
+            <strong>{{ reply.sender_type === 'Admin' ? 'Support Team' : reply.sender_name }}</strong>
+            <span class="thread-time">{{ formatDate(reply.created_at) }}</span>
+          </div>
+          <p>{{ reply.message }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reply Form -->
+    <div class="panel-reply-form" *ngIf="selectedTicket.status !== 'Resolved'">
+      <textarea [(ngModel)]="replyMessage" placeholder="Write your reply…" rows="3" class="reply-textarea"></textarea>
+      <div class="panel-reply-actions">
+        <button class="btn-submit" (click)="submitReply()" [disabled]="!replyMessage.trim() || replySubmitting">
+          {{ replySubmitting ? 'Sending…' : 'Send Reply' }}
+        </button>
+        <button class="btn-secondary" (click)="closeTicket(selectedTicket)" *ngIf="selectedTicket.status !== 'Resolved'">
+          <i class="fas fa-check"></i> Mark Resolved
+        </button>
+      </div>
+      <p class="error-text" *ngIf="replyError">{{ replyError }}</p>
+    </div>
+
+    <div class="panel-reopen" *ngIf="selectedTicket.status === 'Resolved'">
+      <button class="btn-secondary" (click)="reopenTicket(selectedTicket)">
+        <i class="fas fa-redo"></i> Reopen
+      </button>
+    </div>
+  </ng-container>
+</aside>

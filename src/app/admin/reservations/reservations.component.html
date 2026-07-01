@@ -43,6 +43,16 @@
         </button>
       </div>
 
+      <!-- ── Bookings Limit Banner ── -->
+      <div class="bookings-limit-banner" *ngIf="bookingsExceeded">
+        <i class="fas fa-lock"></i>
+        <div>
+          <strong>Booking limit reached ({{ maxBookings }})</strong>
+          <span>New bookings are hidden until you upgrade your plan.</span>
+        </div>
+        <button class="btn-upgrade-inline" type="button">Upgrade Plan</button>
+      </div>
+
       <!-- ── Stats Bar ── -->
       <div class="stats-bar">
         <div class="stat-card">
@@ -121,6 +131,7 @@
             <div class="col-datetime">Date & Time</div>
             <div class="col-customer">Guest</div>
             <div class="col-experience">Experience</div>
+            <div class="col-guide">Guide</div>
             <div class="col-guests">Guests</div>
             <div class="col-amount">Amount</div>
             <div class="col-status">Status</div>
@@ -139,10 +150,11 @@
           </div>
 
           <div
-            *ngFor="let booking of filteredBookings"
+            *ngFor="let booking of filteredBookings; let i = index"
             class="table-row"
             [class.row--pending]="booking.status === 'Pending'"
-            (click)="openDetailPanel(booking)">
+            [class.row--blurred]="maxBookings !== null && i >= maxBookings"
+            (click)="!(maxBookings !== null && i >= maxBookings) && openDetailPanel(booking)">
 
             <div class="col-ref">
               <span class="ref-code">{{ booking.booking_ref || '#' + booking.id }}</span>
@@ -161,7 +173,26 @@
             </div>
 
             <div class="col-experience">
-              <span class="exp-title">{{ booking.experience_title || 'Experience #' + booking.experience }}</span>
+              <div class="exp-cell">
+                <img *ngIf="booking.experience_image" [src]="booking.experience_image" alt="" class="exp-thumb" (error)="$any($event.target).style.display='none'">
+                <div *ngIf="!booking.experience_image" class="exp-thumb exp-thumb--placeholder"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="exp-cell-info">
+                  <span class="exp-title">{{ booking.experience_title || 'Experience #' + booking.experience }}</span>
+                  <a *ngIf="booking.experience" class="exp-ext-link" (click)="openExperience(booking.experience); $event.stopPropagation()" title="Open experience">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-guide">
+              <div class="guide-cell">
+                <img *ngIf="booking.guide_avatar" [src]="booking.guide_avatar" alt="" class="avatar-xs" (error)="$any($event.target).style.display='none'">
+                <div *ngIf="!booking.guide_avatar" class="avatar-xs avatar-xs--placeholder">{{ initials(booking.guide_name) }}</div>
+                <a *ngIf="booking.guide" class="exp-ext-link" (click)="openGuideProfile(booking.guide); $event.stopPropagation()" title="Open guide profile">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              </div>
             </div>
 
             <div class="col-guests">

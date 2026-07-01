@@ -1,0 +1,103 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>Review Moderation</h1>
+      <p>Monitor and remove abusive or fraudulent reviews</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="search"
+        placeholder="Search traveler, guide, experience, content…" class="search-input">
+    </div>
+    <select [(ngModel)]="filterRating" class="filter-select">
+      <option value="">All ratings</option>
+      <option value="5">5 stars</option>
+      <option value="4">4 stars</option>
+      <option value="3">3 stars</option>
+      <option value="2">2 stars</option>
+      <option value="1">1 star</option>
+    </select>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading…
+  </div>
+
+  <div class="reviews-list" *ngIf="!loading">
+
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="fas fa-star"></i>
+      <p>No reviews match your filters</p>
+    </div>
+
+    <!-- Review card -->
+    <div class="review-card" *ngFor="let r of filtered">
+
+      <!-- Top row: traveler + rating + date + remove -->
+      <div class="review-top">
+        <div class="reviewer-cell">
+          <div class="avatar-sm">
+            <img *ngIf="r.customer_avatar" [src]="r.customer_avatar" alt="" />
+            <span *ngIf="!r.customer_avatar">{{ initials(r.customer_name) }}</span>
+          </div>
+          <span class="reviewer-name">{{ r.customer_name }}</span>
+        </div>
+
+        <div class="review-rating">
+          <i class="fas fa-star star-f" *ngFor="let s of stars(r.rating)"></i>
+          <i class="fas fa-star star-e" *ngFor="let s of emptyStars(r.rating)"></i>
+          <span class="rating-num">{{ r.rating }}/5</span>
+        </div>
+
+        <span class="review-date muted">{{ r.date | date:'d MMM y' }}</span>
+
+        <button class="btn-refuse remove-btn" (click)="remove(r.id, $event)">
+          <i class="fas fa-trash"></i> Remove
+        </button>
+      </div>
+
+      <!-- Review content -->
+      <p class="review-content-text">{{ r.content }}</p>
+
+      <!-- Bottom row: guide + experience -->
+      <div class="review-targets">
+
+        <!-- Guide -->
+        <div class="target-chip"
+          [class.clickable]="r.guide_profile_id"
+          (click)="r.guide_profile_id && openGuideProfile(r.guide_profile_id, $event)">
+          <div class="avatar-sm">
+            <img *ngIf="r.guide_avatar" [src]="r.guide_avatar" alt="" />
+            <span *ngIf="!r.guide_avatar">{{ initials(r.guide_name) }}</span>
+          </div>
+          <div class="chip-info">
+            <span class="chip-label">Guide</span>
+            <span class="chip-name">{{ r.guide_name }}</span>
+          </div>
+          <i class="fas fa-external-link-alt chip-link" *ngIf="r.guide_profile_id"></i>
+        </div>
+
+        <!-- Experience -->
+        <div class="target-chip exp-chip"
+          *ngIf="r.experience_title"
+          [class.clickable]="r.experience_id"
+          (click)="r.experience_id && openExperience(r.experience_id, $event)">
+          <div class="exp-thumb-sm">
+            <img *ngIf="r.experience_thumbnail" [src]="r.experience_thumbnail" alt="" />
+            <i *ngIf="!r.experience_thumbnail" class="fas fa-map"></i>
+          </div>
+          <div class="chip-info">
+            <span class="chip-label">Experience</span>
+            <span class="chip-name">{{ r.experience_title }}</span>
+          </div>
+          <i class="fas fa-external-link-alt chip-link" *ngIf="r.experience_id"></i>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

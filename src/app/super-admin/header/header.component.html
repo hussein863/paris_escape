@@ -1,0 +1,33 @@
+<header class="sa-header">
+  <img src="assets/images/logo.svg" alt="Paris Escape" class="header-logo" />
+  <div class="header-badge">Super Admin</div>
+  <div class="spacer"></div>
+
+  <div class="user-menu" (click)="toggleDropdown()">
+    <div class="avatar-wrap">
+      <img *ngIf="userAvatar()" [src]="userAvatar()" [alt]="userName()" class="user-avatar">
+      <div *ngIf="!userAvatar()" class="user-initials">{{ initials() }}</div>
+    </div>
+    <span class="user-name">{{ userName() }}</span>
+    <i class="fas fa-chevron-down chevron" [class.open]="dropdownOpen"></i>
+
+    <div class="dropdown" *ngIf="dropdownOpen" (click)="$event.stopPropagation()">
+      <div class="dropdown-head">
+        <div *ngIf="!userAvatar()" class="user-initials small">{{ initials() }}</div>
+        <img *ngIf="userAvatar()" [src]="userAvatar()" class="user-avatar small">
+        <div>
+          <div class="d-name">{{ userName() }}</div>
+          <div class="d-role">Super Administrator</div>
+        </div>
+      </div>
+      <hr class="divider">
+      <button class="d-item" routerLink="/super-admin/settings">
+        <i class="fas fa-gear"></i> Settings
+      </button>
+      <hr class="divider">
+      <button class="d-item logout" (click)="logout()">
+        <i class="fas fa-right-from-bracket"></i> Log out
+      </button>
+    </div>
+  </div>
+</header>

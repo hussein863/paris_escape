@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExperienceWizardService } from '../../../../core/services/experience-wizard.service';
+import { PlanFeaturesService } from '../../../../core/services/plan-features.service';
 
 interface MediaFile {
   id: string;
@@ -22,9 +23,26 @@ export class StepMediaComponent implements OnInit {
   @Input() prefillData: any;
   @Output() dataChange = new EventEmitter<any>();
 
-  constructor(private wizardService: ExperienceWizardService) {}
+  hasVideoContent = false;
+  has3dVisit = false;
+  videoUrl = '';
+  virtualTourUrl = '';
+
+  constructor(
+    private wizardService: ExperienceWizardService,
+    private planFeatures: PlanFeaturesService,
+  ) {}
 
   ngOnInit(): void {
+    const features = this.planFeatures.snapshot;
+    this.hasVideoContent = features.video_content;
+    this.has3dVisit = features.has_3d_visit;
+    // Load from plan features (async in case not yet loaded)
+    this.planFeatures.load().subscribe({
+      next: (f) => { this.hasVideoContent = f.video_content; this.has3dVisit = f.has_3d_visit; },
+      error: () => {}
+    });
+
     if (this.prefillData) {
       if (this.prefillData.cover_image_url) {
         this.coverImage = {
@@ -193,7 +211,9 @@ export class StepMediaComponent implements OnInit {
     this.dataChange.emit({
       coverImage: this.coverImage,
       galleryPhotos: this.galleryPhotos,
-      videoTeaser: this.videoTeaser
+      videoTeaser: this.videoTeaser,
+      videoUrl: this.videoUrl,
+      virtualTourUrl: this.virtualTourUrl,
     });
   }
 

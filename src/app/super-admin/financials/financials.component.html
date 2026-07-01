@@ -1,0 +1,88 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>Financials</h1>
+      <p>Platform revenue, guide payouts and commission tracking</p>
+    </div>
+  </div>
+
+  <div class="stats-row" *ngIf="!loading">
+    <div class="stat-card">
+      <i class="fas fa-euro-sign"></i>
+      <div>
+        <div class="stat-value">€{{ stats.totalRevenue | number:'1.0-0' }}</div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-percent"></i>
+      <div>
+        <div class="stat-value">€{{ stats.totalCommission | number:'1.0-0' }}</div>
+        <div class="stat-label">Commission Earned</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-clock"></i>
+      <div>
+        <div class="stat-value">€{{ stats.pendingPayouts | number:'1.0-0' }}</div>
+        <div class="stat-label">Pending Payouts</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-check-circle"></i>
+      <div>
+        <div class="stat-value">€{{ stats.paidPayouts | number:'1.0-0' }}</div>
+        <div class="stat-label">Paid Out</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'payments'" (click)="activeTab = 'payments'">
+      Payments
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'payouts'" (click)="activeTab = 'payouts'">
+      Guide Payouts
+    </button>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading && activeTab === 'payments'">
+    <table class="data-table" *ngIf="payments.length; else emptyP">
+      <thead>
+        <tr><th>Invoice</th><th>Type</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of payments">
+          <td class="mono">{{ p.invoice_number }}</td>
+          <td>{{ p.type }}</td>
+          <td class="muted">{{ p.date | date:'d MMM y' }}</td>
+          <td class="bold">€{{ p.amount }}</td>
+          <td><span class="badge" [class]="'badge-' + p.status?.toLowerCase()">{{ p.status }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #emptyP><div class="empty-state"><i class="fas fa-receipt"></i><p>No payments found</p></div></ng-template>
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading && activeTab === 'payouts'">
+    <table class="data-table" *ngIf="payouts.length; else emptyO">
+      <thead>
+        <tr><th>Guide</th><th>Date</th><th>Amount</th><th>Frequency</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of payouts">
+          <td class="bold">{{ p.guide_name }}</td>
+          <td class="muted">{{ p.date | date:'d MMM y' }}</td>
+          <td class="bold">€{{ p.amount }}</td>
+          <td>{{ p.frequency }}</td>
+          <td><span class="badge" [class]="'badge-' + p.status?.toLowerCase()">{{ p.status }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #emptyO><div class="empty-state"><i class="fas fa-wallet"></i><p>No payouts found</p></div></ng-template>
+  </div>
+</div>

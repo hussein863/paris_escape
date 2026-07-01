@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { MessagingService } from '../../core/services/messaging.service';
+import { PlanFeaturesService } from '../../core/services/plan-features.service';
 import { Conversation as ApiConversation, Message as ApiMessage } from '../../core/models';
 import { environment } from '../../../environments/environment';
 
@@ -37,13 +40,17 @@ interface Conversation {
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent, AdminHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SidebarComponent, AdminHeaderComponent],
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.scss']
 })
 export class MessagesComponent implements OnInit, OnDestroy {
   isSidebarOpen = false;
   contactQuota = { used: 0, total: 50 };
+  maxContacts: number | null = 50;
+  get quotaExceeded(): boolean {
+    return this.maxContacts !== null && this.contactQuota.used >= this.maxContacts;
+  }
   searchQuery = '';
   activeFilter = 'All';
   selectedConversation: Conversation | null = null;
@@ -55,11 +62,31 @@ export class MessagesComponent implements OnInit, OnDestroy {
   openMenuId: number | null = null;
   private pollInterval: any;
 
-  constructor(private messagingService: MessagingService) {}
+  // Report modal
+  showReportModal = false;
+  reportConversationRef: Conversation | null = null;
+  reportReason = '';
+  reportDescription = '';
+  reportSubmitting = false;
+  reportFeedback = '';
+  reportFeedbackType: 'success' | 'error' = 'success';
+
+  constructor(
+    private messagingService: MessagingService,
+    private planFeatures: PlanFeaturesService,
+    private http: HttpClient,
+  ) {}
 
   ngOnInit(): void {
     this.loadConversations();
     this.pollInterval = setInterval(() => this.silentRefresh(), 10000);
+    this.planFeatures.load().subscribe({
+      next: (f) => {
+        this.maxContacts = f.max_contacts;
+        this.contactQuota.total = f.max_contacts ?? 9999;
+      },
+      error: () => {}
+    });
   }
 
   ngOnDestroy(): void {
@@ -196,10 +223,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.openMenuId = this.openMenuId === conversationId ? null : conversationId;
   }
 
-  openConversationInfo(): void {
-    alert(`Conversation with ${this.selectedConversation?.name}\nStatus: ${this.selectedConversation?.status}`);
-  }
-
   insertQuickAction(action: string): void {
     const templates: { [key: string]: string } = {
       'Greeting': 'Hello! Thank you for booking with us. Looking forward to seeing you soon!',
@@ -221,54 +244,55 @@ export class MessagesComponent implements OnInit, OnDestroy {
     }
   }
 
-  openAddContact(): void {
-    const guideName = prompt('Enter guide name to contact:');
-    if (!guideName) return;
-
-    // Create a new conversation
-    const newConversation: Conversation = {
-      id: Date.now(),
-      customerId: 0,
-      name: guideName,
-      avatar: 'assets/images/ec901f1c0d6bdc3abb3b7f2578c96a444ee001e2.jpg',
-      lastMessage: 'Conversation started',
-      timestamp: new Date().toLocaleDateString(),
-      status: 'Open',
-      tourName: '',
-      unread: false
-    };
-
-    this.conversations.unshift(newConversation);
-    this.selectConversation(newConversation);
-    alert(`New conversation started with ${guideName}!`);
-  }
-
-  openSafetyInfo(): void {
-    alert('Paris Escape monitors all messages to ensure safety and security of our community.');
-  }
-
-  openContactQuotaInfo(): void {
-    alert('Contact Quota: You have a limited number of contacts you can reach out to each month. Learn more about how to increase your quota.');
-  }
-
   toggleArchive(conversation: Conversation, event: Event): void {
     event.stopPropagation();
-    (conversation as any).is_archived = !(conversation as any).is_archived;
     this.openMenuId = null;
-  }
-
-  toggleFlag(conversation: Conversation, event: Event): void {
-    event.stopPropagation();
-    (conversation as any).is_flagged = !(conversation as any).is_flagged;
-    this.openMenuId = null;
-  }
-
-  isFlagged(conversation: Conversation): boolean {
-    return (conversation as any).is_flagged || false;
+    const newState = !(conversation as any).is_archived;
+    (conversation as any).is_archived = newState;
+    this.http.patch(`${environment.apiUrl}/messages/conversations/${conversation.id}/`, { is_archived: newState })
+      .subscribe({ error: () => { (conversation as any).is_archived = !newState; } });
   }
 
   isArchived(conversation: Conversation): boolean {
     return (conversation as any).is_archived || false;
+  }
+
+  openReportModal(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = null;
+    this.reportConversationRef = conversation;
+    this.reportReason = '';
+    this.reportDescription = '';
+    this.reportFeedback = '';
+    this.showReportModal = true;
+  }
+
+  closeReportModal(): void {
+    this.showReportModal = false;
+    this.reportConversationRef = null;
+  }
+
+  submitReport(): void {
+    if (!this.reportReason || !this.reportConversationRef) return;
+    this.reportSubmitting = true;
+    this.http.post(`${environment.apiUrl}/reviews/reports/`, {
+      report_type: 'conversation',
+      conversation: this.reportConversationRef.id,
+      reason: this.reportReason,
+      description: this.reportDescription,
+    }).subscribe({
+      next: () => {
+        this.reportFeedback = 'Report submitted. Our team will review it.';
+        this.reportFeedbackType = 'success';
+        this.reportSubmitting = false;
+        setTimeout(() => this.closeReportModal(), 1800);
+      },
+      error: () => {
+        this.reportFeedback = 'Failed to submit report. Please try again.';
+        this.reportFeedbackType = 'error';
+        this.reportSubmitting = false;
+      }
+    });
   }
 
   toggleUnread(conversation: Conversation, event: Event): void {
@@ -281,17 +305,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       if (!a.unread && b.unread) return 1;
       return 0;
     });
-  }
-
-  deleteConversation(conversation: Conversation, event: Event): void {
-    event.stopPropagation();
-    if (confirm(`Delete conversation with ${conversation.name}?`)) {
-      this.conversations = this.conversations.filter(c => c.id !== conversation.id);
-      if (this.selectedConversation?.id === conversation.id) {
-        this.selectedConversation = null;
-      }
-      this.openMenuId = null;
-    }
   }
 
   get quotaPercentage(): number {
@@ -308,8 +321,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
         matchesFilter = c.unread === true;
       } else if (this.activeFilter === 'Archived') {
         matchesFilter = (c as any).is_archived === true;
-      } else if (this.activeFilter === 'Flagged') {
-        matchesFilter = (c as any).is_flagged === true;
       } else {
         matchesFilter = c.status === this.activeFilter;
       }

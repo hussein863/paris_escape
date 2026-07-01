@@ -1,0 +1,193 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>Plans & Subscriptions</h1>
+      <p>Manage guide subscription plans, pricing and features</p>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading…
+  </div>
+
+  <div class="plans-grid" *ngIf="!loading">
+
+    <div class="plan-card" *ngFor="let p of plans" [class.popular]="p.is_popular" [class.inactive]="!p.is_active">
+      <div class="plan-badge popular-badge" *ngIf="p.is_popular">Most Popular</div>
+      <div class="plan-badge inactive-badge" *ngIf="!p.is_active">Inactive</div>
+
+      <div class="plan-name">{{ p.name }}</div>
+      <div class="plan-tagline muted" *ngIf="p.tagline">{{ p.tagline }}</div>
+
+      <div class="plan-pricing">
+        <span class="price-monthly">€{{ p.price_monthly }}<span class="per">/mo</span></span>
+        <span class="price-yearly muted" *ngIf="p.price_yearly > 0">€{{ p.price_yearly }}/yr</span>
+      </div>
+
+      <div class="plan-meta">
+        <div class="meta-item" *ngIf="p.max_experiences"><i class="fas fa-map"></i> Up to {{ p.max_experiences }} experiences</div>
+        <div class="meta-item" *ngIf="!p.max_experiences"><i class="fas fa-infinity"></i> Unlimited experiences</div>
+        <div class="meta-item" *ngIf="p.max_contacts"><i class="fas fa-comments"></i> {{ p.max_contacts }} contacts / month</div>
+        <div class="meta-item" *ngIf="!p.max_contacts"><i class="fas fa-comments"></i> Unlimited contacts</div>
+        <div class="meta-item" *ngIf="p.max_bookings"><i class="fas fa-calendar-check"></i> {{ p.max_bookings }} bookings / month</div>
+        <div class="meta-item" *ngIf="!p.max_bookings"><i class="fas fa-calendar-check"></i> Unlimited bookings</div>
+      </div>
+
+      <div class="plan-flags">
+        <span class="flag flag-on" *ngIf="p.has_analytics"><i class="fas fa-chart-bar"></i> Analytics</span>
+        <span class="flag flag-on" *ngIf="p.has_priority_search"><i class="fas fa-bolt"></i> Priority</span>
+        <span class="flag flag-on" *ngIf="p.has_verified_badge"><i class="fas fa-badge-check"></i> Badge</span>
+        <span class="flag flag-on" *ngIf="p.video_content"><i class="fas fa-video"></i> Video</span>
+        <span class="flag flag-on" *ngIf="p.has_3d_visit"><i class="fas fa-cube"></i> 3D</span>
+        <span class="flag flag-on" *ngIf="p.top_listing_days"><i class="fas fa-arrow-up"></i> Top {{ p.top_listing_days }}d</span>
+        <span class="flag flag-on" *ngIf="p.business_card"><i class="fas fa-id-card"></i> BizCard</span>
+      </div>
+
+      <ul class="plan-features" *ngIf="p.features?.length">
+        <li *ngFor="let f of p.features"><i class="fas fa-check"></i> {{ f }}</li>
+      </ul>
+
+      <button class="btn-edit-plan" (click)="openEdit(p)">
+        <i class="fas fa-pencil-alt"></i> Edit plan
+      </button>
+    </div>
+
+    <div class="plan-card empty-plan" *ngIf="!plans.length">
+      <i class="fas fa-layer-group"></i>
+      <p>No plans configured yet</p>
+    </div>
+  </div>
+</div>
+
+<!-- Edit panel backdrop -->
+<div class="panel-backdrop" *ngIf="editOpen" (click)="closeEdit()"></div>
+
+<!-- Edit panel -->
+<div class="edit-panel" [class.open]="editOpen" *ngIf="editPlan">
+  <div class="panel-header">
+    <div>
+      <h2>Edit — {{ editPlan.name }}</h2>
+      <span class="muted" style="font-size:12px">slug: {{ editPlan.slug }}</span>
+    </div>
+    <button class="panel-close" (click)="closeEdit()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="panel-body">
+
+    <div class="field-group">
+      <label>Plan name</label>
+      <input type="text" [(ngModel)]="editPlan.name" class="field-input" />
+    </div>
+
+    <div class="field-group">
+      <label>Tagline</label>
+      <input type="text" [(ngModel)]="editPlan.tagline" class="field-input" placeholder="Short description shown to guides…" />
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Monthly price (€)</label>
+        <input type="number" [(ngModel)]="editPlan.price_monthly" class="field-input" min="0" step="0.01" />
+      </div>
+      <div class="field-group">
+        <label>Yearly price (€)</label>
+        <input type="number" [(ngModel)]="editPlan.price_yearly" class="field-input" min="0" step="0.01" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Max experiences <span class="muted">(blank = unlimited)</span></label>
+        <input type="number" [(ngModel)]="editPlan.max_experiences" class="field-input" min="1" placeholder="Unlimited" />
+      </div>
+      <div class="field-group">
+        <label>Max images / experience <span class="muted">(blank = unlimited)</span></label>
+        <input type="number" [(ngModel)]="editPlan.max_images_per_experience" class="field-input" min="1" placeholder="Unlimited" />
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label>Max contacts / month <span class="muted">(blank = unlimited)</span></label>
+        <input type="number" [(ngModel)]="editPlan.max_contacts" class="field-input" min="1" placeholder="Unlimited" />
+      </div>
+      <div class="field-group">
+        <label>Max bookings / month <span class="muted">(blank = unlimited)</span></label>
+        <input type="number" [(ngModel)]="editPlan.max_bookings" class="field-input" min="1" placeholder="Unlimited" />
+      </div>
+    </div>
+
+    <div class="field-section-label">Features & Permissions</div>
+    <div class="field-row checkboxes">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.has_analytics" />
+        <i class="fas fa-chart-bar"></i> Analytics dashboard
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.has_priority_search" />
+        <i class="fas fa-bolt"></i> Priority search (Sponsored)
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.has_verified_badge" />
+        <i class="fas fa-check-circle"></i> Auto verified badge
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.video_content" />
+        <i class="fas fa-video"></i> Video content (YouTube / Vimeo)
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.has_3d_visit" />
+        <i class="fas fa-cube"></i> 3D virtual visit
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.business_card" />
+        <i class="fas fa-id-card"></i> Business card on profile
+      </label>
+    </div>
+
+    <div class="field-section-label">Top Listing</div>
+    <div class="field-group">
+      <label>Top listing days / month <small>(leave empty = not included)</small></label>
+      <input type="number" [(ngModel)]="editPlan.top_listing_days" class="field-input" placeholder="e.g. 7" min="0" />
+    </div>
+
+    <div class="field-row checkboxes">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.is_active" />
+        Active (visible to guides)
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="editPlan.is_popular" />
+        Mark as "Most Popular"
+      </label>
+    </div>
+
+    <div class="field-group">
+      <label>Features</label>
+      <ul class="features-list">
+        <li *ngFor="let f of editPlan.features; let i = index" class="feature-edit-item">
+          <i class="fas fa-check"></i>
+          <span>{{ f }}</span>
+          <button class="remove-feat" (click)="removeFeature(i)"><i class="fas fa-times"></i></button>
+        </li>
+      </ul>
+      <div class="add-feature-row">
+        <input type="text" [(ngModel)]="newFeature" class="field-input" placeholder="Add a feature…"
+          (keydown.enter)="addFeature()" />
+        <button class="btn-add-feat" (click)="addFeature()"><i class="fas fa-plus"></i></button>
+      </div>
+    </div>
+
+    <div class="save-error" *ngIf="saveError">{{ saveError }}</div>
+
+    <div class="panel-actions">
+      <button class="btn-cancel" (click)="closeEdit()" [disabled]="saving">Cancel</button>
+      <button class="btn-save" (click)="save()" [disabled]="saving">
+        <i class="fas fa-circle-notch fa-spin" *ngIf="saving"></i>
+        <i class="fas fa-check" *ngIf="!saving"></i>
+        {{ saving ? 'Saving…' : 'Save changes' }}
+      </button>
+    </div>
+
+  </div>
+</div>

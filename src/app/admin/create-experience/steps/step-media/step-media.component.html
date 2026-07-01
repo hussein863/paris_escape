@@ -147,21 +147,47 @@
         </div>
       </section>
 
-      <!-- 360° Media -->
-      <section class="form-section premium-section">
-        <div class="premium-header">
-          <h2>360° Media</h2>
-          <span class="premium-badge">Premium</span>
+      <!-- YouTube / Vimeo — plan gated -->
+      <section class="form-section" *ngIf="hasVideoContent">
+        <h2><i class="fa-brands fa-youtube" style="color:#ff0000"></i> Video Link</h2>
+        <p class="section-hint">Paste a YouTube or Vimeo URL. It will be embedded in your experience gallery.</p>
+        <input type="url" class="url-input" [(ngModel)]="videoUrl" (ngModelChange)="emitData()"
+          placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..." />
+        <div class="video-preview" *ngIf="videoUrl">
+          <i class="fas fa-check-circle"></i> Video URL saved
         </div>
+      </section>
 
-        <div class="premium-content">
-          <i class="fa-solid fa-crown"></i>
-          <h3>Unlock 360° Media</h3>
-          <p>Add immersive 360° photos and videos to give travelers a complete
-            preview of your experience.</p>
-          <button class="btn-premium" (click)="upgradeToPremium()">
-            Upgrade to Premium
-          </button>
+      <section class="form-section plan-locked" *ngIf="!hasVideoContent">
+        <div class="locked-content">
+          <i class="fa-brands fa-youtube"></i>
+          <div>
+            <strong>Video Content</strong>
+            <p>Upgrade to Pro or Business to add YouTube / Vimeo videos to your experience.</p>
+          </div>
+          <span class="lock-badge"><i class="fas fa-lock"></i> Pro+</span>
+        </div>
+      </section>
+
+      <!-- 3D Virtual Tour — plan gated -->
+      <section class="form-section" *ngIf="has3dVisit">
+        <h2><i class="fas fa-cube" style="color:#6366f1"></i> 3D Virtual Tour</h2>
+        <p class="section-hint">Paste a Matterport, Kuula or similar virtual tour URL to give travelers an immersive preview.</p>
+        <input type="url" class="url-input" [(ngModel)]="virtualTourUrl" (ngModelChange)="emitData()"
+          placeholder="https://my.matterport.com/show/?m=..." />
+        <div class="video-preview" *ngIf="virtualTourUrl">
+          <i class="fas fa-check-circle"></i> 3D Tour URL saved
+        </div>
+      </section>
+
+      <section class="form-section plan-locked" *ngIf="!has3dVisit">
+        <div class="locked-content">
+          <i class="fas fa-cube"></i>
+          <div>
+            <strong>3D Virtual Visit</strong>
+            <p>Upgrade to Business to add an immersive 3D virtual tour to your experience.</p>
+          </div>
+          <span class="lock-badge"><i class="fas fa-lock"></i> Business</span>
         </div>
       </section>
     </div>

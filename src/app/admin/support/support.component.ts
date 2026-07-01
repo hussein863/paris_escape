@@ -1,10 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../header/admin-header.component';
 import { environment } from '../../../environments/environment';
+
+interface TicketReply {
+  id: number;
+  sender_name: string;
+  sender_type: 'Guide' | 'Admin';
+  message: string;
+  created_at: string;
+}
 
 interface Ticket {
   id: number;
@@ -15,6 +23,7 @@ interface Ticket {
   last_update: string;
   booking: number | null;
   disputes: any[];
+  replies: TicketReply[];
 }
 
 @Component({
@@ -41,10 +50,22 @@ export class SupportComponent implements OnInit {
   submitting = false;
   submitError = '';
 
+  // Detail panel
+  panelOpen = false;
+  selectedTicket: Ticket | null = null;
+  replyMessage = '';
+  replySubmitting = false;
+  replyError = '';
+
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadTickets();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEsc(): void {
+    if (this.panelOpen) this.closePanel();
   }
 
   loadTickets(): void {
@@ -74,15 +95,63 @@ export class SupportComponent implements OnInit {
     });
   }
 
+  openTicket(ticket: Ticket): void {
+    this.selectedTicket = ticket;
+    this.panelOpen = true;
+    this.replyMessage = '';
+    this.replyError = '';
+    this.http.get<Ticket>(`${environment.apiUrl}/support/tickets/${ticket.id}/`).subscribe({
+      next: (full) => {
+        const idx = this.tickets.findIndex(t => t.id === full.id);
+        if (idx !== -1) this.tickets[idx] = full;
+        this.selectedTicket = full;
+      },
+      error: () => {}
+    });
+  }
+
+  closePanel(): void {
+    this.panelOpen = false;
+    setTimeout(() => { this.selectedTicket = null; }, 300);
+  }
+
+  submitReply(): void {
+    if (!this.replyMessage.trim() || !this.selectedTicket) return;
+    this.replySubmitting = true;
+    this.replyError = '';
+    this.http.post<TicketReply>(`${environment.apiUrl}/support/tickets/${this.selectedTicket.id}/reply/`, {
+      message: this.replyMessage,
+    }).subscribe({
+      next: (reply) => {
+        if (this.selectedTicket) {
+          this.selectedTicket.replies = [...(this.selectedTicket.replies || []), reply];
+          this.selectedTicket.status = 'Pending platform';
+        }
+        this.replyMessage = '';
+        this.replySubmitting = false;
+      },
+      error: () => {
+        this.replyError = 'Failed to send reply. Please try again.';
+        this.replySubmitting = false;
+      }
+    });
+  }
+
   closeTicket(ticket: Ticket): void {
     this.http.patch<Ticket>(`${environment.apiUrl}/support/tickets/${ticket.id}/`, { status: 'Resolved' }).subscribe({
-      next: (updated) => { ticket.status = updated.status; }
+      next: (updated) => {
+        ticket.status = updated.status;
+        if (this.selectedTicket?.id === ticket.id) this.selectedTicket.status = updated.status;
+      }
     });
   }
 
   reopenTicket(ticket: Ticket): void {
     this.http.patch<Ticket>(`${environment.apiUrl}/support/tickets/${ticket.id}/`, { status: 'Open' }).subscribe({
-      next: (updated) => { ticket.status = updated.status; }
+      next: (updated) => {
+        ticket.status = updated.status;
+        if (this.selectedTicket?.id === ticket.id) this.selectedTicket.status = updated.status;
+      }
     });
   }
 

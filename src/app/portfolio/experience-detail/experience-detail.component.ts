@@ -269,6 +269,29 @@ export class ExperienceDetailComponent implements OnInit {
   reportError = '';
   reportSuccess = false;
 
+  // Sponsor panel
+  sponsorPanelOpen = false;
+  sponsorFeature: 'search' | 'listing' = 'search';
+  sponsorDays = 7;
+  readonly sponsorPrices: Record<string, number> = { search: 2, listing: 3 };
+
+  get sponsorTotal(): number { return this.sponsorPrices[this.sponsorFeature] * this.sponsorDays; }
+
+  isOwnExperience(): boolean {
+    if (!this.experience) return false;
+    const user = this.auth.user();
+    if (!user?.guide_profile) return false;
+    return this.experience.guide === user.guide_profile.id;
+  }
+
+  openSponsorPanel(): void {
+    this.sponsorFeature = 'search';
+    this.sponsorDays = 7;
+    this.sponsorPanelOpen = true;
+  }
+
+  closeSponsorPanel(): void { this.sponsorPanelOpen = false; }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,

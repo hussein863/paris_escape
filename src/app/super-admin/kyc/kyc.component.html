@@ -1,0 +1,187 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>KYC Verification</h1>
+      <p>Review guide identity documents and grant verification status</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="search" placeholder="Search guides…" class="search-input">
+    </div>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="load()" class="filter-select">
+      <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="data-table" *ngIf="filtered.length; else empty">
+      <thead>
+        <tr>
+          <th>Guide</th>
+          <th>Email</th>
+          <th>KYC Status</th>
+          <th>Verified</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let g of filtered">
+          <td class="bold">{{ g.guide_name }}</td>
+          <td class="muted">{{ g.guide_email }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-verified':   g.verification_status === 'verified',
+              'badge-in-review':  g.verification_status === 'in-review',
+              'badge-not-started': g.verification_status === 'not-started'
+            }">{{ statusLabel(g.verification_status) }}</span>
+          </td>
+          <td>
+            <span class="badge badge-verified" *ngIf="g.is_verified">Verified</span>
+            <span class="badge badge-not-started" *ngIf="!g.is_verified">Unverified</span>
+          </td>
+          <td>
+            <button class="btn-approve" (click)="openPanel(g)">Review</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <div class="empty-state">
+        <i class="fas fa-id-card"></i>
+        <p>No KYC records match your filters</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="panel-backdrop" *ngIf="panelOpen" (click)="closePanel()"></div>
+
+  <!-- KYC Review Panel -->
+  <div class="kyc-panel" [class.open]="panelOpen">
+    <div class="panel-header">
+      <h2>KYC Review</h2>
+      <button class="panel-close" (click)="closePanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Loading -->
+      <div class="loading-state" *ngIf="panelLoading">
+        <i class="fas fa-circle-notch fa-spin"></i> Loading KYC data…
+      </div>
+
+      <div class="empty-state" *ngIf="panel?.error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Could not load KYC data.</p>
+      </div>
+
+      <ng-container *ngIf="panel && !panel.error && !panelLoading">
+
+        <!-- Guide identity -->
+        <div class="kyc-identity">
+          <div class="kyc-name">{{ panel.guide_name }}</div>
+          <div class="kyc-email muted">{{ panel.guide_email }}</div>
+          <div class="kyc-meta-row">
+            <span class="badge" [ngClass]="{
+              'badge-verified':    panel.verification_status === 'verified',
+              'badge-in-review':   panel.verification_status === 'in-review',
+              'badge-not-started': panel.verification_status === 'not-started'
+            }">{{ statusLabel(panel.verification_status) }}</span>
+            <span class="meta-pill" *ngIf="panel.person_type">
+              {{ panel.person_type === 'company' ? 'Company' : 'Individual' }}
+            </span>
+            <span class="meta-pill" *ngIf="panel.is_micro_enterprise">Micro-enterprise</span>
+          </div>
+        </div>
+
+        <!-- No KYC submitted yet -->
+        <div class="no-kyc-notice" *ngIf="panel.no_kyc_record">
+          <i class="fas fa-inbox"></i>
+          <p>This guide has not submitted any KYC documents yet.</p>
+        </div>
+
+        <ng-container *ngIf="!panel.no_kyc_record">
+
+          <!-- Declarations -->
+          <div class="kyc-section">
+            <div class="kyc-section-title">Declarations</div>
+            <div class="declaration-list">
+              <div class="declaration-item">
+                <i class="fas" [ngClass]="panel.pep_screening ? 'fa-check-circle ok' : 'fa-times-circle nok'"></i>
+                <span>PEP screening confirmed</span>
+              </div>
+              <div class="declaration-item">
+                <i class="fas" [ngClass]="panel.data_protection ? 'fa-check-circle ok' : 'fa-times-circle nok'"></i>
+                <span>Data protection agreement</span>
+              </div>
+              <div class="declaration-item">
+                <i class="fas" [ngClass]="panel.accuracy_confirmation ? 'fa-check-circle ok' : 'fa-times-circle nok'"></i>
+                <span>Accuracy confirmation</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documents by category -->
+          <div class="kyc-section" *ngFor="let cat of docCategories">
+            <div class="kyc-section-title">{{ cat }}</div>
+
+            <div class="doc-empty" *ngIf="docsForCategory(cat).length === 0">
+              <i class="fas fa-file-upload"></i> No document uploaded
+            </div>
+
+            <div class="doc-card" *ngFor="let doc of docsForCategory(cat)">
+              <div class="doc-meta">
+                <span class="badge" [ngClass]="{
+                  'badge-verified':    doc.status === 'verified',
+                  'badge-in-review':   doc.status === 'in-review',
+                  'badge-not-started': doc.status === 'not-started'
+                }">{{ statusLabel(doc.status) }}</span>
+                <span class="muted doc-date" *ngIf="doc.uploaded_date">
+                  Uploaded {{ doc.uploaded_date | date:'d MMM y' }}
+                </span>
+              </div>
+
+              <div class="doc-status-text muted" *ngIf="doc.status_text">{{ doc.status_text }}</div>
+
+              <div class="doc-preview" *ngIf="doc.file_url">
+                <a [href]="doc.file_url" target="_blank" rel="noopener">
+                  <img *ngIf="isImage(doc.file_url)" [src]="doc.file_url" alt="Document" class="doc-img" />
+                  <div *ngIf="!isImage(doc.file_url)" class="doc-file-link">
+                    <i class="fas fa-file-alt"></i> View document
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTAs -->
+          <div class="kyc-actions">
+            <button
+              class="btn-approve kyc-btn"
+              [disabled]="saving || panel.verification_status === 'verified'"
+              (click)="approve()">
+              <i class="fas fa-check"></i>
+              {{ panel.verification_status === 'verified' ? 'Already approved' : 'Approve & Verify' }}
+            </button>
+            <button
+              class="btn-warn kyc-btn"
+              [disabled]="saving || panel.verification_status === 'in-review'"
+              (click)="requestMoreInfo()">
+              <i class="fas fa-clock"></i>
+              Request more info
+            </button>
+          </div>
+
+        </ng-container>
+
+      </ng-container>
+    </div>
+  </div>
+</div>

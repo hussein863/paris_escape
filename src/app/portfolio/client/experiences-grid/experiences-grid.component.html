@@ -11,23 +11,18 @@
       </select>
     </div>
 
-    <div class="view-controls">
-      <div class="view-toggle">
-        <button class="view-btn" [class.active]="viewMode === 'circle'" (click)="setViewMode('circle')">
-          <img src="assets/images/icon/image.png" class="item-icon" alt="" style="width: 18px; height: 18px">
-        </button>
-        <button class="view-btn" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
-          <i class="fas fa-list"></i>
-        </button>
-      </div>
-    </div>
   </div>
 
-  <div class="experiences-grid" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
-    <div class="experience-card" *ngFor="let experience of experiences" (click)="goToExperience(experience.id)">
+  <div class="experiences-grid">
+    <div class="experience-card" *ngFor="let experience of experiences"
+         [class.sponsored-card]="experience['is_sponsored']"
+         (click)="goToExperience(experience.id)">
       <div class="card-image-wrapper">
         <img [src]="experience.image || 'assets/images/card_image/louvre.png'" [alt]="experience.title" class="card-image">
-        <span *ngIf="experience.status === 'Active'" class="badge">{{ experience.category }}</span>
+        <span *ngIf="experience['is_sponsored']" class="badge badge-sponsored">
+          <i class="fas fa-bolt"></i> Sponsored
+        </span>
+        <span *ngIf="!experience['is_sponsored'] && experience.status === 'Active'" class="badge">{{ experience.category }}</span>
       </div>
 
       <div class="card-content">
@@ -47,6 +42,12 @@
           </div>
           <div class="price">€{{ experience.base_price }}</div>
         </div>
+
+        <div class="own-exp-actions" *ngIf="isOwnExperience(experience)">
+          <button class="btn-sponsor" (click)="openSponsorPanel(experience, $event)">
+            <i class="fas fa-bolt"></i> Sponsor
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -62,5 +63,83 @@
     <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
       <i class="fas fa-chevron-right"></i>
     </button>
+  </div>
+</div>
+
+<!-- Sponsor Panel Backdrop -->
+<div class="sponsor-backdrop" *ngIf="sponsorPanelOpen" (click)="closeSponsorPanel()"></div>
+
+<!-- Sponsor Slide-in Panel -->
+<div class="sponsor-panel" [class.open]="sponsorPanelOpen">
+  <div class="sponsor-panel-header">
+    <div>
+      <h2><i class="fas fa-bolt"></i> Sponsor Experience</h2>
+      <p *ngIf="sponsoredExperience" class="sponsor-exp-name">{{ sponsoredExperience.title }}</p>
+    </div>
+    <button class="sponsor-close" (click)="closeSponsorPanel()" type="button">&times;</button>
+  </div>
+
+  <div class="sponsor-panel-body">
+
+    <!-- Feature selector -->
+    <div class="sponsor-section">
+      <h3>Choose a feature</h3>
+      <div class="feature-cards">
+        <div class="feature-card" [class.selected]="sponsorFeature === 'search'" (click)="sponsorFeature = 'search'">
+          <i class="fas fa-search"></i>
+          <div>
+            <strong>First Results Search</strong>
+            <span>Your experience appears at the top of search results with a "Sponsored" badge.</span>
+          </div>
+          <span class="feat-price">€{{ sponsorPrices.search }}/day</span>
+        </div>
+        <div class="feature-card" [class.selected]="sponsorFeature === 'listing'" (click)="sponsorFeature = 'listing'">
+          <i class="fas fa-arrow-up"></i>
+          <div>
+            <strong>Top Listing</strong>
+            <span>Your experience is pinned at the very top of the experiences listing page.</span>
+          </div>
+          <span class="feat-price">€{{ sponsorPrices.listing }}/day</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day scroller -->
+    <div class="sponsor-section">
+      <h3>Duration <span class="sponsor-days-label">{{ sponsorDays }} day{{ sponsorDays > 1 ? 's' : '' }}</span></h3>
+      <div class="day-scroller">
+        <button class="day-btn" (click)="sponsorDays = sponsorDays > 1 ? sponsorDays - 1 : 1" type="button">
+          <i class="fas fa-minus"></i>
+        </button>
+        <input type="range" min="1" max="30" [(ngModel)]="sponsorDays" class="day-range">
+        <button class="day-btn" (click)="sponsorDays = sponsorDays < 30 ? sponsorDays + 1 : 30" type="button">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div class="day-ticks">
+        <span>1d</span><span>7d</span><span>14d</span><span>21d</span><span>30d</span>
+      </div>
+    </div>
+
+    <!-- Price summary -->
+    <div class="sponsor-summary">
+      <div class="summary-row">
+        <span>{{ sponsorFeature === 'search' ? 'First results search' : 'Top listing' }}</span>
+        <span>€{{ sponsorPrices[sponsorFeature] }}/day</span>
+      </div>
+      <div class="summary-row">
+        <span>Duration</span>
+        <span>{{ sponsorDays }} days</span>
+      </div>
+      <div class="summary-total">
+        <span>Total</span>
+        <strong>€{{ sponsorTotal }}</strong>
+      </div>
+    </div>
+
+    <button class="btn-sponsor-confirm" type="button">
+      <i class="fas fa-bolt"></i> Confirm & Pay €{{ sponsorTotal }}
+    </button>
+    <p class="sponsor-note">Payment and scheduling system coming soon. This preview allows you to select your sponsorship options.</p>
   </div>
 </div>

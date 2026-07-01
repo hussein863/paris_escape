@@ -16,13 +16,28 @@ export const guideGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.isGuide() || auth.isAdmin()) return true;
+  if (auth.isAdmin()) {
+    router.navigate(['/super-admin/dashboard']);
+    return false;
+  }
+
+  if (auth.isGuide()) return true;
 
   router.navigate(['/client/home']);
   return false;
 };
 
 // Prevents guides/admins from accessing client routes — redirects them to their dashboard
+export const superAdminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isAdmin()) return true;
+
+  router.navigate(['/landing']);
+  return false;
+};
+
 export const clientGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -32,7 +47,12 @@ export const clientGuard: CanActivateFn = () => {
     return false;
   }
 
-  if (auth.isGuide() || auth.isAdmin()) {
+  if (auth.isAdmin()) {
+    router.navigate(['/super-admin/dashboard']);
+    return false;
+  }
+
+  if (auth.isGuide()) {
     router.navigate(['/admin/dashboard']);
     return false;
   }

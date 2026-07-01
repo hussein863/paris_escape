@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guideGuard, clientGuard } from './core/guards/auth.guard';
+import { authGuard, guideGuard, clientGuard, superAdminGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 
@@ -14,6 +14,7 @@ import { ProfileComponent } from './admin/profile/profile.component';
 import { MessagesComponent } from './admin/messages/messages.component';
 import { ExperiencesComponent } from './admin/experiences/experiences.component';
 import { CreateExperienceComponent } from './admin/create-experience/create-experience.component';
+import { GuideAnalyticsComponent } from './admin/analytics/analytics.component';
 
 import { ClientComponent } from './portfolio/client/client.component';
 import { GuideProfileComponent } from './portfolio/guide-profile/guide-profile.component';
@@ -31,9 +32,16 @@ import { GuidesListComponent } from './portfolio/guides-list/guides-list.compone
 
 import { SuperAdminComponent } from './super-admin/super-admin.component';
 import { DashboardComponent as SuperAdminDashboardComponent } from './super-admin/dashboard/dashboard.component';
-import { UsersComponent } from './super-admin/users/users.component';
-import { BusinessComponent } from './super-admin/business/business.component';
-import { SystemComponent } from './super-admin/system/system.component';
+import { UsersComponent as SuperAdminUsersComponent } from './super-admin/users/users.component';
+import { SaKycComponent } from './super-admin/kyc/kyc.component';
+import { SaExperiencesComponent } from './super-admin/experiences/experiences.component';
+import { SaBookingsComponent } from './super-admin/bookings/bookings.component';
+import { SaReportsComponent } from './super-admin/reports/reports.component';
+import { SaReviewsComponent } from './super-admin/reviews/reviews.component';
+import { SaFinancialsComponent } from './super-admin/financials/financials.component';
+import { SaPlansComponent } from './super-admin/plans/plans.component';
+import { SaSupportComponent } from './super-admin/support/support.component';
+import { SaSettingsComponent } from './super-admin/settings/settings.component';
 
 export const routes: Routes = [
   {
@@ -172,6 +180,10 @@ export const routes: Routes = [
       {
         path: 'payments',
         component: PaymentsComponent
+      },
+      {
+        path: 'analytics',
+        component: GuideAnalyticsComponent
       }
     ]
   },
@@ -180,29 +192,20 @@ export const routes: Routes = [
   {
     path: 'super-admin',
     component: SuperAdminComponent,
-    canActivate: [authGuard],
+    canActivate: [superAdminGuard],
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-      {
-        path: 'dashboard',
-        component: SuperAdminDashboardComponent
-      },
-      {
-        path: 'users',
-        component: UsersComponent
-      },
-      {
-        path: 'business',
-        component: BusinessComponent
-      },
-      {
-        path: 'system',
-        component: SystemComponent
-      }
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard',   component: SuperAdminDashboardComponent },
+      { path: 'users',       component: SuperAdminUsersComponent },
+      { path: 'kyc',         component: SaKycComponent },
+      { path: 'experiences', component: SaExperiencesComponent },
+      { path: 'bookings',    component: SaBookingsComponent },
+      { path: 'reports',     component: SaReportsComponent },
+      { path: 'reviews',     component: SaReviewsComponent },
+      { path: 'financials',  component: SaFinancialsComponent },
+      { path: 'plans',       component: SaPlansComponent },
+      { path: 'support',     component: SaSupportComponent },
+      { path: 'settings',    component: SaSettingsComponent },
     ]
   }
 ];

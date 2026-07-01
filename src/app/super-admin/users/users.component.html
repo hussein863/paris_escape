@@ -1,191 +1,186 @@
-<div class="users-page">
-  <header class="page-header">
-    <h1 class="page-title">Users Management</h1>
-    <div class="header-actions">
-      <button class="btn btn-secondary" (click)="exportCSV()">
-        <i class="fas fa-download"></i> Export CSV
-      </button>
-      <button class="btn btn-primary" (click)="addAdmin()">
-        <i class="fas fa-plus"></i> Add Admin
-      </button>
-    </div>
-  </header>
+<div class="sa-page">
+  <div class="page-header">
+    <h1>Users</h1>
+  </div>
 
   <!-- Filters -->
-  <div class="filters-bar">
-    <div class="search-box">
-      <i class="search-icon fas fa-search"></i>
-      <input
-        type="text"
-        placeholder="Search by name or email..."
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="applyFilters()"
-        class="search-input">
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input class="search-input" type="text" placeholder="Search name or email…"
+        [(ngModel)]="search" (ngModelChange)="load()" />
     </div>
 
-    <select class="filter-select" [(ngModel)]="filterRole" (ngModelChange)="applyFilters()">
-      <option value="">All Roles</option>
-      <option value="Customer">Customer</option>
-      <option value="Guide">Guide</option>
-      <option value="Business">Business</option>
-      <option value="Admin">Admin</option>
+    <select class="filter-select" [(ngModel)]="filterRole" (ngModelChange)="load()">
+      <option value="">All roles</option>
+      <option *ngFor="let r of roleOptions" [value]="r">{{ r }}</option>
     </select>
 
-    <select class="filter-select" [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
-      <option value="">All Status</option>
-      <option value="Active">Active</option>
-      <option value="Suspended">Suspended</option>
-      <option value="KYC Pending">KYC Pending</option>
-    </select>
-
-    <select class="filter-select" [(ngModel)]="filterKYC" (ngModelChange)="applyFilters()">
-      <option value="">KYC - All</option>
-      <option value="yes">KYC Verified</option>
-      <option value="no">KYC Pending</option>
+    <select class="filter-select" [(ngModel)]="filterStatus" (ngModelChange)="load()">
+      <option value="">All statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
     </select>
   </div>
 
-  <!-- Users Table -->
-  <div class="table-container">
-    <table class="users-table">
+  <!-- Table -->
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading users…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="data-table">
       <thead>
         <tr>
           <th>User</th>
           <th>Email</th>
           <th>Role</th>
           <th>Status</th>
-          <th>Registration</th>
-          <th>Actions</th>
+          <th>Country</th>
+          <th>Registered</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of filteredUsers">
+        <tr *ngFor="let u of users">
           <td>
             <div class="user-cell">
-              <div class="user-avatar">{{ user.avatar }}</div>
-              <span class="user-name">{{ user.name }}</span>
+              <div class="user-avatar">
+                <img *ngIf="u.avatar" [src]="u.avatar" alt="" />
+                <span *ngIf="!u.avatar">{{ initials(u.name) }}</span>
+              </div>
+              <span class="bold">{{ u.name }}</span>
             </div>
           </td>
-          <td>{{ user.email }}</td>
+          <td class="muted">{{ u.email }}</td>
           <td>
-            <span class="role-badge" [class]="'role-' + user.role.toLowerCase()">
-              {{ user.role }}
-            </span>
+            <span class="badge" [ngClass]="'badge-' + u.role.toLowerCase()">{{ u.role }}</span>
           </td>
           <td>
-            <span class="status-badge" [class]="'status-' + user.status.toLowerCase().replace(' ', '-')">
-              {{ user.status }}
-            </span>
+            <span class="badge"
+              [ngClass]="{
+                'badge-active':    u.status === 'Active',
+                'badge-refused':   u.status === 'Suspended',
+                'badge-in-review': u.status === 'KYC Pending'
+              }">{{ u.status }}</span>
           </td>
-          <td>{{ user.registrationDate }}</td>
+          <td class="muted">{{ u.country || '—' }}</td>
+          <td class="muted">{{ u.registration_date | date:'mediumDate' }}</td>
           <td>
-            <button class="action-btn" (click)="viewUser(user)">View</button>
+            <button class="btn-approve" (click)="openPanel(u)">View</button>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <i class="fas fa-users"></i>
+              <p>No users found.</p>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- 360° User Profile Panel -->
-  <div class="profile-panel" [class.open]="isPanelOpen" *ngIf="selectedUser">
-    <div class="panel-overlay" (click)="closePanel()"></div>
-    <div class="panel-content">
-      <div class="panel-header">
-        <h2>User Profile</h2>
-        <button class="close-btn" (click)="closePanel()"><i class="fas fa-times"></i></button>
+  <!-- Side panel backdrop -->
+  <div class="panel-backdrop" *ngIf="panelOpen" (click)="closePanel()"></div>
+
+  <!-- Side panel -->
+  <div class="panel" [class.open]="panelOpen" *ngIf="selectedUser">
+    <div class="panel-header">
+      <h2>User details</h2>
+      <button class="panel-close" (click)="closePanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Avatar + name -->
+      <div class="panel-avatar">
+        <img *ngIf="selectedUser.avatar" [src]="selectedUser.avatar" alt="" />
+        <div *ngIf="!selectedUser.avatar" class="avatar-initials">{{ initials(selectedUser.name) }}</div>
+      </div>
+      <div class="panel-name">{{ selectedUser.name }}</div>
+      <div class="panel-email muted">{{ selectedUser.email }}</div>
+      <div class="panel-badges">
+        <span class="badge" [ngClass]="'badge-' + selectedUser.role.toLowerCase()">{{ selectedUser.role }}</span>
+        <span class="badge"
+          [ngClass]="{
+            'badge-active':    selectedUser.status === 'Active',
+            'badge-refused':   selectedUser.status === 'Suspended',
+            'badge-in-review': selectedUser.status === 'KYC Pending'
+          }">{{ selectedUser.status }}</span>
       </div>
 
-      <div class="panel-body">
-        <!-- Profile Section -->
-        <section class="profile-section">
-          <h3 class="section-title">Profile</h3>
-          <div class="profile-info">
-            <div class="profile-avatar-large">{{ selectedUser.avatar }}</div>
-            <div class="profile-details">
-              <h4>{{ selectedUser.name }}</h4>
-              <p>{{ selectedUser.email }}</p>
-              <div class="profile-meta">
-                <span class="role-badge" [class]="'role-' + selectedUser.role.toLowerCase()">
-                  {{ selectedUser.role }}
-                </span>
-                <span class="status-badge" [class]="'status-' + selectedUser.status.toLowerCase().replace(' ', '-')">
-                  {{ selectedUser.status }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="profile-actions">
-            <button class="btn btn-block" (click)="suspendUser()">
-              {{ selectedUser.status === 'Suspended' ? 'Activate User' : 'Suspend User' }}
-            </button>
-          </div>
-        </section>
-
-        <!-- Activity Section -->
-        <section class="profile-section">
-          <h3 class="section-title">Activity Overview</h3>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-value">24</div>
-              <div class="stat-label">Total Bookings</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">€2,890</div>
-              <div class="stat-label">Earnings</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">12</div>
-              <div class="stat-label">Experiences</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Transactions Section -->
-        <section class="profile-section">
-          <h3 class="section-title">Recent Transactions</h3>
-          <div class="transactions-list">
-            <div class="transaction-item" *ngFor="let txn of userTransactions">
-              <div class="transaction-info">
-                <span class="transaction-type">{{ txn.type }}</span>
-                <span class="transaction-date">{{ txn.date }}</span>
-              </div>
-              <div class="transaction-right">
-                <span class="transaction-amount">{{ txn.amount }}</span>
-                <span class="transaction-status">{{ txn.status }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Permissions Section -->
-        <section class="profile-section" *ngIf="selectedUser.role === 'Admin'">
-          <h3 class="section-title">Permissions</h3>
-          <div class="permissions-list">
-            <label class="permission-item">
-              <input type="checkbox" checked>
-              <span>Manage Users</span>
-            </label>
-            <label class="permission-item">
-              <input type="checkbox" checked>
-              <span>Manage Experiences</span>
-            </label>
-            <label class="permission-item">
-              <input type="checkbox">
-              <span>Financial Access</span>
-            </label>
-          </div>
-        </section>
-
-        <!-- Internal Notes Section -->
-        <section class="profile-section">
-          <h3 class="section-title">Internal Notes</h3>
-          <textarea
-            class="notes-textarea"
-            placeholder="Add internal notes about this user..."
-            [(ngModel)]="notes"></textarea>
-          <button class="btn btn-primary btn-sm">Save Note</button>
-        </section>
+      <!-- Stats -->
+      <div class="stats-loading" *ngIf="statsLoading">
+        <i class="fas fa-circle-notch fa-spin"></i>
       </div>
+
+      <div class="panel-stats" *ngIf="userStats && !statsLoading">
+        <!-- Active experiences — guides only -->
+        <div class="stat-tile" *ngIf="userStats.active_experiences !== null">
+          <i class="fas fa-map stat-icon"></i>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">{{ userStats.active_experiences }}</div>
+            <div class="stat-tile-label">Active experiences</div>
+          </div>
+        </div>
+
+        <div class="stat-tile">
+          <i class="fas fa-calendar-check stat-icon"></i>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">{{ userStats.completed_bookings }}</div>
+            <div class="stat-tile-label">{{ selectedUser.role === 'Guide' ? 'Completed bookings' : 'Bookings made' }}</div>
+          </div>
+        </div>
+
+        <div class="stat-tile">
+          <i class="fas fa-comments stat-icon"></i>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">{{ userStats.conversations }}</div>
+            <div class="stat-tile-label">Conversations</div>
+          </div>
+        </div>
+
+        <div class="stat-tile highlight">
+          <i class="fas fa-euro-sign stat-icon"></i>
+          <div class="stat-tile-body">
+            <div class="stat-tile-value">{{ formatCurrency(userStats.revenue) }}</div>
+            <div class="stat-tile-label">{{ selectedUser.role === 'Guide' ? 'Revenue generated' : 'Total spent' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile info -->
+      <div class="panel-info-grid">
+        <div class="info-item" *ngIf="selectedUser.phone">
+          <span class="info-label">Phone</span>
+          <span>{{ selectedUser.phone }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Location</span>
+          <span>{{ selectedUser.city || '—' }}, {{ selectedUser.country || '—' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Registered</span>
+          <span>{{ selectedUser.registration_date | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <!-- Action -->
+      <div class="panel-actions">
+        <button
+          *ngIf="selectedUser.role === 'Guide' && selectedUser.guide_profile_id"
+          class="btn-approve"
+          (click)="openGuideProfile(selectedUser)">
+          <i class="fas fa-external-link-alt"></i> Open public profile
+        </button>
+        <button
+          (click)="toggleSuspend()"
+          [ngClass]="selectedUser.status === 'Suspended' ? 'btn-approve' : 'btn-refuse'">
+          {{ selectedUser.status === 'Suspended' ? 'Activate account' : 'Suspend account' }}
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

@@ -1,0 +1,292 @@
+<div class="sa-page">
+  <div class="page-header">
+    <div>
+      <h1>Reports & Moderation</h1>
+      <p>Review user-submitted reports on guides and experiences</p>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'guide'" (click)="setTab('guide')">
+      <i class="fas fa-user-shield"></i> Guide Reports
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'experience'" (click)="setTab('experience')">
+      <i class="fas fa-map"></i> Experience Reports
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'conversation'" (click)="setTab('conversation')">
+      <i class="fas fa-comments"></i> Message Reports
+    </button>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <i class="fas fa-circle-notch fa-spin"></i> Loading…
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="data-table" *ngIf="reports.length; else empty">
+      <thead>
+        <tr>
+          <th>Reporter</th>
+          <th>{{ activeTab === 'guide' ? 'Reported Guide' : 'Reported Experience' }}</th>
+          <th>Reason</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of reports" [class.row-reviewed]="r.reviewed">
+          <td>{{ r.reporter_name }}</td>
+          <td class="bold">{{ r.target_name }}</td>
+          <td>
+            <span class="reason-pill" [ngClass]="'reason-pill-' + r.reason">{{ r.reason }}</span>
+          </td>
+          <td class="muted">{{ r.created_at | date:'d MMM y' }}</td>
+          <td>
+            <span class="badge" [ngClass]="r.reviewed ? 'badge-verified' : 'badge-in-review'">
+              {{ r.reviewed ? 'Reviewed' : 'Pending' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-dismiss" (click)="openPanel(r)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #empty>
+      <div class="empty-state">
+        <i class="fas fa-flag"></i>
+        <p>No reports found</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="panel-backdrop" *ngIf="panelOpen" (click)="closePanel()"></div>
+
+  <!-- Report detail panel -->
+  <div class="report-panel" [class.open]="panelOpen">
+    <div class="panel-header">
+      <h2>Report details</h2>
+      <button class="panel-close" (click)="closePanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="loading-state" *ngIf="panelLoading">
+        <i class="fas fa-circle-notch fa-spin"></i> Loading…
+      </div>
+
+      <div class="empty-state" *ngIf="panel?.error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Could not load report details.</p>
+      </div>
+
+      <ng-container *ngIf="panel && !panel.error && !panelLoading">
+
+        <!-- Report info block -->
+        <div class="report-info-block">
+          <div class="report-row">
+            <span class="report-label">Reporter</span>
+            <span>{{ panel.reporter_name }}
+              <span class="muted" *ngIf="panel.reporter_email"> — {{ panel.reporter_email }}</span>
+            </span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">Reason</span>
+            <span class="reason-pill" [ngClass]="'reason-pill-' + panel.reason">{{ panel.reason }}</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">Date</span>
+            <span class="muted">{{ panel.created_at | date:'d MMM y, HH:mm' }}</span>
+          </div>
+          <div class="report-row">
+            <span class="report-label">Status</span>
+            <span class="badge" [ngClass]="panel.reviewed ? 'badge-verified' : 'badge-in-review'">
+              {{ panel.reviewed ? 'Reviewed' : 'Pending' }}
+            </span>
+          </div>
+          <div class="report-description" *ngIf="panel.description">
+            <span class="report-label">Description</span>
+            <p>{{ panel.description }}</p>
+          </div>
+        </div>
+
+        <!-- ── GUIDE TARGET ─────────────────────────── -->
+        <ng-container *ngIf="panel.target_type === 'guide'">
+          <div class="section-title">Reported guide</div>
+
+          <div class="target-card">
+            <div class="target-avatar">
+              <img *ngIf="panel.target_avatar" [src]="panel.target_avatar" alt="" />
+              <span *ngIf="!panel.target_avatar">{{ initials(panel.target_name) }}</span>
+            </div>
+            <div class="target-info">
+              <div class="target-name">{{ panel.target_name }}</div>
+              <div class="target-email muted">{{ panel.target_email }}</div>
+              <div class="target-status-row">
+                <span class="badge" [ngClass]="{
+                  'badge-active':  panel.target_status === 'Active',
+                  'badge-refused': panel.target_status === 'Suspended'
+                }">{{ panel.target_status }}</span>
+              </div>
+            </div>
+            <button class="target-link-btn" (click)="openGuideProfile(panel.target_id)" title="Open profile">
+              <i class="fas fa-external-link-alt"></i>
+            </button>
+          </div>
+
+          <!-- Stats -->
+          <div class="target-stats">
+            <div class="target-stat" [class.danger]="panel.total_reports > 3">
+              <i class="fas fa-flag"></i>
+              <div class="ts-value">{{ panel.total_reports }}</div>
+              <div class="ts-label">Total reports</div>
+            </div>
+            <div class="target-stat">
+              <i class="fas fa-star"></i>
+              <div class="ts-value">{{ panel.avg_rating > 0 ? panel.avg_rating : '—' }}</div>
+              <div class="ts-label">Avg rating ({{ panel.review_count }})</div>
+            </div>
+            <div class="target-stat">
+              <i class="fas fa-map"></i>
+              <div class="ts-value">{{ panel.active_experiences }}</div>
+              <div class="ts-label">Active experiences</div>
+            </div>
+            <div class="target-stat">
+              <i class="fas fa-calendar-check"></i>
+              <div class="ts-value">{{ panel.completed_bookings }}</div>
+              <div class="ts-label">Completed bookings</div>
+            </div>
+          </div>
+
+          <!-- Star display -->
+          <div class="star-row" *ngIf="panel.avg_rating > 0">
+            <i class="fas fa-star star-filled" *ngFor="let s of stars(panel.avg_rating)"></i>
+            <i class="fas fa-star star-empty" *ngFor="let s of emptyStars(panel.avg_rating)"></i>
+            <span class="muted">{{ panel.avg_rating }}/5 · {{ panel.review_count }} reviews</span>
+          </div>
+        </ng-container>
+
+        <!-- ── EXPERIENCE TARGET ────────────────────── -->
+        <ng-container *ngIf="panel.target_type === 'experience'">
+          <div class="section-title">Reported experience</div>
+
+          <div class="target-card">
+            <div class="target-avatar exp-icon">
+              <i class="fas fa-map"></i>
+            </div>
+            <div class="target-info">
+              <div class="target-name">{{ panel.target_name }}</div>
+              <div class="target-email muted" *ngIf="panel.guide_name">
+                by {{ panel.guide_name }}
+              </div>
+              <div class="target-status-row">
+                <span class="badge" [ngClass]="{
+                  'badge-active':       panel.target_status === 'Active',
+                  'badge-under-review': panel.target_status === 'Under Review',
+                  'badge-refused':      panel.target_status === 'Refused',
+                  'badge-paused':       panel.target_status === 'Paused'
+                }">{{ panel.target_status }}</span>
+                <span class="price-tag" *ngIf="panel.target_price">€{{ panel.target_price }}</span>
+              </div>
+            </div>
+            <button class="target-link-btn" (click)="openExperience(panel.target_id)" title="Open experience">
+              <i class="fas fa-external-link-alt"></i>
+            </button>
+          </div>
+
+          <!-- Guide row -->
+          <div class="guide-chip" *ngIf="panel.guide_name" (click)="openGuideProfile(panel.guide_profile_id)">
+            <div class="guide-chip-avatar">
+              <img *ngIf="panel.guide_avatar" [src]="panel.guide_avatar" alt="" />
+              <span *ngIf="!panel.guide_avatar">{{ initials(panel.guide_name) }}</span>
+            </div>
+            <span>{{ panel.guide_name }}</span>
+            <i class="fas fa-external-link-alt" style="font-size:11px;color:#9ca3af;margin-left:auto"></i>
+          </div>
+
+          <!-- Stats -->
+          <div class="target-stats">
+            <div class="target-stat" [class.danger]="panel.total_reports > 3">
+              <i class="fas fa-flag"></i>
+              <div class="ts-value">{{ panel.total_reports }}</div>
+              <div class="ts-label">Total reports</div>
+            </div>
+            <div class="target-stat">
+              <i class="fas fa-star"></i>
+              <div class="ts-value">{{ panel.avg_rating > 0 ? panel.avg_rating : '—' }}</div>
+              <div class="ts-label">Avg rating ({{ panel.review_count }})</div>
+            </div>
+            <div class="target-stat">
+              <i class="fas fa-calendar-check"></i>
+              <div class="ts-value">{{ panel.completed_bookings }}</div>
+              <div class="ts-label">Completed bookings</div>
+            </div>
+          </div>
+
+          <!-- Star display -->
+          <div class="star-row" *ngIf="panel.avg_rating > 0">
+            <i class="fas fa-star star-filled" *ngFor="let s of stars(panel.avg_rating)"></i>
+            <i class="fas fa-star star-empty" *ngFor="let s of emptyStars(panel.avg_rating)"></i>
+            <span class="muted">{{ panel.avg_rating }}/5 · {{ panel.review_count }} reviews</span>
+          </div>
+        </ng-container>
+
+        <!-- ── CONVERSATION TARGET ─────────────────── -->
+        <ng-container *ngIf="panel.target_type === 'conversation'">
+          <div class="section-title">Reported conversation</div>
+          <div class="target-card">
+            <div class="target-avatar exp-icon">
+              <i class="fas fa-comments"></i>
+            </div>
+            <div class="target-info">
+              <div class="target-name">{{ panel.target_name }}</div>
+              <div class="target-email muted" *ngIf="panel.experience_title">
+                About: {{ panel.experience_title }}
+              </div>
+              <div class="target-status-row">
+                <span class="badge badge-in-review">{{ panel.conversation_status }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="target-stats">
+            <div class="target-stat" [class.danger]="panel.total_reports > 3">
+              <i class="fas fa-flag"></i>
+              <div class="ts-value">{{ panel.total_reports }}</div>
+              <div class="ts-label">Total reports</div>
+            </div>
+          </div>
+          <div class="report-info-block" style="margin-top:12px">
+            <div class="report-row" *ngIf="panel.customer_name">
+              <span class="report-label">Traveler</span>
+              <span>{{ panel.customer_name }} <span class="muted" *ngIf="panel.customer_email">— {{ panel.customer_email }}</span></span>
+            </div>
+            <div class="report-row" *ngIf="panel.guide_name">
+              <span class="report-label">Guide</span>
+              <span>{{ panel.guide_name }} <span class="muted" *ngIf="panel.guide_email">— {{ panel.guide_email }}</span></span>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- CTAs -->
+        <div class="report-actions">
+          <ng-container *ngIf="!panel.reviewed">
+            <button class="btn-dismiss report-btn" [disabled]="saving" (click)="patch('dismissed')">
+              <i class="fas fa-check"></i> Dismiss report
+            </button>
+            <button class="btn-warn report-btn" [disabled]="saving" (click)="patch('warned')">
+              <i class="fas fa-exclamation-triangle"></i> Warn guide
+            </button>
+          </ng-container>
+          <ng-container *ngIf="panel.reviewed">
+            <button class="btn-warn report-btn" [disabled]="saving" (click)="patch('reopen')">
+              <i class="fas fa-redo"></i> Reopen review
+            </button>
+          </ng-container>
+        </div>
+
+      </ng-container>
+    </div>
+  </div>
+</div>
