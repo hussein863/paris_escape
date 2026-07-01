@@ -91,7 +91,7 @@
             <strong>First Results Search</strong>
             <span>Your experience appears at the top of search results with a "Sponsored" badge.</span>
           </div>
-          <span class="feat-price">€{{ sponsorPrices.search }}/day</span>
+          <span class="feat-price">€{{ sponsorPrices['search'] }}/day</span>
         </div>
         <div class="feature-card" [class.selected]="sponsorFeature === 'listing'" (click)="sponsorFeature = 'listing'">
           <i class="fas fa-arrow-up"></i>
@@ -99,7 +99,7 @@
             <strong>Top Listing</strong>
             <span>Your experience is pinned at the very top of the experiences listing page.</span>
           </div>
-          <span class="feat-price">€{{ sponsorPrices.listing }}/day</span>
+          <span class="feat-price">€{{ sponsorPrices['listing'] }}/day</span>
         </div>
       </div>
     </div>

@@ -44,7 +44,7 @@
             <span class="priority-pill" [class]="'priority-' + t.priority?.toLowerCase()">{{ t.priority }}</span>
           </td>
           <td>
-            <span class="badge" [class]="'badge-' + t.status?.toLowerCase().replace(' ', '-')">{{ t.status }}</span>
+            <span class="badge" [class]="'badge-' + (t.status ?? '').toLowerCase().replace(' ', '-')">{{ t.status }}</span>
           </td>
           <td class="muted">{{ t.opened_date | date:'d MMM y' }}</td>
           <td class="muted">{{ t.last_update | date:'d MMM y' }}</td>

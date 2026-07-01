@@ -102,6 +102,7 @@ export interface Experience {
   created_date: string;
   updated_date: string;
   published_date: string | null;
+  is_sponsored?: boolean;
   media?: ExperienceMedia[];
   inclusions?: ExperienceInclusion[];
   itinerary?: ExperienceItineraryItem[];
