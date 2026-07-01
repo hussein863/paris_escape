@@ -1,6 +1,7 @@
 <a class="card-person" *ngIf="guide" [routerLink]="['/landing/profil', guide.encryptedId]" style="text-decoration:none;display:block;cursor:pointer">
   <div class="guide-photo-wrapper">
-    <img [src]="guide.photo" [alt]="guide.name" class="guide-photo">
+    <img *ngIf="guide.photo" [src]="guide.photo" [alt]="guide.name" class="guide-photo">
+    <div *ngIf="!guide.photo" class="guide-photo-initials">{{ getInitials(guide.name) }}</div>
   </div>
 
   <div class="guide-info">

@@ -35,7 +35,7 @@ export class GuidesByLanguageComponent implements OnInit {
           specialty: (g.specialties ?? []).map((s: any) => s.name).join(', ') || 'Paris Expert',
           rating: parseFloat(g.rating ?? 0),
           reviewCount: g.review_count ?? 0,
-          photo: g.user?.avatar_url ?? g.user?.avatar ?? 'assets/images/avatar/sophie.png',
+          photo: g.user?.avatar_url ?? g.user?.avatar ?? '',
           languages: (g.languages ?? []).map((l: any) => l.name),
         }));
         this.loading = false;
