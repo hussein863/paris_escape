@@ -19,6 +19,12 @@
   }
 }
 
+.header-logo {
+  height: 36px;
+  width: auto;
+  flex-shrink: 0;
+}
+
 // Search Container
 .search-container {
   flex: 1;

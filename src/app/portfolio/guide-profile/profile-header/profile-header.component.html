@@ -1,10 +1,13 @@
 <div class="profile-header">
     <div class="opacity">
-        <div class="cover-image" [style.background-image]="'url(' + guide.coverImage + ')'">
+        <div class="cover-image"
+             [class.no-cover]="!guide.coverImage"
+             [style.background-image]="guide.coverImage ? 'url(' + guide.coverImage + ')' : null">
             <div class="header-content">
                 <div class="profile-info">
                     <div class="avatar-wrapper">
-                        <img [src]="guide.avatar" [alt]="guide.name" class="avatar" />
+                        <img *ngIf="guide.avatar" [src]="guide.avatar" [alt]="guide.name" class="avatar" />
+                        <div *ngIf="!guide.avatar" class="avatar avatar-initials">{{ getInitials(guide.name) }}</div>
                     </div>
 
                     <div class="info-content">

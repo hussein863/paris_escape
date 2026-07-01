@@ -217,7 +217,7 @@ export class GuideProfileComponent implements OnInit {
       id: g.id,
       name: user.name ?? 'Guide',
       avatar: user.avatar_url ?? user.avatar ?? '',
-      coverImage: g.cover_image_url ?? g.cover_image ?? 'assets/images/profil/bg.png',
+      coverImage: g.cover_image_url ?? g.cover_image ?? '',
       isVerified: g.is_verified ?? false,
       isOriginal: g.is_original ?? false,
       languages: (g.languages ?? []).map((l: any) => ({ name: l.name, level: l.level })),
