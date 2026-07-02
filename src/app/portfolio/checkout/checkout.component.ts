@@ -70,6 +70,7 @@ export class CheckoutComponent implements OnInit {
     this.selectedDate = q['date'] ?? '';
     this.selectedTime = q['time'] ?? '';
     this.adultsCount = Number(q['guests'] ?? 1);
+    this.childrenCount = Number(q['children'] ?? 0);
     // Re-select addons passed from booking sidebar
     if (q['addons']) {
       const selectedIds = q['addons'].split(',').map(Number).filter(Boolean);
@@ -93,13 +94,15 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  get baseTotal(): number { return (Number(this.experience?.base_price) ?? 0) * this.adultsCount; }
+  get baseTotal(): number { return (Number(this.experience?.base_price) ?? 0) * (this.adultsCount + this.childrenCount); }
   get serviceFee(): number { return Math.round(this.baseTotal * 0.1); }
   get taxes(): number { return Math.round((this.baseTotal + this.serviceFee) * 0.2 * 100) / 100; }
   get total(): number { return this.baseTotal + this.serviceFee + this.taxes; }
 
   incrementAdults(): void { this.adultsCount++; }
   decrementAdults(): void { if (this.adultsCount > 1) this.adultsCount--; }
+  incrementChildren(): void { this.childrenCount++; }
+  decrementChildren(): void { if (this.childrenCount > 0) this.childrenCount--; }
 
   continueToPayment(): void {
     this.validationErrors = {};

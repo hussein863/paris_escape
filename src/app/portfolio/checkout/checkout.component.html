@@ -79,7 +79,7 @@
               </div>
               <div class="detail-row">
                 <i class="fas fa-users"></i>
-                <span>{{ adultsCount }} adult(s)</span>
+                <span>{{ adultsCount }} adult{{ adultsCount > 1 ? 's' : '' }}<ng-container *ngIf="childrenCount > 0">, {{ childrenCount }} child{{ childrenCount > 1 ? 'ren' : '' }}</ng-container></span>
               </div>
               <div class="detail-row">
                 <i class="fas fa-language"></i>
@@ -96,11 +96,24 @@
         <section class="checkout-card">
           <h2 class="card-title">Guests</h2>
           <div class="guest-selector">
-            <span class="guest-label">Adults</span>
+            <div class="guest-row-label">
+              <span class="guest-label">Adults</span>
+            </div>
             <div class="counter">
-              <button class="counter-btn" (click)="decrementAdults()">-</button>
+              <button class="counter-btn" (click)="decrementAdults()" [disabled]="adultsCount <= 1">-</button>
               <span class="counter-value">{{ adultsCount }}</span>
               <button class="counter-btn" (click)="incrementAdults()">+</button>
+            </div>
+          </div>
+          <div class="guest-selector" style="margin-top:12px">
+            <div class="guest-row-label">
+              <span class="guest-label">Children</span>
+              <span class="guest-sublabel">Under 12</span>
+            </div>
+            <div class="counter">
+              <button class="counter-btn" (click)="decrementChildren()" [disabled]="childrenCount <= 0">-</button>
+              <span class="counter-value">{{ childrenCount }}</span>
+              <button class="counter-btn" (click)="incrementChildren()">+</button>
             </div>
           </div>
         </section>

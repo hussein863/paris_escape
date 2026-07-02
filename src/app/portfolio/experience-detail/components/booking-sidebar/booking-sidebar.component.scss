@@ -141,14 +141,41 @@
   margin: 0;
 }
 
+.guest-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guest-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.guest-type {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.guest-type-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
 .stepper {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  height: 56px;
+  height: 44px;
   padding: 0 4px;
+  min-width: 120px;
 }
 
 .stepper-btn {

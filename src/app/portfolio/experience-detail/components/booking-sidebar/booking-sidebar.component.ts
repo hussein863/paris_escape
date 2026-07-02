@@ -16,6 +16,7 @@ export interface BookingParams {
   date: string;
   time: string;
   guests: number;
+  children: number;
   addons: string;
 }
 
@@ -42,6 +43,7 @@ export class BookingSidebarComponent implements OnChanges {
   selectedDate = '';
   selectedTime = '';
   guests = 1;
+  children = 0;
   guestOptions: number[] = [];
   addOns: AddOn[] = [];
   availableTimes: string[] = [];
@@ -95,14 +97,16 @@ export class BookingSidebarComponent implements OnChanges {
 
   get selectedAddOns(): AddOn[] { return this.addOns.filter(a => a.selected); }
   get addOnsTotal(): number { return this.selectedAddOns.reduce((s, a) => s + a.price, 0); }
-  get subtotal(): number { return (this.basePrice * this.guests) + this.addOnsTotal; }
+  get subtotal(): number { return (this.basePrice * (this.guests + this.children)) + this.addOnsTotal; }
   get serviceFee(): number { return Math.round(this.subtotal * 0.1); }
   get total(): number { return this.subtotal + this.serviceFee; }
 
   bookingError = '';
 
-  incrementGuests(): void { if (this.guests < this.maxPeople) this.guests++; }
+  incrementGuests(): void { if (this.guests + this.children < this.maxPeople) this.guests++; }
   decrementGuests(): void { if (this.guests > 1) this.guests--; }
+  incrementChildren(): void { if (this.guests + this.children < this.maxPeople) this.children++; }
+  decrementChildren(): void { if (this.children > 0) this.children--; }
 
   toggleAddOn(addOn: AddOn): void { addOn.selected = !addOn.selected; }
 
@@ -114,6 +118,7 @@ export class BookingSidebarComponent implements OnChanges {
       date: this.selectedDate,
       time: this.selectedTime,
       guests: this.guests,
+      children: this.children,
       addons: this.selectedAddOns.map(a => a.id).join(','),
     });
   }
