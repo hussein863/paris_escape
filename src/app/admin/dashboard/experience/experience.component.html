@@ -32,6 +32,9 @@
             <a [routerLink]="['/admin/experiences/create']" [queryParams]="{ id: exp.id }" aria-label="Edit">
               <i class="fa-solid fa-edit"></i>
             </a>
+            <button *ngIf="exp.status === 'Active'" (click)="sponsorExperience(exp)" aria-label="Sponsor" title="Sponsor this experience">
+              <i class="fas fa-bolt"></i>
+            </button>
             <button aria-label="Status">
               <i class="fa-solid" [class.fa-pause]="exp.status === 'Active'" [class.fa-play]="exp.status !== 'Active'"></i>
             </button>

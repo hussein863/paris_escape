@@ -53,9 +53,6 @@
         <button class="tab" [class.active]="activeTab === 'tickets'" (click)="setTab('tickets')">
           My Tickets ({{ tickets.length }})
         </button>
-        <button class="tab" [class.active]="activeTab === 'help'" (click)="setTab('help')">
-          Help Center
-        </button>
       </div>
 
       <div class="support-filters" *ngIf="activeTab === 'tickets'">

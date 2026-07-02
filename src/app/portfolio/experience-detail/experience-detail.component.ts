@@ -315,6 +315,9 @@ export class ExperienceDetailComponent implements OnInit {
         this.checkReviewEligibility(id);
       }
     }
+    if (this.route.snapshot.queryParamMap.get('sponsor') === '1') {
+      setTimeout(() => this.openSponsorPanel(), 600);
+    }
   }
 
   loadExperience(id: number): void {

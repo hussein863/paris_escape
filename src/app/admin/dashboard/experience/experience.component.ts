@@ -1,9 +1,10 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ExperienceService } from '../../../core/services/experience.service';
 import { ReviewService } from '../../../core/services/review.service';
+import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { Experience, Review, User } from '../../../core/models';
 
 @Component({
@@ -25,6 +26,8 @@ export class ExperienceComponent implements OnInit {
     private auth: AuthService,
     private experienceService: ExperienceService,
     private reviewService: ReviewService,
+    private router: Router,
+    private idEncrypt: IdEncryptService,
   ) {}
 
   ngOnInit(): void {
@@ -79,5 +82,10 @@ export class ExperienceComponent implements OnInit {
 
   ratingStars(rating: number): boolean[] {
     return [1, 2, 3, 4, 5].map(s => s <= Math.round(rating));
+  }
+
+  sponsorExperience(exp: Experience): void {
+    const encryptedId = this.idEncrypt.encryptId(exp.id);
+    this.router.navigate(['/landing/experience', encryptedId], { queryParams: { sponsor: '1' } });
   }
 }

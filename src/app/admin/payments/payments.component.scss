@@ -766,6 +766,21 @@
   font-size: 14px;
 }
 
+.plan-change-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 12px;
+
+  i { flex-shrink: 0; }
+
+  &.is-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  &.is-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+}
+
 .info-banner {
   display: flex;
   align-items: flex-start;

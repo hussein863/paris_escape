@@ -175,6 +175,11 @@ export class ExperiencesComponent implements OnInit {
     window.open(`/landing/experience/${encryptedId}`, '_blank');
   }
 
+  sponsorExperience(exp: Experience): void {
+    const encryptedId = this.idEncrypt.encryptId(exp.id);
+    this.router.navigate(['/landing/experience', encryptedId], { queryParams: { sponsor: '1' } });
+  }
+
   get activeCount() { return this.experiences.filter(e => e.status === 'Active').length; }
   get draftCount() { return this.experiences.filter(e => e.status === 'Draft').length; }
   get originalsCount() { return this.experiences.filter(e => e.status === 'Active' && (e as any).is_original).length; }

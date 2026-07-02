@@ -151,6 +151,10 @@
               <i class="fa-solid fa-rocket"></i>
               Publish
             </button>
+            <button class="btn-action sponsor" *ngIf="exp.status === 'Active'" (click)="sponsorExperience(exp)">
+              <i class="fas fa-bolt"></i>
+              Sponsor
+            </button>
             <button class="btn-action danger" *ngIf="exp.status === 'Draft'" (click)="deleteExperience(exp)" [disabled]="actionInProgress">
               <i class="fa-solid fa-trash"></i>
               Delete
