@@ -501,9 +501,11 @@
             {{ detailBooking.adults }} adult<ng-container *ngIf="detailBooking.adults !== 1">s</ng-container><ng-container *ngIf="(detailBooking.children || 0) > 0">, {{ detailBooking.children }} child<ng-container *ngIf="detailBooking.children !== 1">ren</ng-container></ng-container>
           </span>
         </div>
-        <div class="pi-row pi-row--note" *ngIf="detailBooking.detail?.special_requests && detailBooking.detail?.special_requests !== 'Manual booking'">
+        <div class="pi-row pi-row--note" *ngIf="detailBooking.detail">
           <span class="pi-label">Requests</span>
-          <span class="pi-value pi-value--note">{{ detailBooking.detail?.special_requests }}</span>
+          <span class="pi-value pi-value--note">
+            {{ (detailBooking.detail.special_requests && detailBooking.detail.special_requests !== 'Manual booking') ? detailBooking.detail.special_requests : 'None' }}
+          </span>
         </div>
       </div>
 

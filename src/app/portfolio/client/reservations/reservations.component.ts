@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -28,6 +28,11 @@ export class ClientReservationsComponent implements OnInit {
     { key: 'disputes', label: 'Disputes', count: 0 }
   ];
 
+  // Detail panel
+  detailPanelOpen = false;
+  detailLoading = false;
+  detailBooking: Booking | null = null;
+
   // Cancel confirmation modal state
   cancelModalOpen = false;
   cancelTarget: Booking | null = null;
@@ -47,6 +52,11 @@ export class ClientReservationsComponent implements OnInit {
     private idEncrypt: IdEncryptService,
     private router: Router,
   ) {}
+
+  @HostListener('document:keydown.escape')
+  onEsc(): void {
+    if (this.detailPanelOpen) this.closeDetailPanel();
+  }
 
   encryptedExperienceId(id: number): string {
     return this.idEncrypt.encryptId(id);
@@ -106,6 +116,48 @@ export class ClientReservationsComponent implements OnInit {
       default:
         return [];
     }
+  }
+
+  openDetailPanel(booking: Booking): void {
+    this.detailBooking = booking;
+    this.detailPanelOpen = true;
+    this.detailLoading = true;
+    this.bookingService.get(booking.id).subscribe({
+      next: (full) => {
+        this.detailBooking = {
+          ...full,
+          experience_title: full.experience_title || booking.experience_title,
+        };
+        this.detailLoading = false;
+      },
+      error: () => { this.detailLoading = false; }
+    });
+  }
+
+  closeDetailPanel(): void {
+    this.detailPanelOpen = false;
+    setTimeout(() => { this.detailBooking = null; }, 300);
+  }
+
+  getStatusIcon(status: string): string {
+    const map: Record<string, string> = {
+      Confirmed: 'fa-check-circle',
+      Pending: 'fa-clock',
+      Cancelled: 'fa-times-circle',
+      Disputed: 'fa-exclamation-circle',
+    };
+    return map[status] ?? 'fa-circle';
+  }
+
+  getStepState(step: number, booking: Booking): 'done' | 'active' | 'idle' {
+    if (booking.status === 'Cancelled' || booking.status === 'Disputed') return 'idle';
+    const today = new Date().toISOString().split('T')[0];
+    const isPast = booking.date < today;
+    if (booking.status === 'Pending') return step === 1 ? 'active' : 'idle';
+    if (step === 1) return 'done';
+    if (step === 2) return isPast ? 'done' : 'active';
+    if (step === 3) return isPast ? 'active' : 'idle';
+    return 'idle';
   }
 
   cancelBooking(booking: Booking): void {

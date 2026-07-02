@@ -81,6 +81,9 @@
           </div>
 
           <div class="card-actions">
+            <button class="btn outline" (click)="openDetailPanel(reservation)">
+              <i class="fas fa-info-circle"></i> Details
+            </button>
             <a class="btn primary" [routerLink]="['/landing/experience', encryptedExperienceId(reservation.experience)]">View Experience</a>
             <a class="btn outline" *ngIf="reservation.guide_name" [routerLink]="['/client/messages']" [queryParams]="{ experienceId: reservation.experience, bookingId: reservation.id }">
               <i class="fas fa-comment-dots"></i> Message Guide
@@ -184,3 +187,154 @@
     </section>
   </div>
 </div>
+
+<!-- Detail Panel -->
+<div class="panel-overlay" [class.visible]="detailPanelOpen" (click)="closeDetailPanel()"></div>
+
+<aside class="detail-panel" [class.open]="detailPanelOpen">
+  <ng-container *ngIf="detailBooking">
+
+    <div class="panel-hd">
+      <div class="panel-hd-top">
+        <span class="panel-ref">{{ detailBooking.booking_ref }}</span>
+        <button class="panel-close-btn" (click)="closeDetailPanel()" type="button">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="panel-hd-meta">
+        <span class="status-pill"
+          [class.confirmed]="detailBooking.status === 'Confirmed'"
+          [class.pending]="detailBooking.status === 'Pending'"
+          [class.cancelled]="detailBooking.status === 'Cancelled'"
+          [class.disputed]="detailBooking.status === 'Disputed'">
+          <i class="fas" [class]="getStatusIcon(detailBooking.status)"></i>
+          {{ detailBooking.status }}
+        </span>
+        <span class="panel-booked-on">Booked {{ detailBooking.created_date | date:'MMM d, yyyy' }}</span>
+      </div>
+    </div>
+
+    <div class="status-timeline" *ngIf="detailBooking.status !== 'Cancelled' && detailBooking.status !== 'Disputed'">
+      <div class="step" [class]="'step--' + getStepState(1, detailBooking)">
+        <div class="step-dot"><i *ngIf="getStepState(1, detailBooking) === 'done'" class="fas fa-check"></i></div>
+        <span class="step-label">Pending</span>
+        <div class="step-line"></div>
+      </div>
+      <div class="step" [class]="'step--' + getStepState(2, detailBooking)">
+        <div class="step-dot"><i *ngIf="getStepState(2, detailBooking) === 'done'" class="fas fa-check"></i></div>
+        <span class="step-label">Confirmed</span>
+        <div class="step-line"></div>
+      </div>
+      <div class="step step--last" [class]="'step--' + getStepState(3, detailBooking)">
+        <div class="step-dot"><i *ngIf="getStepState(3, detailBooking) === 'done'" class="fas fa-check"></i></div>
+        <span class="step-label">Tour Day</span>
+      </div>
+    </div>
+
+    <div class="panel-loading" *ngIf="detailLoading">
+      <i class="fas fa-spinner fa-spin"></i> Loading details…
+    </div>
+
+    <div class="panel-body" *ngIf="!detailLoading">
+
+      <div class="panel-section">
+        <h4 class="panel-section-label"><i class="fas fa-map-marker-alt"></i> Experience</h4>
+        <div class="pi-row">
+          <span class="pi-label">Title</span>
+          <span class="pi-value pi-value--bold">{{ detailBooking.experience_title || ('Booking #' + detailBooking.booking_ref) }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Date</span>
+          <span class="pi-value">{{ detailBooking.date | date:'EEEE, MMM d, yyyy' }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Time</span>
+          <span class="pi-value">{{ detailBooking.time?.slice(0, 5) }}</span>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-label"><i class="fas fa-user"></i> Your Details</h4>
+        <div class="pi-row">
+          <span class="pi-label">Name</span>
+          <span class="pi-value pi-value--bold">
+            <ng-container *ngIf="detailBooking.detail">{{ detailBooking.detail.first_name }} {{ detailBooking.detail.last_name }}</ng-container>
+            <ng-container *ngIf="!detailBooking.detail">{{ detailBooking.customer_name || 'N/A' }}</ng-container>
+          </span>
+        </div>
+        <div class="pi-row" *ngIf="detailBooking.detail?.email || detailBooking.customer_email">
+          <span class="pi-label">Email</span>
+          <span class="pi-value">{{ detailBooking.detail?.email || detailBooking.customer_email }}</span>
+        </div>
+        <div class="pi-row" *ngIf="detailBooking.detail?.phone_number">
+          <span class="pi-label">Phone</span>
+          <span class="pi-value">{{ detailBooking.detail?.phone_code }} {{ detailBooking.detail?.phone_number }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Participants</span>
+          <span class="pi-value">
+            {{ detailBooking.adults }} adult<ng-container *ngIf="detailBooking.adults !== 1">s</ng-container><ng-container *ngIf="(detailBooking.children || 0) > 0">, {{ detailBooking.children }} child<ng-container *ngIf="detailBooking.children !== 1">ren</ng-container></ng-container>
+          </span>
+        </div>
+        <div class="pi-row pi-row--note" *ngIf="detailBooking.detail">
+          <span class="pi-label">Special Requests</span>
+          <span class="pi-value pi-value--note">
+            {{ (detailBooking.detail.special_requests && detailBooking.detail.special_requests !== 'Manual booking') ? detailBooking.detail.special_requests : 'None' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-label"><i class="fas fa-receipt"></i> Pricing</h4>
+        <div class="pi-row">
+          <span class="pi-label">Base price</span>
+          <span class="pi-value">€{{ detailBooking.base_price }}</span>
+        </div>
+        <div class="pi-row" *ngIf="+detailBooking.addons_total > 0">
+          <span class="pi-label">Add-ons</span>
+          <span class="pi-value">€{{ detailBooking.addons_total }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Subtotal</span>
+          <span class="pi-value">€{{ detailBooking.subtotal }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Service fee</span>
+          <span class="pi-value">€{{ detailBooking.service_fee }}</span>
+        </div>
+        <div class="pi-row pi-row--total">
+          <span class="pi-label">Total</span>
+          <span class="pi-value">€{{ detailBooking.total_amount }}</span>
+        </div>
+      </div>
+
+      <div class="panel-section panel-section--meta">
+        <div class="pi-row" *ngIf="detailBooking.cancellation_deadline">
+          <span class="pi-label">Cancel by</span>
+          <span class="pi-value">{{ detailBooking.cancellation_deadline | date:'MMM d, yyyy · h:mm a' }}</span>
+        </div>
+        <div class="pi-row">
+          <span class="pi-label">Booking ID</span>
+          <span class="pi-value pi-value--mono">{{ detailBooking.id }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel-footer">
+      <button class="pfooter-btn pfooter-btn--message"
+        *ngIf="detailBooking.guide_name"
+        (click)="closeDetailPanel()"
+        [routerLink]="['/client/messages']"
+        [queryParams]="{ experienceId: detailBooking.experience, bookingId: detailBooking.id }">
+        <i class="fas fa-comment-dots"></i> Message Guide
+      </button>
+      <button class="pfooter-btn pfooter-btn--cancel"
+        *ngIf="detailBooking.status === 'Confirmed' || detailBooking.status === 'Pending'"
+        (click)="cancelBooking(detailBooking); closeDetailPanel()">
+        <i class="fas fa-times"></i> Cancel Reservation
+      </button>
+    </div>
+
+  </ng-container>
+</aside>
