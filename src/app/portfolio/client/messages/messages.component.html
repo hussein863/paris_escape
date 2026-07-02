@@ -83,6 +83,11 @@
               >{{ conv.booking ? conv.status : 'Pre-inquiry' }}</span>
             </div>
             <p class="conversation-preview">{{ conv.last_message || 'No messages yet' }}</p>
+            <div class="conv-meta-badges" *ngIf="conv.is_reported">
+              <span class="reported-badge">
+                <i class="fas fa-exclamation-triangle"></i> Reported
+              </span>
+            </div>
           </div>
         </div>
 
@@ -111,13 +116,36 @@
             {{ (selectedConversation.guide_name || 'G').charAt(0).toUpperCase() }}
           </div>
           <div class="chat-header-info">
-            <h2>{{ selectedConversation.guide_name || ('Guide #' + selectedConversation.guide) }}</h2>
+            <div class="header-name-row">
+              <h2>{{ selectedConversation.guide_name || ('Guide #' + selectedConversation.guide) }}</h2>
+              <span *ngIf="selectedConversation.is_reported" class="reported-badge reported-badge--header">
+                <i class="fas fa-exclamation-triangle"></i> Reported
+              </span>
+            </div>
             <p>Paris Escape Guide</p>
           </div>
         </div>
-        <button class="icon-btn" type="button" aria-label="More options">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
+        <div class="more-menu-wrapper">
+          <button class="icon-btn" type="button" aria-label="More options"
+            (click)="toggleMoreMenu(selectedConversation!.id, $event)">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div class="dropdown-menu" *ngIf="openMenuId === selectedConversation?.id" (click)="$event.stopPropagation()">
+            <button class="dropdown-item" (click)="toggleUnread(selectedConversation!, $event)">
+              <i class="fas fa-envelope"></i>
+              {{ selectedConversation?.is_unread ? 'Mark as Read' : 'Mark as Unread' }}
+            </button>
+            <button class="dropdown-item" (click)="toggleArchive(selectedConversation!, $event)">
+              <i class="fas fa-archive"></i>
+              {{ isArchived(selectedConversation!) ? 'Unarchive' : 'Archive' }}
+            </button>
+            <hr>
+            <button class="dropdown-item danger" (click)="openReportModal(selectedConversation!, $event)">
+              <i class="fas fa-exclamation-triangle"></i>
+              Report
+            </button>
+          </div>
+        </div>
       </header>
 
       <!-- ── Experience context card (always shown) ───────────────────── -->
@@ -268,5 +296,44 @@
       </section>
     </ng-template>
 
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-box-header">
+      <h2><i class="fas fa-exclamation-triangle"></i> Report Conversation</h2>
+      <button class="modal-box-close" (click)="closeReportModal()" type="button">&times;</button>
+    </div>
+    <div class="modal-box-body">
+      <div class="form-group">
+        <label>Reason</label>
+        <select [(ngModel)]="reportReason" class="form-select">
+          <option value="">Select a reason…</option>
+          <option value="inappropriate">Inappropriate content</option>
+          <option value="scam">Scam or fraud</option>
+          <option value="safety">Safety concern</option>
+          <option value="misleading">Misleading information</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description <span class="label-opt">(optional)</span></label>
+        <textarea [(ngModel)]="reportDescription" placeholder="Provide additional details…" rows="3" class="form-textarea"></textarea>
+      </div>
+      <div class="modal-feedback" *ngIf="reportFeedback"
+        [class.is-success]="reportFeedbackType === 'success'"
+        [class.is-error]="reportFeedbackType === 'error'">
+        {{ reportFeedback }}
+      </div>
+    </div>
+    <div class="modal-box-footer">
+      <button class="modal-btn modal-btn-ghost" (click)="closeReportModal()" type="button">Cancel</button>
+      <button class="modal-btn modal-btn-danger" (click)="submitReport()"
+        [disabled]="!reportReason || reportSubmitting" type="button">
+        {{ reportSubmitting ? 'Submitting…' : 'Submit Report' }}
+      </button>
+    </div>
   </div>
 </div>

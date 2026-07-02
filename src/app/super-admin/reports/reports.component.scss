@@ -296,3 +296,64 @@
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
+
+// ── Conversation thread in panel ─────────────────────────────────────────────
+
+.conv-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.conv-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 85%;
+
+  &--guide { align-self: flex-start; }
+  &--customer { align-self: flex-end; }
+}
+
+.conv-msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.conv-msg-sender {
+  font-weight: 600;
+  color: #374151;
+  font-size: 11px;
+}
+
+.conv-msg-time {
+  font-size: 10px;
+}
+
+.conv-msg-bubble {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #111827;
+
+  .conv-msg--guide & {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 3px;
+  }
+
+  .conv-msg--customer & {
+    background: #111827;
+    color: #fff;
+    border-bottom-right-radius: 3px;
+  }
+}

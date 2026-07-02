@@ -88,6 +88,9 @@
               <span class="status-badge" [class]="'status-' + conversation.status.toLowerCase()">
                 {{ conversation.status }}
               </span>
+              <span *ngIf="conversation.is_reported" class="reported-badge">
+                <i class="fas fa-exclamation-triangle"></i> Reported
+              </span>
               <span *ngIf="conversation.tourName" class="tour-name">{{ conversation.tourName }}</span>
             </div>
             <p class="conversation-preview">{{ conversation.lastMessage }}</p>
@@ -115,6 +118,9 @@
           <div class="header-name-row">
             <h2>{{ selectedConversation.name }}</h2>
             <span class="language-tags">FR, EN</span>
+            <span *ngIf="selectedConversation.is_reported" class="reported-badge reported-badge--header">
+              <i class="fas fa-exclamation-triangle"></i> Reported
+            </span>
           </div>
           <p>sophie.martin&#64;email.com</p>
         </div>

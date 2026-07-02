@@ -1,12 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MessagingService } from '../../../core/services/messaging.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { IdEncryptService } from '../../../core/services/id-encrypt.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { Conversation, Message, Booking } from '../../../core/models';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-client-messages',
@@ -31,6 +33,16 @@ export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChec
   currentUserName = '';
   activeBooking: Booking | null = null;
 
+  openMenuId: number | null = null;
+
+  showReportModal = false;
+  reportConversationRef: Conversation | null = null;
+  reportReason = '';
+  reportDescription = '';
+  reportSubmitting = false;
+  reportFeedback = '';
+  reportFeedbackType: 'success' | 'error' = 'success';
+
   private pollInterval: any;
 
   constructor(
@@ -40,7 +52,13 @@ export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChec
     private auth: AuthService,
     private idEncrypt: IdEncryptService,
     private bookingService: BookingService,
+    private http: HttpClient,
   ) {}
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.openMenuId = null;
+  }
 
   ngAfterViewChecked(): void {
     this.scrollToBottom();
@@ -207,8 +225,9 @@ export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChec
 
   get filteredConversations(): Conversation[] {
     let result = this.conversations;
-    if (this.activeFilter === 'Unread') result = result.filter(c => c.is_unread);
-    else if (this.activeFilter === 'Archived') result = result.filter(c => c.is_archived);
+    if (this.activeFilter === 'All') result = result.filter(c => !c.is_archived);
+    else if (this.activeFilter === 'Unread') result = result.filter(c => c.is_unread && !c.is_archived);
+    else if (this.activeFilter === 'Archived') result = result.filter(c => c.is_archived === true);
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       result = result.filter(c =>
@@ -220,8 +239,71 @@ export class ClientMessagesComponent implements OnInit, OnDestroy, AfterViewChec
     return result;
   }
 
-  get allCount(): number { return this.conversations.length; }
-  get unreadCount(): number { return this.conversations.filter(c => c.is_unread).length; }
+  get allCount(): number { return this.conversations.filter(c => !c.is_archived).length; }
+  get unreadCount(): number { return this.conversations.filter(c => c.is_unread && !c.is_archived).length; }
+
+  toggleMoreMenu(conversationId: number, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = this.openMenuId === conversationId ? null : conversationId;
+  }
+
+  toggleArchive(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = null;
+    const newState = !conversation.is_archived;
+    conversation.is_archived = newState;
+    this.http.patch(`${environment.apiUrl}/messages/conversations/${conversation.id}/`, { is_archived: newState })
+      .subscribe({ error: () => { conversation.is_archived = !newState; } });
+  }
+
+  isArchived(conversation: Conversation): boolean {
+    return conversation.is_archived === true;
+  }
+
+  toggleUnread(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = null;
+    conversation.is_unread = !conversation.is_unread;
+  }
+
+  openReportModal(conversation: Conversation, event: Event): void {
+    event.stopPropagation();
+    this.openMenuId = null;
+    this.reportConversationRef = conversation;
+    this.reportReason = '';
+    this.reportDescription = '';
+    this.reportFeedback = '';
+    this.showReportModal = true;
+  }
+
+  closeReportModal(): void {
+    this.showReportModal = false;
+    this.reportConversationRef = null;
+  }
+
+  submitReport(): void {
+    if (!this.reportReason || !this.reportConversationRef) return;
+    this.reportSubmitting = true;
+    this.http.post(`${environment.apiUrl}/reviews/reports/`, {
+      report_type: 'conversation',
+      conversation: this.reportConversationRef.id,
+      reason: this.reportReason,
+      description: this.reportDescription,
+    }).subscribe({
+      next: () => {
+        this.reportFeedback = 'Report submitted. Our team will review it.';
+        this.reportFeedbackType = 'success';
+        this.reportSubmitting = false;
+        if (this.reportConversationRef) this.reportConversationRef.is_reported = true;
+        setTimeout(() => this.closeReportModal(), 1800);
+      },
+      error: () => {
+        this.reportFeedback = 'Failed to submit report. Please try again.';
+        this.reportFeedbackType = 'error';
+        this.reportSubmitting = false;
+      }
+    });
+  }
 
   onAvatarError(event: Event): void {
     const img = event.target as HTMLImageElement;

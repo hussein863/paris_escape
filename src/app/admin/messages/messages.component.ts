@@ -35,6 +35,7 @@ interface Conversation {
   unread: boolean;
   flagged?: boolean;
   archived?: boolean;
+  is_reported?: boolean;
 }
 
 @Component({
@@ -114,7 +115,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
           experienceId: c.experience_id,
           unread: c.is_unread || false,
           flagged: c.is_flagged || false,
-          archived: c.is_archived || false
+          archived: c.is_archived || false,
+          is_reported: c.is_reported || false
         }));
         if (selectedId) {
           const updated = this.conversations.find(c => c.id === selectedId);
@@ -146,7 +148,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
           experienceId: c.experience_id,
           unread: c.is_unread || false,
           flagged: c.is_flagged || false,
-          archived: c.is_archived || false
+          archived: c.is_archived || false,
+          is_reported: c.is_reported || false
         })).sort((a, b) => {
           // Unread conversations first, then by timestamp
           if (a.unread && !b.unread) return -1;
@@ -247,14 +250,14 @@ export class MessagesComponent implements OnInit, OnDestroy {
   toggleArchive(conversation: Conversation, event: Event): void {
     event.stopPropagation();
     this.openMenuId = null;
-    const newState = !(conversation as any).is_archived;
-    (conversation as any).is_archived = newState;
+    const newState = !conversation.archived;
+    conversation.archived = newState;
     this.http.patch(`${environment.apiUrl}/messages/conversations/${conversation.id}/`, { is_archived: newState })
-      .subscribe({ error: () => { (conversation as any).is_archived = !newState; } });
+      .subscribe({ error: () => { conversation.archived = !newState; } });
   }
 
   isArchived(conversation: Conversation): boolean {
-    return (conversation as any).is_archived || false;
+    return conversation.archived === true;
   }
 
   openReportModal(conversation: Conversation, event: Event): void {
@@ -285,6 +288,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
         this.reportFeedback = 'Report submitted. Our team will review it.';
         this.reportFeedbackType = 'success';
         this.reportSubmitting = false;
+        if (this.reportConversationRef) this.reportConversationRef.is_reported = true;
         setTimeout(() => this.closeReportModal(), 1800);
       },
       error: () => {
@@ -316,11 +320,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
       // Apply filter
       let matchesFilter = false;
       if (this.activeFilter === 'All') {
-        matchesFilter = true;
+        matchesFilter = !c.archived;
       } else if (this.activeFilter === 'Unread') {
-        matchesFilter = c.unread === true;
+        matchesFilter = c.unread === true && !c.archived;
       } else if (this.activeFilter === 'Archived') {
-        matchesFilter = (c as any).is_archived === true;
+        matchesFilter = c.archived === true;
       } else {
         matchesFilter = c.status === this.activeFilter;
       }

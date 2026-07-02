@@ -267,6 +267,26 @@
               <span>{{ panel.guide_name }} <span class="muted" *ngIf="panel.guide_email">— {{ panel.guide_email }}</span></span>
             </div>
           </div>
+
+          <!-- Conversation thread -->
+          <div class="section-title" style="margin-top:16px">Conversation</div>
+          <div class="conv-thread" *ngIf="panel.conversation_messages?.length; else noMessages">
+            <div
+              *ngFor="let m of panel.conversation_messages"
+              class="conv-msg"
+              [class.conv-msg--guide]="m.sender_type === 'Guide'"
+              [class.conv-msg--customer]="m.sender_type === 'Customer'"
+            >
+              <div class="conv-msg-meta">
+                <span class="conv-msg-sender">{{ m.sender_name }}</span>
+                <span class="conv-msg-time muted">{{ m.timestamp | date:'d MMM, HH:mm' }}</span>
+              </div>
+              <div class="conv-msg-bubble">{{ m.text }}</div>
+            </div>
+          </div>
+          <ng-template #noMessages>
+            <p class="muted" style="font-size:13px;padding:8px 0">No messages in this conversation.</p>
+          </ng-template>
         </ng-container>
 
         <!-- CTAs -->

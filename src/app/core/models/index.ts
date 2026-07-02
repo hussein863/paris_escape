@@ -279,6 +279,7 @@ export interface Conversation {
   is_unread?: boolean;
   is_archived?: boolean;
   is_flagged?: boolean;
+  is_reported?: boolean;
 }
 
 export interface Message {
