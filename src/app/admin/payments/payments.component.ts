@@ -57,6 +57,9 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
   allPlans: Plan[] = [];
   activeSubscription: Subscription | null = null;
   selectedBillingCycle: 'month' | 'year' = 'month';
+  changingPlan = false;
+  planChangeFeedback = '';
+  planChangeFeedbackType: 'success' | 'error' = 'success';
 
   // Account data — defaults kept so page looks good with empty data
   currentPlan = 'Pro Plan';
@@ -237,6 +240,9 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         if (sub.renewal_date) this.renewalDate = new Date(sub.renewal_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         if (sub.renewal_date) this.nextInvoiceDate = this.renewalDate;
+      } else if (plans.results.length > 0) {
+        // Auto-assign first (free) plan if guide has no subscription
+        this.selectPlan(plans.results[0]);
       }
 
       this.loading = false;
@@ -437,11 +443,34 @@ export class PaymentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   updateCard() { this.router.navigate(['/admin/settings']); }
   retryPayment() { /* requires Stripe integration */ }
-  upgradePlan() { this.router.navigate(['/admin/settings']); }
-  downgradePlan() { this.router.navigate(['/admin/settings']); }
   pausePlan() { /* requires Stripe integration */ }
   cancelPlan() { /* requires Stripe integration */ }
   completeTaxInfo() { this.router.navigate(['/admin/kyc']); }
+
+  selectPlan(plan: Plan): void {
+    if (this.changingPlan || this.isCurrentPlan(plan)) return;
+    this.changingPlan = true;
+    this.planChangeFeedback = '';
+    this.paymentService.changePlan(plan.id, this.selectedBillingCycle).subscribe({
+      next: (sub) => {
+        this.activeSubscription = sub;
+        if (sub.plan) {
+          this.currentPlan = sub.plan.name;
+          this.planPrice = Number(this.selectedBillingCycle === 'year' ? sub.plan.price_yearly : sub.plan.price_monthly);
+          this.billingCycle = sub.billing_cycle;
+        }
+        this.planChangeFeedback = `Plan changed to ${plan.name} successfully.`;
+        this.planChangeFeedbackType = 'success';
+        this.changingPlan = false;
+        setTimeout(() => { this.planChangeFeedback = ''; }, 3000);
+      },
+      error: () => {
+        this.planChangeFeedback = 'Failed to change plan. Please try again.';
+        this.planChangeFeedbackType = 'error';
+        this.changingPlan = false;
+      }
+    });
+  }
   editBillingDetails() { this.router.navigate(['/admin/settings']); }
   addCard() { this.router.navigate(['/admin/settings']); }
   updateBankInfo() { this.router.navigate(['/admin/settings']); }

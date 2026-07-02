@@ -37,4 +37,8 @@ export class PaymentService {
   getPaymentMethods(): Observable<PaginatedResponse<any>> {
     return this.http.get<PaginatedResponse<any>>(`${this.api}/cards/`);
   }
+
+  changePlan(planId: number, billingCycle: 'month' | 'year'): Observable<Subscription> {
+    return this.http.post<Subscription>(`${this.api}/subscriptions/change-plan/`, { plan_id: planId, billing_cycle: billingCycle });
+  }
 }
