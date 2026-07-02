@@ -197,7 +197,7 @@
 
             <div class="col-guests">
               <span>{{ booking.adults || 0 }} adult<ng-container *ngIf="(booking.adults || 0) !== 1">s</ng-container></span>
-              <span *ngIf="(booking.children || 0) > 0" class="guests-extra">+{{ booking.children }} child</span>
+              <span class="guests-extra">{{ booking.children || 0 }} child{{ (booking.children || 0) !== 1 ? 'ren' : '' }}</span>
             </div>
 
             <div class="col-amount">
@@ -496,15 +496,17 @@
           <span class="pi-value">{{ detailBooking.detail?.country }}</span>
         </div>
         <div class="pi-row">
-          <span class="pi-label">Participants</span>
-          <span class="pi-value">
-            {{ detailBooking.adults }} adult<ng-container *ngIf="detailBooking.adults !== 1">s</ng-container><ng-container *ngIf="(detailBooking.children || 0) > 0">, {{ detailBooking.children }} child<ng-container *ngIf="detailBooking.children !== 1">ren</ng-container></ng-container>
-          </span>
+          <span class="pi-label">Adults</span>
+          <span class="pi-value">{{ detailBooking.adults }}</span>
         </div>
-        <div class="pi-row pi-row--note" *ngIf="detailBooking.detail">
-          <span class="pi-label">Requests</span>
+        <div class="pi-row">
+          <span class="pi-label">Children</span>
+          <span class="pi-value">{{ detailBooking.children || 0 }}</span>
+        </div>
+        <div class="pi-row pi-row--note">
+          <span class="pi-label">Special Requests</span>
           <span class="pi-value pi-value--note">
-            {{ (detailBooking.detail.special_requests && detailBooking.detail.special_requests !== 'Manual booking') ? detailBooking.detail.special_requests : 'None' }}
+            {{ (detailBooking.detail?.special_requests && detailBooking.detail?.special_requests !== 'Manual booking') ? detailBooking.detail?.special_requests : 'None' }}
           </span>
         </div>
       </div>

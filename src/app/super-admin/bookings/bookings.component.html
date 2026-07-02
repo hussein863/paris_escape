@@ -219,9 +219,9 @@
             <span class="detail-label">Country</span>
             <span class="muted">{{ panel.traveler.country }}</span>
           </div>
-          <div class="detail-row special-req" *ngIf="panel.traveler.special_requests">
-            <span class="detail-label">Notes</span>
-            <span class="muted">{{ panel.traveler.special_requests }}</span>
+          <div class="detail-row special-req">
+            <span class="detail-label">Special Requests</span>
+            <span class="muted">{{ (panel.traveler?.special_requests && panel.traveler.special_requests !== 'Manual booking') ? panel.traveler.special_requests : 'None' }}</span>
           </div>
         </div>
 
@@ -232,9 +232,9 @@
             <span class="detail-label">Adults</span>
             <span class="bold">{{ panel.adults }}</span>
           </div>
-          <div class="detail-row" *ngIf="panel.children > 0">
+          <div class="detail-row">
             <span class="detail-label">Children</span>
-            <span>{{ panel.children }}</span>
+            <span>{{ panel.children || 0 }}</span>
           </div>
         </div>
 

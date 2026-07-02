@@ -52,7 +52,7 @@
 
               <div class="meta-row">
                 <i class="fas fa-users"></i>
-                <span>{{ reservation.adults }} adult(s){{ reservation.children > 0 ? ', ' + reservation.children + ' child(ren)' : '' }}</span>
+                <span>{{ reservation.adults }} adult{{ reservation.adults > 1 ? 's' : '' }}, {{ reservation.children || 0 }} child{{ (reservation.children || 0) !== 1 ? 'ren' : '' }}</span>
               </div>
 
               <div class="meta-row">
@@ -271,15 +271,17 @@
           <span class="pi-value">{{ detailBooking.detail?.phone_code }} {{ detailBooking.detail?.phone_number }}</span>
         </div>
         <div class="pi-row">
-          <span class="pi-label">Participants</span>
-          <span class="pi-value">
-            {{ detailBooking.adults }} adult<ng-container *ngIf="detailBooking.adults !== 1">s</ng-container><ng-container *ngIf="(detailBooking.children || 0) > 0">, {{ detailBooking.children }} child<ng-container *ngIf="detailBooking.children !== 1">ren</ng-container></ng-container>
-          </span>
+          <span class="pi-label">Adults</span>
+          <span class="pi-value">{{ detailBooking.adults }}</span>
         </div>
-        <div class="pi-row pi-row--note" *ngIf="detailBooking.detail">
+        <div class="pi-row">
+          <span class="pi-label">Children</span>
+          <span class="pi-value">{{ detailBooking.children || 0 }}</span>
+        </div>
+        <div class="pi-row pi-row--note">
           <span class="pi-label">Special Requests</span>
           <span class="pi-value pi-value--note">
-            {{ (detailBooking.detail.special_requests && detailBooking.detail.special_requests !== 'Manual booking') ? detailBooking.detail.special_requests : 'None' }}
+            {{ (detailBooking.detail?.special_requests && detailBooking.detail?.special_requests !== 'Manual booking') ? detailBooking.detail?.special_requests : 'None' }}
           </span>
         </div>
       </div>

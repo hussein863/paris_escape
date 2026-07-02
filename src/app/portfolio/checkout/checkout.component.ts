@@ -139,7 +139,6 @@ export class CheckoutComponent implements OnInit {
     this.bookingService.create(bookingPayload).subscribe({
       next: (booking) => {
         this.bookingRef = booking.booking_ref;
-        // Save traveler details against the booking
         this.bookingService.createDetail({
           booking: booking.id,
           first_name: this.firstName,
@@ -151,9 +150,10 @@ export class CheckoutComponent implements OnInit {
           special_requests: this.specialRequests,
           accept_terms: this.acceptTerms,
           receive_updates: this.receiveUpdates,
-        }).subscribe(); // fire-and-forget — don't block confirmation
-        this.submitting = false;
-        this.currentStep = 3;
+        }).subscribe({
+          next: () => { this.submitting = false; this.currentStep = 3; },
+          error: () => { this.submitting = false; this.currentStep = 3; },
+        });
       },
       error: (err) => {
         this.bookingError = err.error?.detail ?? Object.values(err.error ?? {})[0] as string ?? 'Booking failed. Please try again.';
